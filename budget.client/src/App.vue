@@ -1,10 +1,9 @@
 <script setup lang="ts">
-    import HelloWorld from './components/HelloWorld.vue'
-    import TheWelcome from './components/TheWelcome.vue'
+    import TransactionForm from './components/TransactionForm.vue'
 </script>
 
 <template>
     <main>
-        <TheWelcome />
+        <TransactionForm />
     </main>
 </template>

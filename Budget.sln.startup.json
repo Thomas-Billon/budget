@@ -1,0 +1,12 @@
+{
+  "Version": 3,
+  "ListAllProjects": true,
+  "MultiProjectConfigurations": {
+    "Budget": {
+      "Projects": {
+        "budget.client": {},
+        "Budget.Server": {}
+      }
+    }
+  }
+}
