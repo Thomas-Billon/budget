@@ -1,0 +1,20 @@
+﻿using Budget.Server.Enums;
+using System.ComponentModel.DataAnnotations;
+
+namespace Budget.Server.Entities
+{
+    public class Transaction
+    {
+        [Key]
+        public int Id { get; set; }
+        public double Amount { get; set; } = 0;
+        public DateOnly? Date { get; set; }
+        public TransactionPaymentMethod? PaymentMethod { get; set; }
+        public string? Comment { get; set; }
+
+        // Merchant -> string or entity ?
+
+        // public int? CategoryId { get; set; };
+        // public Category? Category { get; set; };
+    }
+}
