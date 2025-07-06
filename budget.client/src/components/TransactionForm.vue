@@ -56,8 +56,8 @@
                 <option :value="PaymentMethod.Other">{{ PaymentMethod[PaymentMethod.Other] }}</option>
             </select>
         </div>
-        <div class="w-full bg-neutral-200">
-            <textarea class="w-full outline-0 text-center" id="transaction-comment" name="Comment" placeholder="Comment" rows="3"></textarea>
+        <div class="flex w-full bg-off-white rounded-lg">
+            <textarea class="w-full outline-0 text-center" id="transaction-comment" name="Comment" placeholder="Comment"></textarea>
         </div>
     </form>
 </template>
