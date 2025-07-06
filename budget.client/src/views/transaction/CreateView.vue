@@ -1,9 +1,10 @@
 <script setup lang="ts">
-    import { ref, defineModel } from 'vue';
-    import type { Transaction } from '@/models/Transaction.ts'
+    import { ref } from 'vue';
+    import urls from '@/router.ts';
+    import type { Transaction } from '@/models/Transaction.ts';
     import { DefaultTransaction } from '@/models/Transaction.ts';
-    import { TransactionType } from '@/enums/TransactionType.ts'
-    import { PaymentMethod } from '@/enums/PaymentMethod.ts'
+    import { TransactionType } from '@/enums/TransactionType.ts';
+    import { PaymentMethod } from '@/enums/PaymentMethod.ts';
     import TransactionForm from '@/components/TransactionForm.vue';
 
     const transactionEdit = {
@@ -16,8 +17,29 @@
     } as Transaction;
 
     const transaction = ref(null || DefaultTransaction);
+    
+    const pince = async () => {
+        const response = await fetch('create', {
+            method: 'POST',
+            body: JSON.stringify(transaction.value),
+        });
+        if (response.ok) {
+            console.log('Response is OK');
+        }
+    }
+
 </script>
 
 <template>
-    <TransactionForm v-model="transaction" />
+    <div class="page">
+        <div class="page-container flex flex-col gap-4">
+
+            <RouterLink :to="urls.transactionList">
+                <font-awesome-icon icon="fa-solid fa-arrow-left" size="lg" />
+            </RouterLink>
+
+            <TransactionForm v-model="transaction" />
+
+        </div>
+    </div>
 </template>

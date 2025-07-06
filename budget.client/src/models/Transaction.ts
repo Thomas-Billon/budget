@@ -6,8 +6,8 @@ interface Transaction {
     type: TransactionType;
     amount: number;
     date?: string;
-    paymentMethod?: PaymentMethod;
-    comment?: string;
+    paymentMethod: PaymentMethod;
+    comment: string;
 }
 
 export type { Transaction };
@@ -16,7 +16,7 @@ export const DefaultTransaction: Transaction = {
     id: 0,
     type: TransactionType.None,
     amount: 0,
-    date: new Date().toISOString().split('T')[0],
+    date: undefined,
     paymentMethod: PaymentMethod.None,
     comment: '',
 };

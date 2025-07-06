@@ -11,8 +11,8 @@ namespace Budget.Server.Entities
         public double Amount { get; set; } = 0;
         // public Currency? Currency { get; set; }
         public DateOnly? Date { get; set; }
-        public PaymentMethod? PaymentMethod { get; set; }
-        public string? Comment { get; set; }
+        public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.None;
+        public string Comment { get; set; } = string.Empty;
 
         // Merchant -> string or entity ?
 
