@@ -97,7 +97,7 @@ namespace Budget.Server.Services
             return date;
         }
 
-        public async Task<TransactionPaymentMethod?> UpdatePaymentMethod(int id, TransactionPaymentMethod? paymentMethod)
+        public async Task<PaymentMethod?> UpdatePaymentMethod(int id, PaymentMethod? paymentMethod)
         {
             if (!IsPaymentMethodValid(paymentMethod))
             {
@@ -159,7 +159,7 @@ namespace Budget.Server.Services
 
         private bool IsDateValid(DateOnly? date) => true;
 
-        private bool IsPaymentMethodValid(TransactionPaymentMethod? paymentMethod) => true;
+        private bool IsPaymentMethodValid(PaymentMethod? paymentMethod) => true;
 
         private bool IsCommentValid(string? comment) => true;
 

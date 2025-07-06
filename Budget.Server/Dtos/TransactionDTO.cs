@@ -10,7 +10,7 @@ namespace Budget.Server.Dtos
             public required int Id { get; set; }
             public required double Amount { get; set; }
             public required DateOnly? Date { get; set; }
-            public required TransactionPaymentMethod? PaymentMethod { get; set; }
+            public required PaymentMethod? PaymentMethod { get; set; }
             public required string? Comment { get; set; }
         }
 
@@ -19,7 +19,7 @@ namespace Budget.Server.Dtos
             public required int Id { get; set; }
             public required double Amount { get; set; }
             public required DateOnly? Date { get; set; }
-            public required TransactionPaymentMethod? PaymentMethod { get; set; }
+            public required PaymentMethod? PaymentMethod { get; set; }
             public required string? Comment { get; set; }
         }
 
@@ -43,7 +43,7 @@ namespace Budget.Server.Dtos
             public record Command(
                 [property: Required] double Amount,
                 DateOnly? Date,
-                TransactionPaymentMethod? PaymentMethod,
+                PaymentMethod? PaymentMethod,
                 string? Comment
             );
 
@@ -57,7 +57,7 @@ namespace Budget.Server.Dtos
             public record Command(
                 double Amount,
                 DateOnly? Date,
-                TransactionPaymentMethod? PaymentMethod,
+                PaymentMethod? PaymentMethod,
                 string? Comment
             );
 
@@ -65,7 +65,7 @@ namespace Budget.Server.Dtos
             {
                 public required double Amount { get; set; }
                 public required DateOnly? Date { get; set; }
-                public required TransactionPaymentMethod? PaymentMethod { get; set; }
+                public required PaymentMethod? PaymentMethod { get; set; }
                 public required string? Comment { get; set; }
             }
         }
@@ -92,11 +92,11 @@ namespace Budget.Server.Dtos
 
         public class UpdatePaymentMethod
         {
-            public record Command(TransactionPaymentMethod? PaymentMethod);
+            public record Command(PaymentMethod? PaymentMethod);
 
             public class Response : ResponseBase
             {
-                public required TransactionPaymentMethod? PaymentMethod { get; set; }
+                public required PaymentMethod? PaymentMethod { get; set; }
             }
         }
 

@@ -7,9 +7,11 @@ namespace Budget.Server.Entities
     {
         [Key]
         public int Id { get; set; }
+        public TransactionType Type { get; set; } = TransactionType.None;
         public double Amount { get; set; } = 0;
+        // public Currency? Currency { get; set; }
         public DateOnly? Date { get; set; }
-        public TransactionPaymentMethod? PaymentMethod { get; set; }
+        public PaymentMethod? PaymentMethod { get; set; }
         public string? Comment { get; set; }
 
         // Merchant -> string or entity ?
