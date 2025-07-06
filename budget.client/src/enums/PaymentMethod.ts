@@ -8,4 +8,4 @@ enum PaymentMethod {
     Other = 6,
 }
 
-export default PaymentMethod;
+export { PaymentMethod };

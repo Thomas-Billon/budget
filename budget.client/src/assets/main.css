@@ -1,2 +1,18 @@
 @import "tailwindcss";
 @config "../../tailwind.config.cjs";
+
+body {
+    font-family: 'Montserrat', sans-serif;
+}
+
+.page {
+    @apply w-full h-full min-h-screen bg-neutral-100;
+}
+
+.page-container {
+    @apply container flex flex-col gap-4 w-full h-full min-h-screen py-8;
+}
+
+.input {
+    @apply w-full px-4 py-2 outline-0 rounded shadow-md bg-white;
+}

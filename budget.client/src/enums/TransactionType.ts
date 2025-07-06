@@ -4,4 +4,4 @@ enum TransactionType {
     Expense = 2,
 }
 
-export default TransactionType;
+export { TransactionType };
