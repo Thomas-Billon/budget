@@ -1,7 +1,2 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-.test-red {
-    background-color: red;
-}
+@import "tailwindcss";
+@config "../../tailwind.config.js";

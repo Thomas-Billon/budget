@@ -20,7 +20,7 @@
 </script>
 
 <template>
-    <form class="test-red container h-full min-h-screen flex flex-col items-center justify-center gap-6">
+    <form class="container h-full min-h-screen flex flex-col items-center justify-center gap-6">
         <div class="flex gap-12">
             <button type="button" class="flex items-center rounded py-2 px-4 gap-1 bg-emerald-400 text-lg text-white cursor-pointer" @click="type = TransactionType.Income">
                 <font-awesome-icon icon="fa-solid fa-plus" />
