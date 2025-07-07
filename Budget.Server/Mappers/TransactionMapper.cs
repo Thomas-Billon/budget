@@ -105,12 +105,12 @@ namespace Budget.Server.Mappers
             };
         }
 
-        public PaymentMethod? ToPaymentMethod(TransactionDTO.UpdatePaymentMethod.Command command)
+        public PaymentMethod ToPaymentMethod(TransactionDTO.UpdatePaymentMethod.Command command)
         {
             return command.PaymentMethod;
         }
 
-        public TransactionDTO.UpdatePaymentMethod.Response ToUpdatePaymentMethodResponse(PaymentMethod? paymentMethod)
+        public TransactionDTO.UpdatePaymentMethod.Response ToUpdatePaymentMethodResponse(PaymentMethod paymentMethod)
         {
             return new TransactionDTO.UpdatePaymentMethod.Response
             {
@@ -118,12 +118,12 @@ namespace Budget.Server.Mappers
             };
         }
 
-        public string? ToComment(TransactionDTO.UpdateComment.Command command)
+        public string ToComment(TransactionDTO.UpdateComment.Command command)
         {
             return command.Comment;
         }
 
-        public TransactionDTO.UpdateComment.Response ToUpdateCommentResponse(string? comment)
+        public TransactionDTO.UpdateComment.Response ToUpdateCommentResponse(string comment)
         {
             return new TransactionDTO.UpdateComment.Response
             {

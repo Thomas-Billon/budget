@@ -19,7 +19,7 @@
     const transaction = ref(null || DefaultTransaction);
     
     const pince = async () => {
-        const response = await fetch('create', {
+        const response = await fetch('https://localhost:7177/transaction', {
             method: 'POST',
             body: JSON.stringify(transaction.value),
         });
@@ -38,7 +38,7 @@
                 <font-awesome-icon icon="fa-solid fa-arrow-left" size="lg" />
             </RouterLink>
 
-            <TransactionForm v-model="transaction" />
+            <TransactionForm v-model="transaction" @submit="pince" />
 
         </div>
     </div>

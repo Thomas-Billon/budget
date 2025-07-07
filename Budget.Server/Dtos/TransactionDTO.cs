@@ -10,8 +10,8 @@ namespace Budget.Server.Dtos
             public required int Id { get; set; }
             public required double Amount { get; set; }
             public required DateOnly? Date { get; set; }
-            public required PaymentMethod? PaymentMethod { get; set; }
-            public required string? Comment { get; set; }
+            public required PaymentMethod PaymentMethod { get; set; }
+            public required string Comment { get; set; }
         }
 
         public class TransactionResponseBase : ResponseBase
@@ -19,8 +19,8 @@ namespace Budget.Server.Dtos
             public required int Id { get; set; }
             public required double Amount { get; set; }
             public required DateOnly? Date { get; set; }
-            public required PaymentMethod? PaymentMethod { get; set; }
-            public required string? Comment { get; set; }
+            public required PaymentMethod PaymentMethod { get; set; }
+            public required string Comment { get; set; }
         }
 
         public class GetAll
@@ -43,8 +43,8 @@ namespace Budget.Server.Dtos
             public record Command(
                 [property: Required] double Amount,
                 DateOnly? Date,
-                PaymentMethod? PaymentMethod,
-                string? Comment
+                [property: Required] PaymentMethod PaymentMethod,
+                [property: Required] string Comment
             );
 
             public class Response : TransactionResponseBase
@@ -57,16 +57,16 @@ namespace Budget.Server.Dtos
             public record Command(
                 double Amount,
                 DateOnly? Date,
-                PaymentMethod? PaymentMethod,
-                string? Comment
+                PaymentMethod PaymentMethod,
+                string Comment
             );
 
             public class Response : ResponseBase
             {
                 public required double Amount { get; set; }
                 public required DateOnly? Date { get; set; }
-                public required PaymentMethod? PaymentMethod { get; set; }
-                public required string? Comment { get; set; }
+                public required PaymentMethod PaymentMethod { get; set; }
+                public required string Comment { get; set; }
             }
         }
 
@@ -92,21 +92,21 @@ namespace Budget.Server.Dtos
 
         public class UpdatePaymentMethod
         {
-            public record Command(PaymentMethod? PaymentMethod);
+            public record Command(PaymentMethod PaymentMethod);
 
             public class Response : ResponseBase
             {
-                public required PaymentMethod? PaymentMethod { get; set; }
+                public required PaymentMethod PaymentMethod { get; set; }
             }
         }
 
         public class UpdateComment
         {
-            public record Command(string? Comment);
+            public record Command(string Comment);
 
             public class Response : ResponseBase
             {
-                public required string? Comment { get; set; }
+                public required string Comment { get; set; }
             }
         }
     }
