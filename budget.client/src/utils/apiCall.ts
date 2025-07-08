@@ -13,7 +13,7 @@ export async function apiCall<TCommand, TResponse>(
         method: options.method,
         body: options.body ? JSON.stringify(options.body) : undefined,
         headers: {
-            //'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
         }
     };
 

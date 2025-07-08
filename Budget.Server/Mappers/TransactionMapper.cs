@@ -11,9 +11,10 @@ namespace Budget.Server.Mappers
         {
             return new TransactionDTO.GetAll.Response
             {
-                Transactions = queries.Select(x => new TransactionDTO.TransactionBase
+                Transactions = queries.Select(x => new TransactionDTO.GetAll.Response.Item
                 {
                     Id = x.Id,
+                    Type = x.Type,
                     Amount = x.Amount,
                     Date = x.Date,
                     PaymentMethod = x.PaymentMethod,
@@ -27,6 +28,7 @@ namespace Budget.Server.Mappers
             return new TransactionDTO.Get.Response
             {
                 Id = query.Id,
+                Type = query.Type,
                 Amount = query.Amount,
                 Date = query.Date,
                 PaymentMethod = query.PaymentMethod,
@@ -38,6 +40,7 @@ namespace Budget.Server.Mappers
         {
             return new Transaction
             {
+                Type = command.Type,
                 Amount = command.Amount,
                 Date = command.Date,
                 PaymentMethod = command.PaymentMethod,
@@ -50,6 +53,7 @@ namespace Budget.Server.Mappers
             return new TransactionDTO.Create.Response
             {
                 Id = entity.Id,
+                Type = entity.Type,
                 Amount = entity.Amount,
                 Date = entity.Date,
                 PaymentMethod = entity.PaymentMethod,
@@ -61,6 +65,7 @@ namespace Budget.Server.Mappers
         {
             return new Transaction
             {
+                Type = command.Type,
                 Amount = command.Amount,
                 Date = command.Date,
                 PaymentMethod = command.PaymentMethod,
@@ -72,6 +77,7 @@ namespace Budget.Server.Mappers
         {
             return new TransactionDTO.Update.Response
             {
+                Type = entity.Type,
                 Amount = entity.Amount,
                 Date = entity.Date,
                 PaymentMethod = entity.PaymentMethod,

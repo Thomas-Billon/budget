@@ -5,64 +5,30 @@ namespace Budget.Server.Dtos
 {
     public class TransactionDTO
     {
-        public class TransactionBase
-        {
-            public required int Id { get; set; }
-            public required double Amount { get; set; }
-            public required DateOnly? Date { get; set; }
-            public required PaymentMethod PaymentMethod { get; set; }
-            public required string Comment { get; set; }
-        }
-
-        public class TransactionResponseBase : ResponseBase
-        {
-            public required int Id { get; set; }
-            public required double Amount { get; set; }
-            public required DateOnly? Date { get; set; }
-            public required PaymentMethod PaymentMethod { get; set; }
-            public required string Comment { get; set; }
-        }
-
         public class GetAll
         {
             public class Response : ResponseBase
             {
-                public required IReadOnlyList<TransactionBase> Transactions { get; set; }
+                public class Item
+                {
+                    public required int Id { get; set; }
+                    public required TransactionType Type { get; set; }
+                    public required double Amount { get; set; }
+                    public required DateOnly? Date { get; set; }
+                    public required PaymentMethod PaymentMethod { get; set; }
+                    public required string Comment { get; set; }
+                }
+
+                public required IReadOnlyList<Item> Transactions { get; set; }
             }
         }
 
         public class Get
         {
-            public class Response : TransactionResponseBase
-            {
-            }
-        }
-
-        public class Create
-        {
-            public record Command(
-                [property: Required] double Amount,
-                DateOnly? Date,
-                [property: Required] PaymentMethod PaymentMethod,
-                [property: Required] string Comment
-            );
-
-            public class Response : TransactionResponseBase
-            {
-            }
-        }
-
-        public class Update
-        {
-            public record Command(
-                double Amount,
-                DateOnly? Date,
-                PaymentMethod PaymentMethod,
-                string Comment
-            );
-
             public class Response : ResponseBase
             {
+                public required int Id { get; set; }
+                public required TransactionType Type { get; set; }
                 public required double Amount { get; set; }
                 public required DateOnly? Date { get; set; }
                 public required PaymentMethod PaymentMethod { get; set; }
@@ -70,9 +36,86 @@ namespace Budget.Server.Dtos
             }
         }
 
+        public class Create
+        {
+            public class Command
+            {
+                [Required]
+                public TransactionType Type { get; init; } = TransactionType.None;
+
+                [Required]
+                public double Amount { get; init; } = 0;
+
+                public DateOnly? Date { get; init; }
+
+                [Required]
+                public PaymentMethod PaymentMethod { get; init; } = PaymentMethod.None;
+
+                [Required(AllowEmptyStrings = true)]
+                public string Comment { get; init; } = string.Empty;
+            }
+
+            public class Response: ResponseBase
+            {
+                public required int Id { get; set; }
+                public required TransactionType Type { get; set; }
+                public required double Amount { get; set; }
+                public required DateOnly? Date { get; set; }
+                public required PaymentMethod PaymentMethod { get; set; }
+                public required string Comment { get; set; }
+            }
+        }
+
+        public class Update
+        {
+            public class Command
+            {
+                [Required]
+                public TransactionType Type { get; init; } = TransactionType.None;
+
+                [Required]
+                public double Amount { get; init; } = 0;
+
+                public DateOnly? Date { get; init; }
+
+                [Required]
+                public PaymentMethod PaymentMethod { get; init; } = PaymentMethod.None;
+
+                [Required(AllowEmptyStrings = true)]
+                public string Comment { get; init; } = string.Empty;
+            }
+
+            public class Response : ResponseBase
+            {
+                public required TransactionType Type { get; set; }
+                public required double Amount { get; set; }
+                public required DateOnly? Date { get; set; }
+                public required PaymentMethod PaymentMethod { get; set; }
+                public required string Comment { get; set; }
+            }
+        }
+
+        public class UpdateType
+        {
+            public class Command
+            {
+                [Required]
+                public TransactionType Type { get; init; } = TransactionType.None;
+            }
+
+            public class Response : ResponseBase
+            {
+                public required TransactionType Type { get; set; }
+            }
+        }
+
         public class UpdateAmount
         {
-            public record Command(double Amount);
+            public class Command
+            {
+                [Required]
+                public double Amount { get; init; } = 0;
+            }
 
             public class Response : ResponseBase
             {
@@ -82,7 +125,10 @@ namespace Budget.Server.Dtos
 
         public class UpdateDate
         {
-            public record Command(DateOnly? Date);
+            public class Command
+            {
+                public DateOnly? Date { get; init; }
+            }
 
             public class Response : ResponseBase
             {
@@ -92,7 +138,11 @@ namespace Budget.Server.Dtos
 
         public class UpdatePaymentMethod
         {
-            public record Command(PaymentMethod PaymentMethod);
+            public class Command
+            {
+                [Required]
+                public PaymentMethod PaymentMethod { get; init; } = PaymentMethod.None;
+            }
 
             public class Response : ResponseBase
             {
@@ -102,7 +152,11 @@ namespace Budget.Server.Dtos
 
         public class UpdateComment
         {
-            public record Command(string Comment);
+            public class Command
+            {
+                [Required(AllowEmptyStrings = true)]
+                public string Comment { get; init; } = string.Empty;
+            }
 
             public class Response : ResponseBase
             {
