@@ -9,6 +9,7 @@ using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.ConfigureBuilder()
+    .ConfigureCors()
     .ConfigureDbContext()
     .ConfigureServices();
 
@@ -33,6 +34,22 @@ public static class ProgramExtensions
         return builder;
     }
 
+    public static WebApplicationBuilder ConfigureCors(this WebApplicationBuilder builder)
+    {
+        string[] allowedOrigins = builder.Configuration.GetValue<string>("AllowedOrigins")?.Split(';') ?? [];
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.WithOrigins(allowedOrigins)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
+        });
+        return builder;
+    }
+
     public static WebApplicationBuilder ConfigureDbContext(this WebApplicationBuilder builder)
     {
         builder.Services.AddDbContext<ApplicationDbContext>(
@@ -54,6 +71,8 @@ public static class ProgramExtensions
 
     public static WebApplication ConfigureApp(this WebApplication app)
     {
+        app.UseHttpsRedirection();
+
         app.UseDefaultFiles();
         app.MapStaticAssets();
 
@@ -63,7 +82,7 @@ public static class ProgramExtensions
             app.MapScalarApiReference();
         }
 
-        app.UseHttpsRedirection();
+        app.UseCors();
 
         app.UseAuthorization();
 

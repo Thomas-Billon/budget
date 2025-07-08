@@ -1,37 +1,23 @@
-import { env } from 'process';
-
-export interface ApiCallOptions {
-    method?: string;
-    headers?: Record<string, string>;
-    body?: any;
-    authToken?: string;
+export interface ApiCallOptions<TCommand> {
+    method: string;
+    body?: TCommand;
 }
 
-export async function apiCall<T>(
+export async function apiCall<TCommand, TResponse>(
     urlPath: string,
-    options: ApiCallOptions = {}
-): Promise<T> {
-    const urlBase = env.API_BASE_URL;
-
-    const { method = 'GET', headers = {}, body, authToken } = options;
-
-    const fetchHeaders: Record<string, string> = {
-        'Content-Type': 'application/json',
-        ...headers,
-    };
-
-    if (authToken) {
-        fetchHeaders['Authorization'] = `Bearer ${authToken}`;
-    }
+    options: ApiCallOptions<TCommand> = { method: 'GET' }
+): Promise<TResponse> {
+    const urlBase = import.meta.env.VITE_API_BASE_URL;
 
     const fetchOptions: RequestInit = {
-        method,
-        headers: fetchHeaders,
+        method: options.method,
+        body: options.body ? JSON.stringify(options.body) : undefined,
+        headers: {
+            //'Content-Type': 'application/json',
+        }
     };
 
-    if (body !== undefined) {
-        fetchOptions.body = JSON.stringify(body);
-    }
+    console.log(`API Call: ${urlBase}/${urlPath}`, fetchOptions);
 
     const response = await fetch(`${urlBase}/${urlPath}`, fetchOptions);
 
@@ -45,8 +31,8 @@ export async function apiCall<T>(
     // Try to parse JSON, fallback to text
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
-        return response.json() as Promise<T>;
+        return response.json() as Promise<TResponse>;
     } else {
-        return (response.text() as unknown) as Promise<T>;
+        return (response.text() as TResponse) as Promise<TResponse>;
     }
 }

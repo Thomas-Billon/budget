@@ -20,9 +20,11 @@
     const transaction = ref(null || DefaultTransaction);
     
     const create = async () => {
-        const response = await apiCall('transaction', { ... });
 
-        if (response.ok) {
+        console.log(transaction.value);
+        const response = await apiCall('transaction', { method: 'POST', body: transaction.value });
+
+        if (response.isSuccess) {
             console.log('Response is OK');
         }
         else {

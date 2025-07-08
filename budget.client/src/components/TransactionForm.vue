@@ -7,9 +7,7 @@
     const model = defineModel<Transaction>({ required: true });
     const emit = defineEmits(['submit']);
 
-    const submit = () => {
-        emit('submit', { ...model.value });
-    }
+    const submit = () => emit('submit');
 
     const cleanAmount = (value: string): string => {
         return value.replace(/[^0-9 .,]/g, '').replace(/ /g, '').replace(/,/g, '.');
