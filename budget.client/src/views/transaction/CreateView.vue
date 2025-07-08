@@ -6,6 +6,7 @@
     import { TransactionType } from '@/enums/TransactionType.ts';
     import { PaymentMethod } from '@/enums/PaymentMethod.ts';
     import TransactionForm from '@/components/TransactionForm.vue';
+    import { apiCall } from '@/utils/apiCall';
 
     const transactionEdit = {
         id: 99,
@@ -18,13 +19,14 @@
 
     const transaction = ref(null || DefaultTransaction);
     
-    const pince = async () => {
-        const response = await fetch('https://localhost:7177/transaction', {
-            method: 'POST',
-            body: JSON.stringify(transaction.value),
-        });
+    const create = async () => {
+        const response = await apiCall('transaction', { ... });
+
         if (response.ok) {
             console.log('Response is OK');
+        }
+        else {
+            console.log('Uh oh');
         }
     }
 
@@ -38,7 +40,7 @@
                 <font-awesome-icon icon="fa-solid fa-arrow-left" size="lg" />
             </RouterLink>
 
-            <TransactionForm v-model="transaction" @submit="pince" />
+            <TransactionForm v-model="transaction" @submit="create" />
 
         </div>
     </div>
