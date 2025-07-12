@@ -9,28 +9,27 @@
 
     const submit = () => emit('submit');
 
-    const cleanAmount = (value: string): string => {
-        return value.replace(/[^0-9 .,]/g, '').replace(/ /g, '').replace(/,/g, '.');
+    const parseAmount = (value: string): number => {
+        return parseFloat(value.replace(/[^0-9.,]/g, '').replace(/,/g, '.'));
     }
 
     const formatAmount = (value: number, { isFalsyValueAllowed } = { isFalsyValueAllowed: false }): string => {
         return value || isFalsyValueAllowed ? value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
     }
 
-    const amountText = ref('');
+    const blurInput = (event: Event): void => {
+        event.currentTarget.blur();
+    }
 
-    watch(() => model.value.amount, (amount) => {
-        amountText.value = formatAmount(amount);
-    }, { immediate: true });
+    const amountInputValue = ref(formatAmount(model.value.amount));
+    const amountPlaceholder = formatAmount(0, { isFalsyValueAllowed: true });
 
-    watch(amountText, (inputValue) => {
-        const amount = parseFloat(cleanAmount(inputValue));
+    watch(amountInputValue, (inputValue) => {
+        const amount = parseAmount(inputValue);
 
         model.value.amount = amount;
-        amountText.value = formatAmount(amount);
+        amountInputValue.value = formatAmount(amount);
     });
-
-    const amountPlaceholder = formatAmount(0, { isFalsyValueAllowed: true });
 </script>
 
 <template>
@@ -53,7 +52,7 @@
         <div class="grow flex flex-col justify-center gap-6 transition-opacity" :class="[ model.type === TransactionType.None ? 'opacity-0' : '' ]">
 
             <div class="flex items-stretch gap-4 h-24">
-                <input class="input text-6xl font-light text-center" type="text" id="transaction-amount" name="Amount" v-model.lazy="amountText" :placeholder="amountPlaceholder" autocomplete="off" required />
+                <input class="input text-6xl font-light text-center" type="text" id="transaction-amount" name="Amount" v-model.lazy="amountInputValue" :placeholder="amountPlaceholder" autocomplete="off" required v-on:keydown.enter.prevent="blurInput($event)" />
                 <span class="input shrink-0 flex items-center justify-center text-4xl !w-24 text-center">
                     €
                 </span>

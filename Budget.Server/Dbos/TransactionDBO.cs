@@ -2,9 +2,9 @@
 using Budget.Server.Enums;
 using System.Linq.Expressions;
 
-namespace Budget.Server.Queries
+namespace Budget.Server.Dbos
 {
-    public class TransactionQuery
+    public class TransactionDBO
     {
         public required int Id { get; set; }
         public required TransactionType Type { get; set; }
@@ -13,7 +13,7 @@ namespace Budget.Server.Queries
         public required PaymentMethod PaymentMethod { get; set; }
         public required string Comment { get; set; }
 
-        public static Expression<Func<Transaction, TransactionQuery>> Select => x => new TransactionQuery
+        public static Expression<Func<Transaction, TransactionDBO>> Select => x => new TransactionDBO
         {
             Id = x.Id,
             Type = x.Type,
@@ -24,7 +24,7 @@ namespace Budget.Server.Queries
         };
     }
 
-    public static class TransactionQueryExtension
+    public static class TransactionDBOExtension
     {
     }
 }

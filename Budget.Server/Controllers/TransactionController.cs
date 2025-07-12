@@ -1,4 +1,5 @@
 ﻿using Budget.Server.Dtos;
+using Budget.Server.Enums;
 using Budget.Server.Mappers;
 using Budget.Server.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,7 @@ namespace Budget.Server.Controllers
 {
     [ApiController]
 	[Route("[controller]")]
-	public class TransactionController : CustomControllerBase
+	public class TransactionController : ControllerBase
     {
 		private readonly TransactionService _transactionService;
         private readonly TransactionMapper _transactionMapper;
@@ -21,95 +22,127 @@ namespace Budget.Server.Controllers
         }
 
 		[HttpGet]
-		public Task<ActionResult<TransactionDTO.GetAll.Response>> GetAll()
+		public async Task<ActionResult<TransactionDTO.GetAll.Response>> GetAll()
         {
-            return HandleRequest(
-                async () => await _transactionService.GetAll(),
-                _transactionMapper.ToGetAllResponse
-            );
-		}
+            var transaction = await _transactionService.GetAll();
+
+            var response = _transactionMapper.ToGetAllResponse(transaction);
+            return Ok(response);
+        }
 
 		[HttpGet("{id:int}")]
-		public Task<ActionResult<TransactionDTO.Get.Response>> GetById(int id)
-		{
-            return HandleRequest(
-                async () => await _transactionService.GetById(id),
-                _transactionMapper.ToGetResponse
-            );
-		}
+		public async Task<ActionResult<TransactionDTO.Get.Response?>> GetById(int id)
+        {
+            var transaction = await _transactionService.GetById(id);
+
+            var response = _transactionMapper.ToGetResponse(transaction);
+            return Ok(response);
+        }
 
         [HttpPost]
-        public Task<ActionResult<TransactionDTO.Create.Response>> Create(TransactionDTO.Create.Command command)
+        public async Task<ActionResult<TransactionDTO.Create.Response>> Create(TransactionDTO.Create.Request request)
         {
-            return HandleRequest(
-                command,
-                _transactionMapper.ToEntity,
-                async entity => await _transactionService.Create(entity),
-                _transactionMapper.ToCreateResponse
-            );
+            var transaction = _transactionMapper.ToTransaction(request);
+
+            var result = await _transactionService.Create(transaction);
+            if (!IsDatabaseOperationResultValid(result))
+            {
+                return BadRequest("Transaction creation failed.");
+            }
+
+            var response = _transactionMapper.ToCreateResponse(transaction);
+            return Ok(response);
         }
 
         [HttpPut("{id:int}")]
-        public Task<ActionResult<TransactionDTO.Update.Response>> Update(int id, TransactionDTO.Update.Command command)
+        public async Task<ActionResult> Update(int id, TransactionDTO.Update.Request request)
         {
-            return HandleRequest(
-                command,
-                _transactionMapper.ToEntity,
-                async entity => await _transactionService.Update(id, entity),
-                _transactionMapper.ToUpdateResponse
-            );
+            var transaction = _transactionMapper.ToTransaction(request);
+
+            var result = await _transactionService.Update(id, transaction);
+            if (!IsDatabaseOperationResultValid(result))
+            {
+                return BadRequest("Transaction update failed.");
+            }
+
+            return Ok();
         }
 
-        [HttpPut("{id:int}/amount")]
-        public Task<ActionResult<TransactionDTO.UpdateAmount.Response>> UpdateAmount(int id, TransactionDTO.UpdateAmount.Command command)
+        [HttpPatch("{id:int}/type")]
+        public async Task<ActionResult> UpdateType(int id, TransactionType type)
         {
-            return HandleRequest(
-                command,
-                _transactionMapper.ToAmount,
-                async amount => await _transactionService.UpdateAmount(id, amount),
-                _transactionMapper.ToUpdateAmountResponse
-            );
+            var result = await _transactionService.UpdateType(id, type);
+            if (!IsDatabaseOperationResultValid(result))
+            {
+                return BadRequest("Transaction update failed.");
+            }
+
+            return Ok();
         }
 
-        [HttpPut("{id:int}/date")]
-        public Task<ActionResult<TransactionDTO.UpdateDate.Response>> UpdateDate(int id, TransactionDTO.UpdateDate.Command command)
+        [HttpPatch("{id:int}/amount")]
+        public async Task<ActionResult> UpdateAmount(int id, double amount)
         {
-            return HandleRequest(
-                command,
-                _transactionMapper.ToDate,
-                async date => await _transactionService.UpdateDate(id, date),
-                _transactionMapper.ToUpdateDateResponse
-            );
+            var result = await _transactionService.UpdateAmount(id, amount);
+            if (!IsDatabaseOperationResultValid(result))
+            {
+                return BadRequest("Transaction update failed.");
+            }
+
+            return Ok();
         }
 
-        [HttpPut("{id:int}/paymentMethod")]
-        public Task<ActionResult<TransactionDTO.UpdatePaymentMethod.Response>> UpdatePaymentMethod(int id, TransactionDTO.UpdatePaymentMethod.Command command)
+        [HttpPatch("{id:int}/date")]
+        public async Task<ActionResult> UpdateDate(int id, DateOnly? date)
         {
-            return HandleRequest(
-                command,
-                _transactionMapper.ToPaymentMethod,
-                async paymentMethod => await _transactionService.UpdatePaymentMethod(id, paymentMethod),
-                _transactionMapper.ToUpdatePaymentMethodResponse
-            );
+            var result = await _transactionService.UpdateDate(id, date);
+            if (!IsDatabaseOperationResultValid(result))
+            {
+                return BadRequest("Transaction update failed.");
+            }
+
+            return Ok();
         }
 
-        [HttpPut("{id:int}/comment")]
-        public Task<ActionResult<TransactionDTO.UpdateComment.Response>> UpdateComment(int id, TransactionDTO.UpdateComment.Command command)
+        [HttpPatch("{id:int}/paymentMethod")]
+        public async Task<ActionResult> UpdatePaymentMethod(int id, PaymentMethod paymentMethod)
         {
-            return HandleRequest(
-                command,
-                _transactionMapper.ToComment,
-                async comment => await _transactionService.UpdateComment(id, comment),
-                _transactionMapper.ToUpdateCommentResponse
-            );
+            var result = await _transactionService.UpdatePaymentMethod(id, paymentMethod);
+            if (!IsDatabaseOperationResultValid(result))
+            {
+                return BadRequest("Transaction update failed.");
+            }
+
+            return Ok();
+        }
+
+        [HttpPatch("{id:int}/comment")]
+        public async Task<ActionResult> UpdateComment(int id, string comment)
+        {
+            var result = await _transactionService.UpdateComment(id, comment);
+            if (!IsDatabaseOperationResultValid(result))
+            {
+                return BadRequest("Transaction update failed.");
+            }
+
+            return Ok();
         }
 
         [HttpDelete("{id:int}")]
-		public Task<ActionResult<ResponseBase>> Delete(int id)
+		public async Task<ActionResult> Delete(int id)
         {
-            return HandleRequest(
-                async () => await _transactionService.Delete(id)
-            );
+            var result = await _transactionService.Delete(id);
+            if (!IsDatabaseOperationResultValid(result))
+            {
+                return BadRequest("Transaction deletion failed.");
+            }
+
+            return Ok();
+        }
+
+        private bool IsDatabaseOperationResultValid(int result)
+        {
+            return result > 0;
         }
     }
 }
