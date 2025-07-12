@@ -1,5 +1,5 @@
-import { TransactionType } from '@/enums/TransactionType.ts'
-import { PaymentMethod } from '@/enums/PaymentMethod.ts'
+import { TransactionType } from '@/enums/TransactionType.ts';
+import { PaymentMethod } from '@/enums/PaymentMethod.ts';
 
 interface Transaction {
     id: number;
@@ -18,5 +18,5 @@ export const DefaultTransaction: Transaction = {
     amount: 0,
     date: undefined,
     paymentMethod: PaymentMethod.None,
-    comment: '',
+    comment: ''
 };

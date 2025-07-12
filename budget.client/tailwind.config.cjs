@@ -3,12 +3,12 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                'off-white': '#EFEFEF',
+                'off-white': '#EFEFEF'
             }
         },
         container: {
             center: true,
-            padding: '2rem',
-        },
-    },
+            padding: '2rem'
+        }
+    }
 };

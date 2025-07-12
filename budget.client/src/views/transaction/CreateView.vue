@@ -14,14 +14,14 @@
         amount: 3500,
         date: new Date().toISOString().split('T')[0],
         paymentMethod: PaymentMethod.BankTransfer,
-        comment: 'Paycheck',
+        comment: 'Paycheck'
     } as Transaction;
 
     const transaction = ref(null || DefaultTransaction);
 
     const create = async () => {
         await apiCall('transaction', { method: 'POST', body: transaction.value });
-    }
+    };
 
 </script>
 

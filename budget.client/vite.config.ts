@@ -12,7 +12,7 @@ const baseFolder =
         ? `${env.APPDATA}/ASP.NET/https`
         : `${env.HOME}/.aspnet/https`;
 
-const certificateName = "budget.client";
+const certificateName = 'budget.client';
 const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
 const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
 
@@ -24,7 +24,7 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
     const dotnetCommand = child_process.spawnSync('dotnet', ['dev-certs', 'https', '--export-path', certFilePath, '--format', 'Pem', '--no-password'], { stdio: 'inherit' });
 
     if (dotnetCommand.status !== 0) {
-        throw new Error("Could not create certificate.");
+        throw new Error('Could not create certificate.');
     }
 }
 
@@ -41,7 +41,7 @@ export default defineConfig({
         port: 49835,
         https: {
             key: fs.readFileSync(keyFilePath),
-            cert: fs.readFileSync(certFilePath),
+            cert: fs.readFileSync(certFilePath)
         }
     }
-})
+});
