@@ -18,7 +18,7 @@
     } as Transaction;
 
     const transaction = ref(null || DefaultTransaction);
-    
+
     const create = async () => {
         await apiCall('transaction', { method: 'POST', body: transaction.value });
     }

@@ -1,4 +1,4 @@
-﻿namespace Budget.Server.Data.Startup
+﻿namespace Budget.Server.Middlewares.Startup
 {
 	public interface IDbInitializerService
 	{

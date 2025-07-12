@@ -1,6 +1,7 @@
 using Budget.Server.Data;
-using Budget.Server.Data.Startup;
 using Budget.Server.Mappers;
+using Budget.Server.Middlewares.Error;
+using Budget.Server.Middlewares.Startup;
 using Budget.Server.Services;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -11,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.ConfigureBuilder()
     .ConfigureCors()
     .ConfigureDbContext()
+    .ConfigureExceptionHandlers()
     .ConfigureServices();
 
 var app = builder.Build();
@@ -26,9 +28,7 @@ public static class ProgramExtensions
     public static WebApplicationBuilder ConfigureBuilder(this WebApplicationBuilder builder)
     {
         builder.Services.AddControllers();
-
         builder.Services.AddEndpointsApiExplorer();
-
         builder.Services.AddOpenApi();
 
         return builder;
@@ -58,6 +58,20 @@ public static class ProgramExtensions
 
         return builder;
     }
+
+    public static WebApplicationBuilder ConfigureExceptionHandlers(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddExceptionHandler<NotImplementedExceptionHandler>();
+        builder.Services.AddExceptionHandler<DefaultGlobalExceptionHandler>();
+        builder.Services.AddExceptionHandler(options =>
+        {
+            options.ExceptionHandlingPath = "/error"; // required even if unused
+        });
+
+
+        return builder;
+    }
+
     public static WebApplicationBuilder ConfigureServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddSingleton<IDbInitializerService, DbInitializerService>();
@@ -71,23 +85,19 @@ public static class ProgramExtensions
 
     public static WebApplication ConfigureApp(this WebApplication app)
     {
-        app.UseHttpsRedirection();
-
-        app.UseDefaultFiles();
-        app.MapStaticAssets();
-
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
             app.MapScalarApiReference();
         }
 
+        app.UseExceptionHandler();
+        app.UseHttpsRedirection();
+        app.UseDefaultFiles();
+        app.MapStaticAssets();
         app.UseCors();
-
         app.UseAuthorization();
-
         app.MapControllers();
-
         app.MapFallbackToFile("/index.html");
 
         return app;

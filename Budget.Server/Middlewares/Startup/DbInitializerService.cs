@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Budget.Server.Data;
+using Microsoft.EntityFrameworkCore;
 
-namespace Budget.Server.Data.Startup
+namespace Budget.Server.Middlewares.Startup
 {
 	class DbInitializerService : IDbInitializerService
 	{

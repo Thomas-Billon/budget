@@ -17,22 +17,16 @@ export async function apiCall<TCommand, TResponse>(
         }
     };
 
-    console.log(`API Call: ${urlBase}/${urlPath}`, fetchOptions);
+    const response = await fetch(`${urlBase}/${urlPath}`, fetchOptions)
+        .then(async response => {
+            if (response.status !== 200) {
+                throw await response.json();
+            }
+            return response.json();
+        })
+        .catch(err => {
+            console.error(err);
+        });
 
-    const response = await fetch(`${urlBase}/${urlPath}`, fetchOptions);
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-            `API call failed: ${response.status} ${response.statusText} - ${errorText}`
-        );
-    }
-
-    // Try to parse JSON, fallback to text
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-        return response.json() as Promise<TResponse>;
-    } else {
-        return (response.text() as TResponse) as Promise<TResponse>;
-    }
+    return (response as TResponse);
 }
