@@ -11,15 +11,15 @@
 
     const parseAmount = (value: string): number => {
         return parseFloat(value.replace(/[^0-9.,]/g, '').replace(/,/g, '.'));
-    }
+    };
 
     const formatAmount = (value: number, { isFalsyValueAllowed } = { isFalsyValueAllowed: false }): string => {
         return value || isFalsyValueAllowed ? value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
-    }
+    };
 
     const blurInput = (event: Event): void => {
-        event.currentTarget.blur();
-    }
+        (event.currentTarget as HTMLElement)?.blur();
+    };
 
     const amountInputValue = ref(formatAmount(model.value.amount));
     const amountPlaceholder = formatAmount(0, { isFalsyValueAllowed: true });

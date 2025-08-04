@@ -8,16 +8,16 @@
     import TransactionForm from '@/components/TransactionForm.vue';
     import { apiCall } from '@/utils/apiCall';
 
-    const transactionEdit = {
+    const transactionEdit: Transaction = {
         id: 99,
         type: TransactionType.Income,
         amount: 3500,
         date: new Date().toISOString().split('T')[0],
         paymentMethod: PaymentMethod.BankTransfer,
         comment: 'Paycheck'
-    } as Transaction;
+    };
 
-    const transaction = ref(null || DefaultTransaction);
+    const transaction = ref<Transaction>(null || DefaultTransaction);
 
     const create = async () => {
         await apiCall('transaction', { method: 'POST', body: transaction.value });

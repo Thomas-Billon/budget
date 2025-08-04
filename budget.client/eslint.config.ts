@@ -1,20 +1,20 @@
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
-import pluginVue from 'eslint-plugin-vue';
 import stylistic from '@stylistic/eslint-plugin';
+import commonRules from './eslint.common.rules';
 
 
-export default defineConfigWithVueTs(
-
-    pluginVue.configs['flat/strongly-recommended'],
-    vueTsConfigs.recommendedTypeChecked,
-
+export default [
     {
         files: ['**/*.{html,js,ts,jsx,tsx,vue,mdx}'],
+        rules: {
+            ...commonRules
+        }
+    },
+    {
         plugins: {
             '@stylistic': stylistic
         },
         rules: {
-            '@stylistic/semi': ['error', 'always'],
+            '@stylistic/semi': ["error", "always"],
             '@stylistic/quotes': ['error', 'single', { 'avoidEscape': true }],
             '@stylistic/no-multi-spaces': ['error'],
             '@stylistic/no-multiple-empty-lines': ['error', { 'max': 2 }],
@@ -34,13 +34,17 @@ export default defineConfigWithVueTs(
             '@stylistic/array-bracket-spacing': ['error', 'never'],
             '@stylistic/object-curly-spacing': ['error', 'always', { 'objectsInObjects': false }],
             '@stylistic/object-curly-newline': ['error', { 'consistent': true, 'multiline': true }],
-            '@stylistic/computed-property-spacing': ['error', 'never'],
+            '@stylistic/computed-property-spacing': ['error', 'never']
+        }
+    },
+    {
+        rules: {
             'vue/html-indent': ['error', 4],
-            'vue/no-duplicate-attributes': ['error', { 'allowCoexistClass': true }],
             'vue/max-attributes-per-line': ['error', {
                 'singleline': { 'max': 99 },
                 'multiline': { 'max': 1 }
-            }]
+            }],
+            'vue/multiline-html-element-content-newline': ['error', { 'allowEmptyLines': true }]
         }
     }
-);
+];
