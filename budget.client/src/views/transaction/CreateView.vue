@@ -1,14 +1,18 @@
 <script setup lang="ts">
     import { ref } from 'vue';
-    import urls from '@/router.ts';
+    import { useRouter } from 'vue-router'
+    import { routes } from '@/router.ts';
+    import { apiCall } from '@/utils/apiCall';
     import type { Transaction } from '@/models/Transaction.ts';
     import { DefaultTransaction } from '@/models/Transaction.ts';
     import { TransactionType } from '@/enums/TransactionType.ts';
     import { PaymentMethod } from '@/enums/PaymentMethod.ts';
     import TransactionForm from '@/components/TransactionForm.vue';
-    import { apiCall } from '@/utils/apiCall';
 
-    const transactionEdit: Transaction = {
+    const router = useRouter();
+
+    // TEMP
+    let transactionEdit: Transaction = {
         id: 99,
         type: TransactionType.Income,
         amount: 3500,
@@ -17,10 +21,13 @@
         comment: 'Paycheck'
     };
 
-    const transaction = ref<Transaction>(null || DefaultTransaction);
+    // TEMP
+    const transaction = ref<Transaction>(null || { ...DefaultTransaction });
+    //const transaction = ref<Transaction>({ ...DefaultTransaction });
 
     const create = async () => {
         await apiCall('transaction', { method: 'POST', body: transaction.value });
+        router.push({ path: routes.transaction.list });
     };
 
 </script>
@@ -29,7 +36,7 @@
     <div class="page">
         <div class="page-container flex flex-col gap-4">
 
-            <RouterLink :to="urls.transactionList">
+            <RouterLink :to="routes.transaction.list">
                 <font-awesome-icon icon="fa-solid fa-arrow-left" size="lg" />
             </RouterLink>
 

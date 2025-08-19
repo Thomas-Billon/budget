@@ -1,7 +1,7 @@
 <script setup lang="ts">
-    import urls from '@/router.ts';
+    import { routes } from '@/router.ts';
 </script>
 
 <template>
-    <RouterLink :to="urls.transactionList">Transactions</RouterLink>
+    <RouterLink :to="routes.transaction.list">Transactions</RouterLink>
 </template>

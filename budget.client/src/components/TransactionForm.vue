@@ -3,33 +3,26 @@
     import type { Transaction } from '@/models/Transaction.ts';
     import { TransactionType } from '@/enums/TransactionType.ts';
     import { PaymentMethod } from '@/enums/PaymentMethod.ts';
+    import { formatAmount, parseAmount } from '@/services/TransactionService.ts'
 
     const model = defineModel<Transaction>({ required: true });
     const emit = defineEmits(['submit']);
 
     const submit = () => emit('submit');
 
-    const parseAmount = (value: string): number => {
-        return parseFloat(value.replace(/[^0-9.,]/g, '').replace(/,/g, '.'));
-    };
-
-    const formatAmount = (value: number, { isFalsyValueAllowed } = { isFalsyValueAllowed: false }): string => {
-        return value || isFalsyValueAllowed ? value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
-    };
-
-    const blurInput = (event: Event): void => {
-        (event.currentTarget as HTMLElement)?.blur();
-    };
-
     const amountInputValue = ref(formatAmount(model.value.amount));
     const amountPlaceholder = formatAmount(0, { isFalsyValueAllowed: true });
 
+    // On input event
     watch(amountInputValue, (inputValue) => {
-        const amount = parseAmount(inputValue);
-
-        model.value.amount = amount;
-        amountInputValue.value = formatAmount(amount);
+        model.value.amount = parseAmount(inputValue);
     });
+
+    // On change event
+    const onChangeAmountInput = (): void => {
+        amountInputValue.value = formatAmount(model.value.amount);
+    };
+
 </script>
 
 <template>
@@ -52,7 +45,7 @@
         <div class="grow flex flex-col justify-center gap-6 transition-opacity" :class="[ model.type === TransactionType.None ? 'opacity-0' : '' ]">
 
             <div class="flex items-stretch gap-4 h-24">
-                <input class="input text-6xl font-light text-center" type="text" id="transaction-amount" name="Amount" v-model.lazy="amountInputValue" :placeholder="amountPlaceholder" autocomplete="off" required v-on:keydown.enter.prevent="blurInput($event)" />
+                <input class="input text-6xl font-light text-center" type="text" id="transaction-amount" name="Amount" v-model="amountInputValue" :placeholder="amountPlaceholder" autocomplete="off" required @change="onChangeAmountInput()" @keydown.enter.prevent="$event.currentTarget.blur()" />
                 <span class="input shrink-0 flex items-center justify-center text-4xl !w-24 text-center">
                     €
                 </span>

@@ -1,11 +1,11 @@
-export interface ApiCallOptions<TCommand> {
+export interface ApiCallOptions<TRequest> {
     method: string;
-    body?: TCommand;
+    body?: TRequest;
 }
 
-export async function apiCall<TCommand, TResponse>(
+export async function apiCall<TRequest, TResponse>(
     urlPath: string,
-    options: ApiCallOptions<TCommand> = { method: 'GET' }
+    options: ApiCallOptions<TRequest> = { method: 'GET' }
 ): Promise<TResponse> {
     const urlBase = import.meta.env.VITE_API_BASE_URL;
 
