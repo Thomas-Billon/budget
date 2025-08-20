@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
     import { ref } from 'vue';
     import { useRouter } from 'vue-router'
     import { routes } from '@/router.ts';
@@ -7,6 +8,7 @@
     import { DefaultTransaction } from '@/models/Transaction.ts';
     import { TransactionType } from '@/enums/TransactionType.ts';
     import { PaymentMethod } from '@/enums/PaymentMethod.ts';
+    import ViewContainer from '@/components/ViewContainer.vue';
     import TransactionForm from '@/components/TransactionForm.vue';
 
     const router = useRouter();
@@ -33,15 +35,7 @@
 </script>
 
 <template>
-    <div class="page">
-        <div class="page-container flex flex-col gap-4">
-
-            <RouterLink :to="routes.transaction.list">
-                <font-awesome-icon icon="fa-solid fa-arrow-left" size="lg" />
-            </RouterLink>
-
-            <TransactionForm v-model="transaction" @submit="create" />
-
-        </div>
-    </div>
+    <ViewContainer :back-action="routes.transaction.list">
+        <TransactionForm v-model="transaction" @submit="create" />
+    </ViewContainer>
 </template>
