@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-    import { ref } from 'vue';
+    import { onMounted, ref } from 'vue';
     import { routes } from '@/router.ts';
     import { apiCall } from '@/utils/apiCall';
     import { formatAmount } from '@/services/TransactionService.ts'
@@ -8,13 +8,15 @@
 
     const transactions = ref<Transaction[]>([]);
 
-    const list = async () => {
-        const response = await apiCall('transaction', { method: 'GET' });
+    // Init
+    onMounted(() => {
+        getAllTransactions();
+    });
 
+    const getAllTransactions = async () => {
+        const response = await apiCall('transaction', { method: 'GET' });
         transactions.value = response.transactions;
     };
-
-    list();
 
 </script>
 
@@ -31,13 +33,13 @@
             </div>
 
             <div class="flex flex-col gap-2">
-                <div v-for="transaction in transactions" :key="transaction.id" class="flex items-center gap-4">
+                <RouterLink :to="routes.transaction.edit(transaction.id)" v-for="transaction in transactions" :key="transaction.id" class="flex items-center gap-4">
                     <span class="w-2 h-2 bg-neutral-200 rounded-full"></span>
                     <div class="grow flex flex-col gap-1">
                         <span class="font-bold">{{transaction.title}}</span>
                         <span>{{formatAmount(transaction.amount)}}</span>
                     </div>
-                </div>
+                </RouterLink>
             </div>
         </div>
     </ViewContainer>
