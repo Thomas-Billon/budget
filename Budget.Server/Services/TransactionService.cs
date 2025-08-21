@@ -43,6 +43,7 @@ namespace Budget.Server.Services
                 .Where(x => x.Id == id)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(x => x.Amount, entity.Amount)
+                    .SetProperty(x => x.Title, entity.Title)
                     .SetProperty(x => x.Date, entity.Date)
                     .SetProperty(x => x.PaymentMethod, entity.PaymentMethod)
                     .SetProperty(x => x.Comment, entity.Comment)
@@ -64,6 +65,15 @@ namespace Budget.Server.Services
                 .Where(x => x.Id == id)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(x => x.Amount, amount)
+                );
+        }
+
+        public Task<int> UpdateTitle(int id, string title)
+        {
+            return _context.Transactions
+                .Where(x => x.Id == id)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(x => x.Title, title)
                 );
         }
 

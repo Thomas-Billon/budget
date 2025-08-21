@@ -27,6 +27,7 @@ namespace Budget.Server.Dtos
                 public required int Id { get; set; }
                 public required TransactionType Type { get; set; }
                 public required double Amount { get; set; }
+                public required string Title { get; set; }
                 public required DateOnly? Date { get; set; }
                 public required PaymentMethod PaymentMethod { get; set; }
                 public required string Comment { get; set; }
@@ -46,6 +47,9 @@ namespace Budget.Server.Dtos
 
                 [Required]
                 public double Amount { get; init; } = 0;
+
+                [Required]
+                public string Title { get; set; } = string.Empty;
 
                 public DateOnly? Date { get; init; }
 
@@ -75,6 +79,9 @@ namespace Budget.Server.Dtos
 
                 [Required]
                 public double Amount { get; init; } = 0;
+
+                [Required]
+                public string Title { get; set; } = string.Empty;
 
                 public DateOnly? Date { get; init; }
 

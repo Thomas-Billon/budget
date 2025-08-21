@@ -27,7 +27,7 @@
 </script>
 
 <template>
-    <form class="grow flex flex-col" @submit.prevent="submit">
+    <form class="section-container grow" @submit.prevent="submit">
 
         <input type="hidden" id="transaction-id" name="Id" v-model="model.id" />
 
@@ -52,6 +52,8 @@
                 </span>
             </div>
 
+            <input class="input" type="text" id="transaction-title" name="Title" v-model="model.title" placeholder="Title" />
+
             <input class="input" type="date" id="transaction-date" name="Date" v-model="model.date" />
 
             <select class="input !ps-3" id="transaction-payment-method" name="PaymentMethod" v-model="model.paymentMethod">
@@ -68,7 +70,7 @@
 
         </div>
         
-        <button type="submit" class="flex items-center justify-center w-full py-2 px-4 rounded font-medium cursor-pointer bg-neutral-800 disabled:bg-neutral-500 text-white transition-opacity" :class="[ model.type === TransactionType.None ? 'opacity-0' : '' ]" :disabled="!model.amount">
+        <button type="submit" class="button primary transition-opacity" :class="[ model.type === TransactionType.None ? 'opacity-0' : '' ]" :disabled="!model.amount || !model.title">
             <span>Add transaction</span>
         </button>
 

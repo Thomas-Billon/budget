@@ -22,18 +22,21 @@
     <ViewContainer :back-action="routes.home">
         <div class="section-container">
             <div class="flex justify-center gap-6">
-                <RouterLink :to="routes.transaction.create" class="flex flex-col items-center">
-                    <span class="flex items-center justify-center w-0 h-0 p-6 bg-neutral-800 rounded-full text-white">
-                        <font-awesome-icon icon="fa-solid fa-plus" size="xl" />
+                <RouterLink :to="routes.transaction.create" class="flex flex-col items-center gap-1">
+                    <span class="button primary circle text-xl">
+                        <font-awesome-icon icon="fa-solid fa-plus" />
                     </span>
-                    Create
+                    <span class="font-semibold">Create</span>
                 </RouterLink>
             </div>
 
-            <div>
-                <div v-for="transaction in transactions" :key="transaction.id">
-                    {{transaction.id}}
-                    {{formatAmount(transaction.amount)}}
+            <div class="flex flex-col gap-2">
+                <div v-for="transaction in transactions" :key="transaction.id" class="flex items-center gap-4">
+                    <span class="w-2 h-2 bg-neutral-200 rounded-full"></span>
+                    <div class="grow flex flex-col gap-1">
+                        <span class="font-bold">{{transaction.title}}</span>
+                        <span>{{formatAmount(transaction.amount)}}</span>
+                    </div>
                 </div>
             </div>
         </div>

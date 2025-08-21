@@ -92,6 +92,18 @@ namespace Budget.Server.Controllers
             return Ok();
         }
 
+        [HttpPatch("{id:int}/title")]
+        public async Task<ActionResult> UpdateTitle(int id, string title)
+        {
+            var result = await _transactionService.UpdateTitle(id, title);
+            if (!IsDatabaseOperationResultValid(result))
+            {
+                return BadRequest("Transaction update failed.");
+            }
+
+            return Ok();
+        }
+
         [HttpPatch("{id:int}/date")]
         public async Task<ActionResult> UpdateDate(int id, DateOnly? date)
         {

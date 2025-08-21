@@ -10,6 +10,7 @@ namespace Budget.Server.Entities
         public TransactionType Type { get; set; } = TransactionType.None;
         //public Account Account { get; set; } -> Currency will be handled inside the Account entity
         public double Amount { get; set; } = 0;
+        public string Title { get; set; } = string.Empty;
         public DateOnly? Date { get; set; }
         public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.None;
         public string Comment { get; set; } = string.Empty;

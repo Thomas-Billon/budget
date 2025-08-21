@@ -18,6 +18,7 @@
         id: 99,
         type: TransactionType.Income,
         amount: 3500,
+        title: 'Hello world!',
         date: new Date().toISOString().split('T')[0],
         paymentMethod: PaymentMethod.BankTransfer,
         comment: 'Paycheck'
