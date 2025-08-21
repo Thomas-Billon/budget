@@ -33,11 +33,11 @@
             </div>
 
             <div class="flex flex-col gap-2">
-                <RouterLink :to="routes.transaction.edit(transaction.id)" v-for="transaction in transactions" :key="transaction.id" class="flex items-center gap-4">
+                <RouterLink :to="routes.transaction.details(transaction.id)" v-for="transaction in transactions" :key="transaction.id" class="flex items-center gap-4">
                     <span class="w-2 h-2 bg-neutral-200 rounded-full"></span>
                     <div class="grow flex flex-col gap-1">
-                        <span class="font-bold">{{transaction.title}}</span>
-                        <span>{{formatAmount(transaction.amount)}}</span>
+                        <span class="font-bold">{{ transaction.title }}</span>
+                        <span>{{ formatAmount(transaction.amount) }} €</span>
                     </div>
                 </RouterLink>
             </div>
