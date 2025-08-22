@@ -1,12 +1,12 @@
-export interface ApiCallOptions<TRequest> {
+interface ApiCallOptions<TRequest> {
     method: string;
     body?: TRequest;
 }
 
-export async function apiCall<TRequest, TResponse>(
+const apiCall = async <TRequest, TResponse>(
     urlPath: string,
     options: ApiCallOptions<TRequest> = { method: 'GET' }
-): Promise<TResponse> {
+): Promise<TResponse> => {
     const urlBase = import.meta.env.VITE_API_BASE_URL;
 
     const fetchOptions: RequestInit = {
@@ -30,3 +30,6 @@ export async function apiCall<TRequest, TResponse>(
 
     return (response as TResponse);
 }
+
+export type { ApiCallOptions };
+export { apiCall };

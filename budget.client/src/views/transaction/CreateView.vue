@@ -22,6 +22,8 @@
 
 <template>
     <ViewContainer :back-action="routes.transaction.list">
-        <TransactionForm v-model="transaction" @submit="createTransaction" />
+        <TransactionForm :is-new="true"
+                         v-model="transaction"
+                         @save-all="createTransaction" />
     </ViewContainer>
 </template>
