@@ -1,6 +1,5 @@
 ﻿using Budget.Server.Data;
 using Budget.Server.Entities;
-using Budget.Server.Enums;
 using Budget.Server.Dbos;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +7,8 @@ namespace Budget.Server.Services
 {
     public class TransactionService
     {
+        const int NO_DATABASE_OPERATION = 0;
+
         private readonly ApplicationDbContext _context;
 
         public TransactionService(ApplicationDbContext context)
@@ -42,6 +43,7 @@ namespace Budget.Server.Services
             return _context.Transactions
                 .Where(x => x.Id == id)
                 .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(x => x.Type, entity.Type)
                     .SetProperty(x => x.Amount, entity.Amount)
                     .SetProperty(x => x.Title, entity.Title)
                     .SetProperty(x => x.Date, entity.Date)
@@ -50,58 +52,32 @@ namespace Budget.Server.Services
                 );
         }
 
-        public Task<int> UpdateType(int id, TransactionType type)
+        public async Task<int> UpdatePartial(int id, Transaction entity)
         {
-            return _context.Transactions
+            var dbEntity = await _context.Transactions
                 .Where(x => x.Id == id)
-                .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(x => x.Type, type)
-                );
-        }
+                .FirstOrDefaultAsync();
 
-        public Task<int> UpdateAmount(int id, double amount)
-        {
-            return _context.Transactions
-                .Where(x => x.Id == id)
-                .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(x => x.Amount, amount)
-                );
-        }
+            if (dbEntity == null)
+            {
+                return NO_DATABASE_OPERATION;
+            }
 
-        public Task<int> UpdateTitle(int id, string title)
-        {
-            return _context.Transactions
-                .Where(x => x.Id == id)
-                .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(x => x.Title, title)
-                );
-        }
+            dbEntity.Type = entity.Type;
+            dbEntity.Amount = entity.Amount;
+            dbEntity.Title = entity.Title;
+            dbEntity.Date = entity.Date;
+            dbEntity.PaymentMethod = entity.PaymentMethod;
+            dbEntity.Comment = entity.Comment;
 
-        public Task<int> UpdateDate(int id, DateOnly? date)
-        {
-            return _context.Transactions
-                .Where(x => x.Id == id)
-                .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(x => x.Date, date)
-                );
-        }
+            var changes = _context.Entry(dbEntity).Properties.Count(x => x.IsModified);
 
-        public Task<int> UpdatePaymentMethod(int id, PaymentMethod paymentMethod)
-        {
-            return _context.Transactions
-                .Where(x => x.Id == id)
-                .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(x => x.PaymentMethod, paymentMethod)
-                );
-        }
+            if (changes > 0)
+            {
+                await _context.SaveChangesAsync();
+            }
 
-        public Task<int> UpdateComment(int id, string comment)
-        {
-            return _context.Transactions
-                .Where(x => x.Id == id)
-                .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(x => x.Comment, comment)
-                );
+            return changes;
         }
 
         public Task<int> Delete(int id)

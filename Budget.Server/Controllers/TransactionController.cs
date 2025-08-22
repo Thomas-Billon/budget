@@ -40,7 +40,7 @@ namespace Budget.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<TransactionDTO.Create.Response>> Create(TransactionDTO.Create.Request request)
+        public async Task<ActionResult> Create(TransactionDTO.Create.Request request)
         {
             var transaction = _transactionMapper.ToTransaction(request);
 
@@ -50,8 +50,7 @@ namespace Budget.Server.Controllers
                 return BadRequest("Transaction creation failed.");
             }
 
-            var response = _transactionMapper.ToCreateResponse(transaction);
-            return Ok(response);
+            return Ok();
         }
 
         [HttpPut("{id:int}")]
@@ -68,70 +67,12 @@ namespace Budget.Server.Controllers
             return Ok();
         }
 
-        [HttpPatch("{id:int}/type")]
-        public async Task<ActionResult> UpdateType(int id, TransactionType type)
+        [HttpPatch("{id:int}")]
+        public async Task<ActionResult> UpdatePartial(int id, TransactionDTO.Update.Request request)
         {
-            var result = await _transactionService.UpdateType(id, type);
-            if (!IsDatabaseOperationResultValid(result))
-            {
-                return BadRequest("Transaction update failed.");
-            }
+            var transaction = _transactionMapper.ToTransaction(request);
 
-            return Ok();
-        }
-
-        [HttpPatch("{id:int}/amount")]
-        public async Task<ActionResult> UpdateAmount(int id, double amount)
-        {
-            var result = await _transactionService.UpdateAmount(id, amount);
-            if (!IsDatabaseOperationResultValid(result))
-            {
-                return BadRequest("Transaction update failed.");
-            }
-
-            return Ok();
-        }
-
-        [HttpPatch("{id:int}/title")]
-        public async Task<ActionResult> UpdateTitle(int id, string title)
-        {
-            var result = await _transactionService.UpdateTitle(id, title);
-            if (!IsDatabaseOperationResultValid(result))
-            {
-                return BadRequest("Transaction update failed.");
-            }
-
-            return Ok();
-        }
-
-        [HttpPatch("{id:int}/date")]
-        public async Task<ActionResult> UpdateDate(int id, DateOnly? date)
-        {
-            var result = await _transactionService.UpdateDate(id, date);
-            if (!IsDatabaseOperationResultValid(result))
-            {
-                return BadRequest("Transaction update failed.");
-            }
-
-            return Ok();
-        }
-
-        [HttpPatch("{id:int}/paymentMethod")]
-        public async Task<ActionResult> UpdatePaymentMethod(int id, PaymentMethod paymentMethod)
-        {
-            var result = await _transactionService.UpdatePaymentMethod(id, paymentMethod);
-            if (!IsDatabaseOperationResultValid(result))
-            {
-                return BadRequest("Transaction update failed.");
-            }
-
-            return Ok();
-        }
-
-        [HttpPatch("{id:int}/comment")]
-        public async Task<ActionResult> UpdateComment(int id, string comment)
-        {
-            var result = await _transactionService.UpdateComment(id, comment);
+            var result = await _transactionService.UpdatePartial(id, transaction);
             if (!IsDatabaseOperationResultValid(result))
             {
                 return BadRequest("Transaction update failed.");

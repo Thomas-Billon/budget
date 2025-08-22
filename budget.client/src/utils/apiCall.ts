@@ -17,15 +17,26 @@ const apiCall = async <TRequest, TResponse>(
         }
     };
 
-    const response = await fetch(`${urlBase}/${urlPath}`, fetchOptions)
+    const urlTarget = `${urlBase}/${urlPath}`;
+
+    console.log('API call:', options.method, urlTarget);
+
+    const response = await fetch(urlTarget, fetchOptions)
         .then(async response => {
-            if (response.status !== 200) {
-                throw await response.json();
+            if (response.ok === false || response.status !== 200) {
+                throw new Error();
             }
-            return response.json();
+
+            return await response.json()
+                .then(json => {
+                    return { isSuccess: true, ...json };
+                })
+                .catch(() => {
+                    return { isSuccess: true };
+                });
         })
-        .catch(err => {
-            console.error(err);
+        .catch(() => {
+            return { isSuccess: false };
         });
 
     return (response as TResponse);

@@ -14,6 +14,9 @@
 
     const transaction = ref<Transaction>({ ...DefaultTransaction });
 
+    const saveAllResult = ref({ isSuccess: undefined, timestamp: Date.now() });
+    const savePartialResult = ref({ isSuccess: undefined, timestamp: Date.now() });
+
     // Init
     onMounted(() => {
         getTransactionById(route.params.id);
@@ -28,55 +31,27 @@
         transaction.value = await apiCall(`transaction/${id}`, { method: 'GET' });
     };
 
-    const updateTransaction = async (id: number) => {
-        await apiCall(`transaction/${id}`, { method: 'PUT', body: transaction.value });
-        router.push({ path: routes.transaction.list });
-    };
+    const updateTransactionAll = async (id: number) => {
+        const response = await apiCall(`transaction/${id}`, { method: 'PUT', body: transaction.value });
 
-    const updateTransactionField = (id: number, field: string) => {
-        switch (field) {
-            case 'type':
-                return updateTransactionType(id);
-
-            case 'amount':
-                return updateTransactionAmount(id);
-
-            case 'title':
-                return updateTransactionTitle(id);
-
-            case 'date':
-                return updateTransactionDate(id);
-
-            case 'paymentMethod':
-                return updateTransactionPaymentMethod(id);
-
-            case 'comment':
-                return updateTransactionComment(id);
+        if (response.isSuccess) {
+            router.push({ path: routes.transaction.list });
+        }
+        else {
+            saveAllResult.value = {
+                isSuccess: response.isSuccess,
+                timestamp: Date.now
+            };
         }
     };
 
-    const updateTransactionType = async (id: number) => {
-        await apiCall(`transaction/type/${id}`, { method: 'PATCH', body: transaction.value.type });
-    };
+    const updateTransactionPartial = async (id: number) => {
+        const response = await apiCall(`transaction/${id}`, { method: 'PATCH', body: transaction.value });
 
-    const updateTransactionAmount = async (id: number) => {
-        await apiCall(`transaction/amount/${id}`, { method: 'PATCH', body: transaction.value.amount });
-    };
-
-    const updateTransactionTitle = async (id: number) => {
-        await apiCall(`transaction/title/${id}`, { method: 'PATCH', body: transaction.value.title });
-    };
-
-    const updateTransactionDate = async (id: number) => {
-        await apiCall(`transaction/date/${id}`, { method: 'PATCH', body: transaction.value.date });
-    };
-
-    const updateTransactionPaymentMethod = async (id: number) => {
-        await apiCall(`transaction/payment-method/${id}`, { method: 'PATCH', body: transaction.value.paymentMethod });
-    };
-
-    const updateTransactionComment = async (id: number) => {
-        await apiCall(`transaction/comment/${id}`, { method: 'PATCH', body: transaction.value.comment });
+        savePartialResult.value = {
+            isSuccess: response.isSuccess,
+            timestamp: Date.now
+        };
     };
 
 </script>
@@ -84,8 +59,10 @@
 <template>
     <ViewContainer :back-action="routes.transaction.list">
         <TransactionForm :is-new="false"
+                         :save-all-result="saveAllResult"
+                         :save-partial-result="savePartialResult"
                          v-model="transaction"
-                         @save-all="updateTransaction"
-                         @save-partial="updateTransactionField" />
+                         @save-all="updateTransactionAll"
+                         @save-partial="updateTransactionPartial" />
     </ViewContainer>
 </template>

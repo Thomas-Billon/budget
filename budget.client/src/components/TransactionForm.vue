@@ -7,16 +7,36 @@
     import { PaymentMethod } from '@/enums/PaymentMethod.ts';
     import { formatAmount, parseAmount } from '@/services/TransactionService.ts'
 
-    const { isNew } = defineProps(['isNew']);
+    const { isNew, saveAllResult, savePartialResult } = defineProps(['isNew', 'saveAllResult', 'savePartialResult']);
     const model = defineModel<Transaction>({ required: true });
     const emit = defineEmits(['saveAll', 'savePartial']);
 
     const amountPlaceholder = formatAmount(0, { isFalsyValueAllowed: true });
     const amountDisplayValue = ref('');
+    const submitLabel = ref('');
+    const isSubmitDisabled = ref(false);
 
     // Init
     onMounted(() => {
         updateAmountDisplayValue();
+        setSubmitButtonToDefaultState();
+    });
+
+    // On props change
+    watch(() => [saveAllResult, savePartialResult], ([all, partial]) => {
+        if (all.isSuccess == false) {
+            setSubmitButtonToErrorState();
+            resetSubmitButtonToDefaultState();
+        }
+        else {
+            if (partial.isSuccess == false || isNew) {
+                setSubmitButtonToDefaultState();
+            }
+            else {
+                setSubmitButtonToSavedState();
+                resetSubmitButtonToDefaultState();
+            }
+        }
     });
 
     // On model change
@@ -37,6 +57,23 @@
         model.value.amount = parseAmount(value);
     }
 
+    const setSubmitButtonToDefaultState = (): void => {
+        submitLabel.value = isNew ? 'Add transaction' : 'Edit transaction';
+        isSubmitDisabled.value = false;
+    }
+
+    const setSubmitButtonToSavedState = (): void => {
+        submitLabel.value = 'Saved';
+        isSubmitDisabled.value = true;
+    }
+
+    const setSubmitButtonToErrorState = (): void => {
+        submitLabel.value = 'Error';
+        isSubmitDisabled.value = false;
+    }
+
+    const resetSubmitButtonToDefaultState = debounce(setSubmitButtonToDefaultState, 5000);
+
     const saveAll = () => emit('saveAll', model.value.id);
     const savePartial = (field) => emit('savePartial', model.value.id, field);
 
@@ -50,11 +87,11 @@
         <input type="hidden" id="transaction-id" name="Id" v-model="model.id" />
 
         <div class="grow-0 flex p-1 gap-1 rounded bg-neutral-200">
-            <button type="button" class="button !px-2 !py-1 secondary transition-colors" :class="[ model.type !== TransactionType.Expense ? '' : 'disabled' ]" @click="model.type = TransactionType.Income; trySavePartial('type');">
+            <button type="button" class="button !px-2 !py-1 secondary transition-colors" :class="[ model.type !== TransactionType.Expense ? '' : 'disabled' ]" @click="model.type = TransactionType.Income; setSubmitButtonToDefaultState(); trySavePartial('type');">
                 <font-awesome-icon icon="fa-solid fa-plus" size="sm" />
                 <span>Income</span>
             </button>
-            <button type="button" class="button !px-2 !py-1 secondary transition-colors" :class="[ model.type !== TransactionType.Income ? '' : 'disabled' ]" @click="model.type = TransactionType.Expense; trySavePartial('type');">
+            <button type="button" class="button !px-2 !py-1 secondary transition-colors" :class="[ model.type !== TransactionType.Income ? '' : 'disabled' ]" @click="model.type = TransactionType.Expense; setSubmitButtonToDefaultState(); trySavePartial('type');">
                 <font-awesome-icon icon="fa-solid fa-minus" size="sm" />
                 <span>Expense</span>
             </button>
@@ -72,7 +109,7 @@
                        :placeholder="amountPlaceholder"
                        autocomplete="off"
                        required
-                       @input="trySavePartial('amount')"
+                       @input="setSubmitButtonToDefaultState(); trySavePartial('amount');"
                        @change="updateAmountDisplayValue()"
                        @keydown.enter.prevent="$event.currentTarget.blur()" />
                 <span class="input shrink-0 flex items-center justify-center text-4xl !w-24 text-center">
@@ -80,11 +117,11 @@
                 </span>
             </div>
 
-            <input class="input" type="text" id="transaction-title" name="Title" v-model="model.title" placeholder="Title" @input="trySavePartial('title')" />
+            <input class="input" type="text" id="transaction-title" name="Title" v-model="model.title" placeholder="Title" @input="setSubmitButtonToDefaultState(); trySavePartial('title');" />
 
-            <input class="input" type="date" id="transaction-date" name="Date" v-model="model.date" @input="trySavePartial('date')"/>
+            <input class="input" type="date" id="transaction-date" name="Date" v-model="model.date" @input="setSubmitButtonToDefaultState(); trySavePartial('date');" />
 
-            <select class="input !ps-3" id="transaction-payment-method" name="PaymentMethod" v-model="model.paymentMethod" @input="trySavePartial('paymentMethod')">
+            <select class="input !ps-3" id="transaction-payment-method" name="PaymentMethod" v-model="model.paymentMethod" @input="setSubmitButtonToDefaultState(); trySavePartial('paymentMethod');">
                 <option :value="PaymentMethod.None" disabled selected>Select Payment Method</option>
                 <option :value="PaymentMethod.Cash">{{ PaymentMethod[PaymentMethod.Cash] }}</option>
                 <option :value="PaymentMethod.CreditCard">{{ PaymentMethod[PaymentMethod.CreditCard] }}</option>
@@ -94,13 +131,15 @@
                 <option :value="PaymentMethod.Other">{{ PaymentMethod[PaymentMethod.Other] }}</option>
             </select>
 
-            <textarea class="input" id="transaction-comment" name="Comment" v-model="model.comment" placeholder="Comment" @input="trySavePartial('comment')"></textarea>
+            <textarea class="input" id="transaction-comment" name="Comment" v-model="model.comment" placeholder="Comment" @input="setSubmitButtonToDefaultState(); trySavePartial('comment');"></textarea>
 
         </div>
-        
-        <button type="submit" class="button primary transition-opacity" :class="[ model.type === TransactionType.None ? 'opacity-0' : '' ]" :disabled="!model.amount || !model.title">
-            <span>Add transaction</span>
-        </button>
+
+        <div class="transition-opacity" :class="[ model.type === TransactionType.None ? 'opacity-0' : '' ]">
+            <button type="submit" class="button primary" :disabled="isSubmitDisabled" @click="setSubmitButtonToSavedState()">
+                <span>{{ submitLabel }}</span>
+            </button>
+        </div>
 
     </form>
 </template>

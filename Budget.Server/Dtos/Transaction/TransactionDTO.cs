@@ -59,11 +59,6 @@ namespace Budget.Server.Dtos
                 [Required(AllowEmptyStrings = true)]
                 public string Comment { get; init; } = string.Empty;
             }
-
-            public class Response
-            {
-                public required int Id { get; set; }
-            }
         }
 
         #endregion Create

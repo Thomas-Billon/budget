@@ -13,9 +13,20 @@
 
     const transaction = ref<Transaction>({ ...DefaultTransaction });
 
+    const saveAllResult = ref({ isSuccess: undefined, timestamp: Date.now() });
+
     const createTransaction = async () => {
-        await apiCall('transaction', { method: 'POST', body: transaction.value });
-        router.push({ path: routes.transaction.list });
+        const response = await apiCall('transaction', { method: 'POST', body: transaction.value });
+
+        if (response.isSuccess) {
+            router.push({ path: routes.transaction.list });
+        }
+        else {
+            saveAllResult.value = {
+                isSuccess: response.isSuccess,
+                timestamp: Date.now
+            };
+        }
     };
 
 </script>
@@ -23,6 +34,7 @@
 <template>
     <ViewContainer :back-action="routes.transaction.list">
         <TransactionForm :is-new="true"
+                         :save-all-result="saveAllResult"
                          v-model="transaction"
                          @save-all="createTransaction" />
     </ViewContainer>
