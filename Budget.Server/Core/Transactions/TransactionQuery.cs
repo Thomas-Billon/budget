@@ -1,7 +1,8 @@
 ﻿using Budget.Server.Core.Enums;
+using Budget.Server.Data.Transactions;
 using System.Linq.Expressions;
 
-namespace Budget.Server.Data.Transactions
+namespace Budget.Server.Core.Transactions
 {
     public class TransactionQuery
     {

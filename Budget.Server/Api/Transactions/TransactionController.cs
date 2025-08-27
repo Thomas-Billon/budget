@@ -2,7 +2,6 @@
 using Budget.Server.Api.Transactions.Responses;
 using Budget.Server.Core.Helpers;
 using Budget.Server.Core.Transactions;
-using Budget.Server.Data.Transactions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Budget.Server.Api.Transactions
