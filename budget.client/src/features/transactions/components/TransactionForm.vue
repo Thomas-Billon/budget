@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
     import { onMounted, ref, watch } from 'vue';
-    import { debounce } from '@/helpers/Utils';
+    import { debounce } from '@/utils/Utils';
     import type { Transaction } from '@/models/Transaction.ts';
     import { TransactionType } from '@/enums/TransactionType.ts';
     import { PaymentMethod } from '@/enums/PaymentMethod.ts';

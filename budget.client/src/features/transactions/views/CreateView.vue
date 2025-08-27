@@ -3,7 +3,7 @@
     import { ref } from 'vue';
     import { useRouter } from 'vue-router'
     import { routes } from '@/router.ts';
-    import { apiCall } from '@/helpers/ApiCall';
+    import { apiCall } from '@/utils/ApiCall';
     import type { Transaction } from '@/features/transactions/ITransaction.ts';
     import { DefaultTransaction } from '@/features/transactions/ITransaction.ts';
     import ViewContainer from '@/components/ViewContainer.vue';
