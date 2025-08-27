@@ -1,7 +1,8 @@
 ﻿using Budget.Server.Api.Transactions.Requests;
 using Budget.Server.Api.Transactions.Responses;
-using Budget.Server.Core.Helpers.Pagination;
+using Budget.Server.Core.Helpers;
 using Budget.Server.Core.Transactions;
+using Budget.Server.Data.Transactions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Budget.Server.Api.Transactions
@@ -11,14 +12,13 @@ namespace Budget.Server.Api.Transactions
 	public class TransactionController : ControllerBase
     {
 		private readonly TransactionService _transactionService;
-        private readonly TransactionMapper _transactionMapper;
 
-        public TransactionController(
-            TransactionService transactionService,
-            TransactionMapper transactionMapper
-        ) {
+        public TransactionController
+        (
+            TransactionService transactionService
+        )
+        {
 			_transactionService = transactionService;
-            _transactionMapper = transactionMapper;
         }
 
         [HttpGet]
@@ -26,7 +26,11 @@ namespace Budget.Server.Api.Transactions
         {
             var transactions = await _transactionService.GetList(request.Skip, request.Take, request.Filters, request.Sort);
 
-            var response = _transactionMapper.ToGetListResponse(transactions);
+            var response = new Pagination<GetTransactionResponse>()
+            {
+                Page = transactions.Page.Select(ToGetTransactionResponse).ToList(),
+                IsLastPage = transactions.IsLastPage
+            };
             return Ok(response);
         }
 
@@ -34,18 +38,20 @@ namespace Budget.Server.Api.Transactions
 		public async Task<ActionResult<GetTransactionResponse?>> GetById(int id)
         {
             var transaction = await _transactionService.GetById(id);
+            if (transaction == null)
+            {
+                return NotFound();
+            }
 
-            var response = _transactionMapper.ToGetResponse(transaction);
+            var response = ToGetTransactionResponse(transaction);
             return Ok(response);
         }
 
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] CreateTransactionRequest request)
         {
-            var transaction = _transactionMapper.ToTransaction(request);
-
-            var result = await _transactionService.Create(transaction);
-            if (!IsDatabaseOperationResultValid(result))
+            var result = await _transactionService.Create(request);
+            if (result == 0)
             {
                 return BadRequest("Transaction creation failed.");
             }
@@ -56,10 +62,8 @@ namespace Budget.Server.Api.Transactions
         [HttpPut("{id:int}")]
         public async Task<ActionResult> Update(int id, [FromBody] UpdateTransactionRequest request)
         {
-            var transaction = _transactionMapper.ToTransaction(request);
-
-            var result = await _transactionService.Update(id, transaction);
-            if (!IsDatabaseOperationResultValid(result))
+            var result = await _transactionService.Update(id, request);
+            if (result == 0)
             {
                 return BadRequest("Transaction update failed.");
             }
@@ -68,14 +72,12 @@ namespace Budget.Server.Api.Transactions
         }
 
         [HttpPatch("{id:int}")]
-        public async Task<ActionResult> UpdatePartial(int id, [FromBody] UpdateTransactionRequest request)
+        public async Task<IActionResult> Patch(int id, [FromBody] PatchTransactionRequest request)
         {
-            var transaction = _transactionMapper.ToTransaction(request);
-
-            var result = await _transactionService.UpdatePartial(id, transaction);
-            if (!IsDatabaseOperationResultValid(result))
+            var result = await _transactionService.Patch(id, request);
+            if (result == 0)
             {
-                return BadRequest("Transaction update failed.");
+                return BadRequest("Transaction patch failed.");
             }
 
             return Ok();
@@ -85,7 +87,7 @@ namespace Budget.Server.Api.Transactions
 		public async Task<ActionResult> Delete(int id)
         {
             var result = await _transactionService.Delete(id);
-            if (!IsDatabaseOperationResultValid(result))
+            if (result == 0)
             {
                 return BadRequest("Transaction deletion failed.");
             }
@@ -93,9 +95,18 @@ namespace Budget.Server.Api.Transactions
             return Ok();
         }
 
-        private bool IsDatabaseOperationResultValid(int result)
+        private GetTransactionResponse ToGetTransactionResponse(TransactionQuery transaction)
         {
-            return result > 0;
+            return new GetTransactionResponse()
+            {
+                Id = transaction.Id,
+                Type = transaction.Type,
+                Amount = transaction.Amount,
+                Title = transaction.Title,
+                Date = transaction.Date,
+                PaymentMethod = transaction.PaymentMethod,
+                Comment = transaction.Comment
+            };
         }
     }
 }

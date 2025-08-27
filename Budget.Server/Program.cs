@@ -1,4 +1,3 @@
-using Budget.Server.Core.Helpers.Pagination;
 using Budget.Server.Core.Transactions;
 using Budget.Server.Data;
 using Budget.Server.Middleware.Error;
@@ -76,11 +75,7 @@ public static class ProgramExtensions
     {
         builder.Services.AddSingleton<IDbInitializerService, DbInitializerService>();
 
-        builder.Services.AddSingleton<PaginationService>();
-
         builder.Services.AddScoped<TransactionService>();
-
-        builder.Services.AddSingleton<TransactionMapper>();
 
         return builder;
     }

@@ -1,5 +1,5 @@
 ﻿using Budget.Server.Api.Transactions.Requests;
-using Budget.Server.Core.Helpers.Pagination;
+using Budget.Server.Core.Helpers;
 using Budget.Server.Data;
 using Budget.Server.Data.Transactions;
 using Microsoft.EntityFrameworkCore;
@@ -8,19 +8,14 @@ namespace Budget.Server.Core.Transactions
 {
     public class TransactionService
     {
-        const int NO_ENTRIES_WRITTEN_TO_DATABASE = 0;
-
         private readonly ApplicationDbContext _context;
-        private readonly PaginationService _paginationService;
 
         public TransactionService
         (
-            ApplicationDbContext context,
-            PaginationService paginationService
+            ApplicationDbContext context
         )
         {
             _context = context;
-            _paginationService = paginationService;
         }
 
         public async Task<Pagination<TransactionQuery>> GetList(int skip, int take, HashSet<TransactionFilterOption> filters, TransactionSortOption sort)
@@ -50,12 +45,12 @@ namespace Budget.Server.Core.Transactions
                 _ => query
             };
 
-            query = _paginationService.ApplyPaginationToQuery(query, skip, take);
+            query = query.ApplyPaginationToQuery(skip, take);
 
-            var items = await query.Select(TransactionQuery.Select)
+            var entities = await query.Select(TransactionQuery.Select)
                 .ToListAsync();
 
-            return _paginationService.CreatePagination(items, take);
+            return Pagination<TransactionQuery>.CreateFromQueryResult(entities, take);
         }
 
         public Task<TransactionQuery?> GetById(int id)
@@ -66,44 +61,52 @@ namespace Budget.Server.Core.Transactions
                 .FirstOrDefaultAsync();
         }
 
-        public Task<int> Create(Transaction entity)
+        public Task<int> Create(CreateTransactionRequest request)
         {
+            var entity = new Transaction
+            {
+                Type = request.Type,
+                Amount = request.Amount,
+                Title = request.Title,
+                Date = request.Date,
+                PaymentMethod = request.PaymentMethod,
+                Comment = request.Comment
+            };
+
             _context.Transactions.Add(entity);
 
             return _context.SaveChangesAsync();
         }
 
-        public Task<int> Update(int id, Transaction entity)
+        public Task<int> Update(int id, UpdateTransactionRequest request)
         {
             return _context.Transactions
                 .Where(x => x.Id == id)
                 .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(x => x.Type, entity.Type)
-                    .SetProperty(x => x.Amount, entity.Amount)
-                    .SetProperty(x => x.Title, entity.Title)
-                    .SetProperty(x => x.Date, entity.Date)
-                    .SetProperty(x => x.PaymentMethod, entity.PaymentMethod)
-                    .SetProperty(x => x.Comment, entity.Comment)
+                    .SetProperty(x => x.Type, request.Type)
+                    .SetProperty(x => x.Amount, request.Amount)
+                    .SetProperty(x => x.Title, request.Title)
+                    .SetProperty(x => x.Date, request.Date)
+                    .SetProperty(x => x.PaymentMethod, request.PaymentMethod)
+                    .SetProperty(x => x.Comment, request.Comment)
                 );
         }
 
-        public async Task<int> UpdatePartial(int id, Transaction entity)
+        public async Task<int> Patch(int id, PatchTransactionRequest request)
         {
-            var dbEntity = await _context.Transactions
-                .Where(x => x.Id == id)
-                .FirstOrDefaultAsync();
+            var entity = await _context.Transactions.FindAsync(id);
 
-            if (dbEntity == null)
+            if (entity == null)
             {
-                return NO_ENTRIES_WRITTEN_TO_DATABASE;
+                return 0;
             }
 
-            dbEntity.Type = entity.Type;
-            dbEntity.Amount = entity.Amount;
-            dbEntity.Title = entity.Title;
-            dbEntity.Date = entity.Date;
-            dbEntity.PaymentMethod = entity.PaymentMethod;
-            dbEntity.Comment = entity.Comment;
+            if (request.Type?.IsSet == true) entity.Type = request.Type.Value;
+            if (request.Amount?.IsSet == true) entity.Amount = request.Amount.Value;
+            if (request.Title?.IsSet == true) entity.Title = request.Title.Value ?? string.Empty;
+            if (request.Date?.IsSet == true) entity.Date = request.Date.Value;
+            if (request.PaymentMethod?.IsSet == true) entity.PaymentMethod = request.PaymentMethod.Value;
+            if (request.Comment?.IsSet == true) entity.Comment = request.Comment.Value ?? string.Empty;
 
             return await _context.SaveChangesAsync();
         }
