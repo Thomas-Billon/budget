@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Budget.Server.Migrations
+namespace Budget.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20250702224002_AddTransactions")]

@@ -1,7 +1,7 @@
 import HomeView from '@/views/HomeView.vue';
-import TransactionListView from '@/views/transaction/ListView.vue';
-import TransactionCreateView from '@/views/transaction/CreateView.vue';
-import TransactionUpdateView from '@/views/transaction/UpdateView.vue';
+import TransactionListView from '@/features/transactions/views/ListView.vue';
+import TransactionCreateView from '@/features/transactions/views/CreateView.vue';
+import TransactionUpdateView from '@/features/transactions/views/UpdateView.vue';
 
 const getIdParam = (id: number): string => {
     if (id > 0) {

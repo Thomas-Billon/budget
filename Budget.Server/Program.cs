@@ -1,8 +1,8 @@
+using Budget.Server.Core.Helpers.Pagination;
+using Budget.Server.Core.Transactions;
 using Budget.Server.Data;
-using Budget.Server.Mappers;
-using Budget.Server.Middlewares.Error;
-using Budget.Server.Middlewares.Startup;
-using Budget.Server.Services;
+using Budget.Server.Middleware.Error;
+using Budget.Server.Middleware.Startup;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -62,7 +62,7 @@ public static class ProgramExtensions
     public static WebApplicationBuilder ConfigureExceptionHandlers(this WebApplicationBuilder builder)
     {
         builder.Services.AddExceptionHandler<NotImplementedExceptionHandler>();
-        builder.Services.AddExceptionHandler<DefaultGlobalExceptionHandler>();
+        builder.Services.AddExceptionHandler<DefaultExceptionHandler>();
         builder.Services.AddExceptionHandler(options =>
         {
             options.ExceptionHandlingPath = "/error"; // required even if unused
@@ -75,6 +75,8 @@ public static class ProgramExtensions
     public static WebApplicationBuilder ConfigureServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddSingleton<IDbInitializerService, DbInitializerService>();
+
+        builder.Services.AddSingleton<PaginationService>();
 
         builder.Services.AddScoped<TransactionService>();
 

@@ -1,5 +1,4 @@
-﻿using Budget.Server.Data.Configurations;
-using Budget.Server.Entities;
+﻿using Budget.Server.Data.Transactions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Budget.Server.Data
