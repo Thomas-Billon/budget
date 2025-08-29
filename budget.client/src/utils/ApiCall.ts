@@ -29,14 +29,14 @@ const apiCall = async <TRequest, TResponse>(
 
             return await response.json()
                 .then(json => {
-                    return { isSuccess: true, ...json };
+                    return json;
                 })
                 .catch(() => {
-                    return { isSuccess: true };
+                    return undefined;
                 });
         })
         .catch(() => {
-            return { isSuccess: false };
+            throw new Error();
         });
 
     return (response as TResponse);

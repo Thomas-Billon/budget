@@ -2,12 +2,12 @@
 {
     public class GetListTransactionRequest
     {
-        public int Skip { get; set; } = 0;
+        public int Skip { get; init; } = 0;
 
-        public int Take { get; set; } = 0;
+        public int Take { get; init; } = 0;
 
-        public HashSet<TransactionFilterOption> Filters { get; set; } = [];
+        public HashSet<TransactionFilterOption> Filters { get; init; } = [];
 
-        public TransactionSortOption Sort { get; set; } = TransactionSortOption.None;
+        public TransactionSortOption Sort { get; init; } = TransactionSortOption.None;
     }
 }

@@ -12,7 +12,7 @@ namespace Budget.Server.Api.Transactions.Requests
         public double Amount { get; init; } = 0;
 
         [Required]
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; init; } = string.Empty;
 
         public DateOnly? Date { get; init; }
 

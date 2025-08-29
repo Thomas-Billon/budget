@@ -3,19 +3,36 @@
     import { onMounted, ref } from 'vue';
     import { routes } from '@/router.ts';
     import { apiCall } from '@/utils/ApiCall.ts';
+    import type { ITransaction } from '@/features/transactions/ITransaction.ts';
     import ViewContainer from '@/components/ViewContainer.vue';
     import { formatAmount } from '@/features/transactions/TransactionService.ts'
 
-    const transactions = ref<Transaction[]>([]);
+    const transactions = ref<ITransaction[]>([]);
+    const isLastPage = ref<boolean>(false);
+
+    const itemNumberPerPage = 2;
 
     // Init
     onMounted(() => {
-        getListTransaction();
+        getListTransaction(0, itemNumberPerPage);
     });
 
-    const getListTransaction = async () => {
-        const response = await apiCall('transaction', { method: 'GET' });
-        transactions.value = response.page;
+    const onSeeMoreClick = () => {
+        getListTransaction(transactions?.value.length, itemNumberPerPage);
+    };
+
+    const getListTransaction = async (skip: number, take: number) => {
+        apiCall(`transaction?skip=${skip}&take=${take}`, { method: 'GET' })
+            .then(response => {
+                transactions.value.push(...response.page);
+                isLastPage.value = response.isLastPage;
+
+                const ids = new Set(); // temp variable to keep track of duplicates
+                transactions.value = transactions.value.filter(({ id }) => !ids.has(id) && ids.add(id));
+            })
+            .catch(() => {
+                // TODO: Add error
+            });
     };
 
 </script>
@@ -41,6 +58,10 @@
                     </div>
                 </RouterLink>
             </div>
+
+            <button :class="[ isLastPage ? 'hidden' : '' ]" @click="onSeeMoreClick()">
+                See more
+            </button>
         </div>
     </ViewContainer>
 </template>

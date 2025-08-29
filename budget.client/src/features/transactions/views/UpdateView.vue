@@ -4,7 +4,7 @@
     import { useRoute, useRouter } from 'vue-router'
     import { routes } from '@/router.ts';
     import { apiCall } from '@/utils/ApiCall';
-    import type { Transaction } from '@/features/transactions/ITransaction.ts';
+    import type { ITransaction } from '@/features/transactions/ITransaction.ts';
     import { DefaultTransaction } from '@/features/transactions/ITransaction.ts';
     import ViewContainer from '@/components/ViewContainer.vue';
     import TransactionForm from '@/features/transactions/components/TransactionForm.vue';
@@ -28,30 +28,42 @@
     });
 
     const getTransactionById = async (id: number) => {
-        transaction.value = await apiCall(`transaction/${id}`, { method: 'GET' });
+        apiCall(`transaction/${id}`, { method: 'GET' })
+            .then(response => {
+                transaction.value = response;
+            })
+            .catch(() => {
+                // TODO: Add error
+            });
     };
 
-    const updateTransactionAll = async (id: number) => {
-        const response = await apiCall(`transaction/${id}`, { method: 'PUT', body: transaction.value });
-
-        if (response.isSuccess) {
-            router.push({ path: routes.transaction.list });
-        }
-        else {
-            saveAllResult.value = {
-                isSuccess: response.isSuccess,
-                timestamp: Date.now
-            };
-        }
+    const updateTransactionAll = async (data: ITransaction) => {
+        apiCall(`transaction/${data.id}`, { method: 'PUT', body: data })
+            .then(response => {
+                router.push({ path: routes.transaction.list });
+            })
+            .catch(() => {
+                saveAllResult.value = {
+                    isSuccess: false,
+                    timestamp: Date.now
+                };
+            });
     };
 
-    const updateTransactionPartial = async (id: number) => {
-        const response = await apiCall(`transaction/${id}`, { method: 'PATCH', body: transaction.value });
-
-        savePartialResult.value = {
-            isSuccess: response.isSuccess,
-            timestamp: Date.now
-        };
+    const updateTransactionPartial = async (id: number, data: { [P in keyof Transaction]: Transaction[P] }) => {
+        apiCall(`transaction/${id}`, { method: 'PATCH', body: data })
+            .then(response => {
+                savePartialResult.value = {
+                    isSuccess: true,
+                    timestamp: Date.now
+                };
+            })
+            .catch(() => {
+                savePartialResult.value = {
+                    isSuccess: false,
+                    timestamp: Date.now
+                };
+            });
     };
 
 </script>

@@ -15,7 +15,7 @@
                 isLastPage = items.Count <= take;
                 if (!isLastPage)
                 {
-                    items.RemoveAt(items.Count - PaginationHelper.EXTRA_ENTRY_TO_CHECK_IF_LAST_PAGE);
+                    items.RemoveAt(items.Count - PaginationExtension.EXTRA_ENTRY_TO_CHECK_IF_LAST_PAGE);
                 }
             }
 
@@ -27,7 +27,7 @@
         }
     }
 
-    public static class PaginationHelper
+    public static class PaginationExtension
     {
         public const int EXTRA_ENTRY_TO_CHECK_IF_LAST_PAGE = 1;
 

@@ -1,8 +1,10 @@
+using Budget.Server.Core.Helpers;
 using Budget.Server.Core.Transactions;
 using Budget.Server.Data;
 using Budget.Server.Middleware.Error;
 using Budget.Server.Middleware.Startup;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Scalar.AspNetCore;
 
 
@@ -26,7 +28,11 @@ public static class ProgramExtensions
 {
     public static WebApplicationBuilder ConfigureBuilder(this WebApplicationBuilder builder)
     {
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddNewtonsoftJson(options =>
+        {
+            options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
+            options.SerializerSettings.Converters.Add(new OptionalJsonConverter());
+        });
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApi();
 
