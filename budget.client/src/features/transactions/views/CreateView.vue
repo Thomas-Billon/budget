@@ -1,12 +1,11 @@
 <script setup lang="ts">
 
     import { ref } from 'vue';
-    import { useRouter } from 'vue-router'
+    import { useRouter } from 'vue-router';
     import { routes } from '@/router.ts';
     import { apiCall } from '@/utils/ApiCall';
     import type { ITransaction } from '@/features/transactions/ITransaction.ts';
     import { DefaultTransaction } from '@/features/transactions/ITransaction.ts';
-    import ViewContainer from '@/components/ViewContainer.vue';
     import TransactionForm from '@/features/transactions/components/TransactionForm.vue';
 
     const router = useRouter();
@@ -31,10 +30,10 @@
 </script>
 
 <template>
-    <ViewContainer :back-action="routes.transaction.list">
+    <div class="page section-container container">
         <TransactionForm :is-new="true"
                          :save-all-result="saveAllResult"
                          v-model="transaction"
                          @save-all="createTransaction" />
-    </ViewContainer>
+    </div>
 </template>

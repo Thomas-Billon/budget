@@ -1,10 +1,9 @@
 <script setup lang="ts">
     import { routes } from '@/router.ts';
-    import ViewContainer from '@/components/ViewContainer.vue';
 </script>
 
 <template>
-    <ViewContainer>
+    <div class="page section-container container">
         <RouterLink :to="routes.transaction.list">Transactions</RouterLink>
-    </ViewContainer>
+    </div>
 </template>

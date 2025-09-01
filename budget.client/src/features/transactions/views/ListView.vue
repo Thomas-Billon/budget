@@ -4,13 +4,12 @@
     import { routes } from '@/router.ts';
     import { apiCall } from '@/utils/ApiCall.ts';
     import type { ITransaction } from '@/features/transactions/ITransaction.ts';
-    import ViewContainer from '@/components/ViewContainer.vue';
     import { formatAmount } from '@/features/transactions/TransactionService.ts'
 
     const transactions = ref<ITransaction[]>([]);
     const isLastPage = ref<boolean>(false);
 
-    const itemNumberPerPage = 2;
+    const itemNumberPerPage = 15;
 
     // Init
     onMounted(() => {
@@ -38,30 +37,28 @@
 </script>
 
 <template>
-    <ViewContainer :back-action="routes.home">
-        <div class="section-container">
-            <div class="flex justify-center gap-6">
-                <RouterLink :to="routes.transaction.create" class="flex flex-col items-center gap-1">
-                    <span class="button primary circle text-xl">
-                        <font-awesome-icon icon="fa-solid fa-plus" />
-                    </span>
-                    <span class="font-semibold">Create</span>
-                </RouterLink>
-            </div>
-
-            <div class="flex flex-col gap-2">
-                <RouterLink :to="routes.transaction.update(transaction.id)" v-for="transaction in transactions" :key="transaction.id" class="flex items-center gap-4">
-                    <span class="w-2 h-2 bg-neutral-200 rounded-full"></span>
-                    <div class="grow flex flex-col gap-1">
-                        <span class="font-bold">{{ transaction.title }}</span>
-                        <span>{{ formatAmount(transaction.amount) }} €</span>
-                    </div>
-                </RouterLink>
-            </div>
-
-            <button :class="[ isLastPage ? 'hidden' : '' ]" @click="onSeeMoreClick()">
-                See more
-            </button>
+    <div class="page section-container container">
+        <div class="flex justify-center gap-6">
+            <RouterLink :to="routes.transaction.create" class="flex flex-col items-center gap-1">
+                <span class="button primary circle text-xl">
+                    <font-awesome-icon icon="fa-solid fa-plus" />
+                </span>
+                <span class="font-semibold">Create</span>
+            </RouterLink>
         </div>
-    </ViewContainer>
+
+        <div class="flex flex-col gap-2">
+            <RouterLink :to="routes.transaction.update(transaction.id)" v-for="transaction in transactions" :key="transaction.id" class="flex items-center gap-4">
+                <span class="w-2 h-2 bg-neutral-200 rounded-full"></span>
+                <div class="grow flex flex-col gap-1">
+                    <span class="font-bold">{{ transaction.title }}</span>
+                    <span>{{ formatAmount(transaction.amount) }} €</span>
+                </div>
+            </RouterLink>
+        </div>
+
+        <button :class="[ isLastPage ? 'd-none' : '' ]" @click="onSeeMoreClick()">
+            See more
+        </button>
+    </div>
 </template>

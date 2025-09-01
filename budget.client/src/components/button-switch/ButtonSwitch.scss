@@ -1,0 +1,45 @@
+@import "@/assets/variables";
+
+.button-switch {
+    padding: $spacer-outline;
+    border-radius: $radius-btn;
+
+    &-container {
+        position: relative;
+        z-index: 0;
+        display: flex;
+        gap: $spacer-outline;
+    }
+
+    &-option {
+        width: 100%;
+        border: none;
+    }
+
+    &.has-active &-option {
+        background-color: rgb(255, 255, 255, 0);
+
+        &:hover {
+            background-color: rgb(255, 255, 255, 0.25);
+        }
+    }
+
+    &-highlight {
+        $switch-width: calc(100% - (var(--switchCount) - 1) * $spacer-outline);
+        $option-width: calc($switch-width / var(--switchCount));
+        $offset-left: calc(var(--switchIndex) / var(--switchCount) * $switch-width + var(--switchIndex) * $spacer-outline);
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: $offset-left;
+        width: $option-width;
+        z-index: -1;
+        border: none;
+        pointer-events: none;
+        transition: left 250ms ease;
+    }
+
+    &.no-active &-highlight {
+        display: none;
+    }
+}

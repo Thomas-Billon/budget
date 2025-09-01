@@ -1,12 +1,11 @@
 <script setup lang="ts">
 
     import { onMounted, ref, watch } from 'vue';
-    import { useRoute, useRouter } from 'vue-router'
+    import { useRoute, useRouter } from 'vue-router';
     import { routes } from '@/router.ts';
     import { apiCall } from '@/utils/ApiCall';
     import type { ITransaction } from '@/features/transactions/ITransaction.ts';
     import { DefaultTransaction } from '@/features/transactions/ITransaction.ts';
-    import ViewContainer from '@/components/ViewContainer.vue';
     import TransactionForm from '@/features/transactions/components/TransactionForm.vue';
 
     const route = useRoute();
@@ -69,12 +68,12 @@
 </script>
 
 <template>
-    <ViewContainer :back-action="routes.transaction.list">
+    <div class="page section-container container">
         <TransactionForm :is-new="false"
                          :save-all-result="saveAllResult"
                          :save-partial-result="savePartialResult"
                          v-model="transaction"
                          @save-all="updateTransactionAll"
                          @save-partial="updateTransactionPartial" />
-    </ViewContainer>
+    </div>
 </template>

@@ -1,16 +1,20 @@
 <script setup lang="ts">
 
+    import './TransactionForm.scss';
+
     import { onMounted, ref, watch } from 'vue';
     import { debounce } from '@/utils/Utils';
     import type { Transaction } from '@/models/Transaction.ts';
     import { TransactionType } from '@/enums/TransactionType.ts';
     import { PaymentMethod } from '@/enums/PaymentMethod.ts';
+    import ButtonSwitch from '@/components/button-switch/ButtonSwitch.vue';
     import { formatAmount, parseAmount } from '@/features/transactions/TransactionService.ts'
 
     const { isNew, saveAllResult, savePartialResult } = defineProps(['isNew', 'saveAllResult', 'savePartialResult']);
     const model = defineModel<Transaction>({ required: true });
     const emit = defineEmits(['saveAll', 'savePartial']);
 
+    const typeOptions = [{ value: TransactionType.Income, label: 'Income', icon: 'plus' }, { value: TransactionType.Expense, label: 'Expense', icon: 'minus' }];
     const amountPlaceholder = formatAmount(0, { isFalsyValueAllowed: true });
     const amountDisplayValue = ref('');
     const submitLabel = ref('');
@@ -42,7 +46,7 @@
     });
 
     // On model change
-    watch(() => model.value, (transaction) => {
+    watch(() => model.value, (_) => {
         updateAmountDisplayValue();
     });
 
@@ -102,24 +106,16 @@
     const savePartial = () => emit('savePartial', model.value.id, partialModel);
 
     const debounceSavePartial = debounce(() => { savePartial(); partialModel = {}; }, 1000);
+
 </script>
 
 <template>
-    <form class="section-container grow" @submit.prevent="onSubmit">
+    <form class="d-flex flex-column gap-section flex-grow-1" @submit.prevent="onSubmit">
 
         <input type="hidden" id="transaction-id" name="Id" v-model="model.id" />
 
-        <div class="grow-0 flex p-1 gap-1 rounded bg-neutral-200">
-            <button type="button" class="button !px-2 !py-1 secondary transition-colors" :class="[ model.type !== TransactionType.Expense ? '' : 'disabled' ]" @click="model.type = TransactionType.Income; onFormFieldInput($event, 'type');">
-                <font-awesome-icon icon="fa-solid fa-plus" size="sm" />
-                <span>Income</span>
-            </button>
-            <button type="button" class="button !px-2 !py-1 secondary transition-colors" :class="[ model.type !== TransactionType.Income ? '' : 'disabled' ]" @click="model.type = TransactionType.Expense; onFormFieldInput($event, 'type');">
-                <font-awesome-icon icon="fa-solid fa-minus" size="sm" />
-                <span>Expense</span>
-            </button>
-            <input type="hidden" id="transaction-type" name="Type" v-model="model.type" />
-        </div>
+        <input type="hidden" id="transaction-type" name="Type" v-model="model.type" />
+        <ButtonSwitch v-model="model.type" :options="typeOptions" bg-color="secondary"/>
 
         <div class="grow flex flex-col justify-center gap-6 transition-opacity" :class="[ model.type === TransactionType.None ? 'opacity-0' : '' ]">
 
@@ -158,7 +154,7 @@
         </div>
 
         <div class="transition-opacity" :class="[ model.type === TransactionType.None ? 'opacity-0' : '' ]">
-            <button type="submit" class="button primary" :disabled="isSubmitDisabled || model.type === TransactionType.None || !model.amount || !model.title">
+            <button type="submit" class="btn btn-primary" :disabled="isSubmitDisabled || model.type === TransactionType.None || !model.amount || !model.title">
                 <span>{{ submitLabel }}</span>
             </button>
         </div>
