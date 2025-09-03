@@ -30,10 +30,8 @@
 </script>
 
 <template>
-    <div class="page section-container container">
-        <TransactionForm :is-new="true"
-                         :save-all-result="saveAllResult"
-                         v-model="transaction"
-                         @save-all="createTransaction" />
-    </div>
+    <TransactionForm :is-new="true"
+                        :save-all-result="saveAllResult"
+                        v-model="transaction"
+                        @save-all="createTransaction" />
 </template>

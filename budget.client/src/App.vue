@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-    import '@/assets/main.scss';
+    import './App.scss';
 
     import { ref, watch } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
@@ -24,14 +24,16 @@
 </script>
 
 <template>
-    <header>
-        <div v-if="canGoBack">
-            <button @click="goBack()">
-                <font-awesome-icon icon="fa-solid fa-arrow-left" size="lg" />
-            </button>
-        </div>
-    </header>
-    <main class="page">
-        <RouterView />
-    </main>
+    <div class="page">
+        <header>
+            <div v-if="canGoBack">
+                <button @click="goBack()">
+                    <font-awesome-icon icon="fa-solid fa-arrow-left" size="lg" />
+                </button>
+            </div>
+        </header>
+        <main class="page-container">
+            <RouterView />
+        </main>
+    </div>
 </template>

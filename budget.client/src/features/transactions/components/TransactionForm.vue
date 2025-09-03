@@ -110,17 +110,19 @@
 </script>
 
 <template>
-    <form class="d-flex flex-column gap-section flex-grow-1" @submit.prevent="onSubmit">
+    <form class="transaction-form container" @submit.prevent="onSubmit">
 
         <input type="hidden" id="transaction-id" name="Id" v-model="model.id" />
 
-        <input type="hidden" id="transaction-type" name="Type" v-model="model.type" />
-        <ButtonSwitch v-model="model.type" :options="typeOptions" bg-color="secondary"/>
+        <div class="transaction-form-head">
+            <input type="hidden" id="transaction-type" name="Type" v-model="model.type" />
+            <ButtonSwitch v-model="model.type" :options="typeOptions" bg-color="secondary" />
+        </div>
 
-        <div class="grow flex flex-col justify-center gap-6 transition-opacity" :class="[ model.type === TransactionType.None ? 'opacity-0' : '' ]">
+        <div class="transaction-form-body transition-opacity" :class="[ model.type === TransactionType.None && 'hidden' ]">
 
-            <div class="flex items-stretch gap-4 h-24">
-                <input class="input text-6xl font-light text-center"
+            <div class="input-group">
+                <input class="transaction-form-input-amount form-control form-control-lg"
                        type="text"
                        id="transaction-amount"
                        name="Amount"
@@ -130,16 +132,16 @@
                        required
                        @input="onAmountInput($event); onFormFieldInput($event, 'amount');"
                        @change="onAmountChange($event)" />
-                <span class="input shrink-0 flex items-center justify-center text-4xl !w-24 text-center">
+                <span class="input-group-text">
                     €
                 </span>
             </div>
 
-            <input class="input" type="text" id="transaction-title" name="Title" v-model="model.title" placeholder="Title" required @input="onFormFieldInput($event, 'title');" />
+            <input class="form-control form-control-lg" type="text" id="transaction-title" name="Title" v-model="model.title" placeholder="Title" required @input="onFormFieldInput($event, 'title');" />
 
-            <input class="input" type="date" id="transaction-date" name="Date" v-model="model.date" @input="onFormFieldInput($event, 'date');" />
+            <input class="form-control form-control-lg" type="date" id="transaction-date" name="Date" v-model="model.date" @input="onFormFieldInput($event, 'date');" />
 
-            <select class="input !ps-3" id="transaction-payment-method" name="PaymentMethod" v-model="model.paymentMethod" @input="onFormFieldInput($event, 'paymentMethod');">
+            <select class="form-select form-select-lg" id="transaction-payment-method" name="PaymentMethod" v-model="model.paymentMethod" @input="onFormFieldInput($event, 'paymentMethod');">
                 <option :value="PaymentMethod.None" disabled selected>Select Payment Method</option>
                 <option :value="PaymentMethod.Cash">{{ PaymentMethod[PaymentMethod.Cash] }}</option>
                 <option :value="PaymentMethod.CreditCard">{{ PaymentMethod[PaymentMethod.CreditCard] }}</option>
@@ -149,12 +151,12 @@
                 <option :value="PaymentMethod.Other">{{ PaymentMethod[PaymentMethod.Other] }}</option>
             </select>
 
-            <textarea class="input" id="transaction-comment" name="Comment" v-model="model.comment" placeholder="Comment" @input="onFormFieldInput($event, 'comment');"></textarea>
+            <textarea class="form-control form-control-lg" id="transaction-comment" name="Comment" v-model="model.comment" placeholder="Comment" @input="onFormFieldInput($event, 'comment');"></textarea>
 
         </div>
 
-        <div class="transition-opacity" :class="[ model.type === TransactionType.None ? 'opacity-0' : '' ]">
-            <button type="submit" class="btn btn-primary" :disabled="isSubmitDisabled || model.type === TransactionType.None || !model.amount || !model.title">
+        <div class="transaction-form-foot transition-opacity" :class="[ model.type === TransactionType.None && 'hidden' ]">
+            <button type="submit" class="transaction-form-submit btn btn-primary btn-lg" :disabled="isSubmitDisabled || model.type === TransactionType.None || !model.amount || !model.title">
                 <span>{{ submitLabel }}</span>
             </button>
         </div>

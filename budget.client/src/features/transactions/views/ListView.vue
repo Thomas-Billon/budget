@@ -37,7 +37,7 @@
 </script>
 
 <template>
-    <div class="page section-container container">
+    <div class="container">
         <div class="flex justify-center gap-6">
             <RouterLink :to="routes.transaction.create" class="flex flex-col items-center gap-1">
                 <span class="button primary circle text-xl">

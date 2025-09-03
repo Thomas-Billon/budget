@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <div class="page section-container container">
+    <div class="container">
         <RouterLink :to="routes.transaction.list">Transactions</RouterLink>
     </div>
 </template>

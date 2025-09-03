@@ -1,0 +1,52 @@
+@import "@/assets/variables";
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacer-inline;
+    --bs-btn-border-radius: #{$radius-btn};
+    --bs-btn-font-size: #{$font-size-base};
+}
+
+.form-control, .form-select, .input-group-text {
+    border: none;
+    background-color: $white;
+    line-height: normal;
+    font-size: #{$font-size-base};
+}
+
+.form-control, .form-select {
+    &:focus {
+        box-shadow: none;
+        background-color: $white;
+    }
+}
+
+.bg-opacity-0 {
+    --bs-bg-opacity: 0;
+}
+
+.bg-opacity-0-hover:hover {
+    --bs-bg-opacity: 0;
+}
+
+.bg-opacity-10-hover:hover {
+    --bs-bg-opacity: 0.1;
+}
+
+.bg-opacity-25-hover:hover {
+    --bs-bg-opacity: 0.25;
+}
+
+.bg-opacity-50-hover:hover {
+    --bs-bg-opacity: 0.5;
+}
+
+.bg-opacity-75-hover:hover {
+    --bs-bg-opacity: 0.75;
+}
+
+.bg-opacity-100-hover:hover {
+    --bs-bg-opacity: 1;
+}
