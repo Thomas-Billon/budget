@@ -9,8 +9,15 @@ body {
     font-family: 'Montserrat', sans-serif;
 }
 
-.transition-position {
-    transition: top 250ms ease, bottom 250ms ease, left 250ms ease, right 250ms ease;
+.section-container {
+    display: flex;
+    flex-direction: column;
+    gap: $spacer-section;
+}
+
+.section-container-grow {
+    @extend .section-container;
+    flex-grow: 1;
 }
 
 .transition-opacity {
@@ -26,23 +33,3 @@ body {
         opacity: 1;
     }
 }
-
-.button {
-    @apply flex items-center justify-center gap-2 w-full py-2 px-4 rounded font-medium cursor-pointer transition-colors;
-}
-
-    .button.primary {
-        @apply bg-neutral-800 disabled:bg-neutral-500 text-white;
-    }
-
-    .button.secondary {
-        @apply bg-white disabled:bg-neutral-200 text-black disabled:text-neutral-400;
-    }
-
-        .button.secondary.disabled {
-            @apply bg-neutral-200 text-neutral-400;
-        }
-
-    .button.circle {
-        @apply w-[2em] h-[2em] p-0 rounded-full;
-    }

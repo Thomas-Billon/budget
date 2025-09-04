@@ -27,12 +27,12 @@
     <div class="page">
         <header>
             <div v-if="canGoBack">
-                <button @click="goBack()">
+                <button @click="goBack()" class="btn btn-link">
                     <font-awesome-icon icon="fa-solid fa-arrow-left" size="lg" />
                 </button>
             </div>
         </header>
-        <main class="page-container">
+        <main class="section-container-grow">
             <RouterView />
         </main>
     </div>

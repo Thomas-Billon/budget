@@ -1,11 +1,6 @@
 @import "@/assets/variables";
 
 .transaction-form {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: $spacer-section;
-
     &-head {
     }
 

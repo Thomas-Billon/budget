@@ -1,10 +1,6 @@
 @import "@/assets/variables";
 
 .transaction-list {
-    display: flex;
-    flex-direction: column;
-    gap: $spacer-section;
-
     &-actions {
         display: flex;
         justify-content: center;

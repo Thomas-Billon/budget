@@ -110,7 +110,7 @@
 </script>
 
 <template>
-    <form class="transaction-form container" @submit.prevent="onSubmit">
+    <form class="transaction-form section-container-grow container" @submit.prevent="onSubmit">
 
         <input type="hidden" id="transaction-id" name="Id" v-model="model.id" />
 

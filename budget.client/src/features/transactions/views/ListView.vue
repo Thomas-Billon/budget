@@ -39,7 +39,7 @@
 </script>
 
 <template>
-    <div class="transaction-list container">
+    <div class="transaction-list section-container container">
         <div class="transaction-list-actions">
             <RouterLink :to="routes.transaction.create" class="transaction-list-action-link">
                 <span class="transaction-list-action-icon btn btn-primary btn-circle">
@@ -59,7 +59,7 @@
             </RouterLink>
         </div>
 
-        <button :class="[ 'btn btn-outline-secondary', isLastPage ? 'd-none' : '' ]" @click="onSeeMoreClick()">
+        <button :class="[ 'btn btn-outline-secondary', isLastPage ? 'disabled' : '' ]" @click="onSeeMoreClick()">
             See more
         </button>
     </div>

@@ -1,8 +1,12 @@
 @import "@/assets/variables";
 
-a {
+a, .btn-link {
     color: $body-color;
     text-decoration: none;
+
+    &:hover {
+        color: $black;
+    }
 }
 
 .btn {
@@ -13,14 +17,20 @@ a {
     --bs-btn-border-width: #{$spacer-outline * 0.5};
     --bs-btn-border-radius: #{$radius-btn};
     --bs-btn-font-size: #{$font-size-base};
-}
-
-.btn-lg {
-    font-weight: 500;
+    --bs-btn-disabled-color: #{$black};
+    --bs-btn-disabled-bg: #{$disabled};
+    --bs-btn-disabled-border-color: #{$disabled};
+    --bs-btn-disabled-opacity: 1;
 }
 
 .btn-outline-primary, .btn-outline-secondary {
     --bs-btn-color: #{$black};
+    --bs-btn-disabled-color: #{$disabled};
+    --bs-btn-disabled-bg: transparent;
+}
+
+.btn-lg {
+    font-weight: 500;
 }
 
 .btn-circle {
