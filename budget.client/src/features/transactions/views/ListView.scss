@@ -1,0 +1,61 @@
+@import "@/assets/variables";
+
+.transaction-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacer-section;
+
+    &-actions {
+        display: flex;
+        justify-content: center;
+        gap: $spacer-section;
+    }
+
+    &-action {
+        &-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: $spacer-outline;
+        }
+
+        &-icon {
+            font-size: calc($font-size-base * 2);
+        }
+
+        &-label {
+            font-weight: 500;
+        }
+    }
+
+    &-items {
+        display: flex;
+        flex-direction: column;
+        gap: $spacer-inline;
+    }
+
+    &-item {
+        display: flex;
+        align-items: center;
+        gap: $spacer-block;
+
+        &-icon {
+            width: 0.5rem;
+            height: 0.5rem;
+            background-color: $secondary;
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+
+        &-details {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: $spacer-outline;
+        }
+
+        &-title {
+            font-weight: 600;
+        }
+    }
+}

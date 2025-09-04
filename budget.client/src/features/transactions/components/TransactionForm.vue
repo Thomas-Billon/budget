@@ -116,7 +116,7 @@
 
         <div class="transaction-form-head">
             <input type="hidden" id="transaction-type" name="Type" v-model="model.type" />
-            <ButtonSwitch v-model="model.type" :options="typeOptions" bg-color="secondary" />
+            <ButtonSwitch v-model="model.type" :options="typeOptions" class-name="bg-secondary bg-opacity-50" />
         </div>
 
         <div class="transaction-form-body transition-opacity" :class="[ model.type === TransactionType.None && 'hidden' ]">

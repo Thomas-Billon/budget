@@ -1,12 +1,33 @@
 @import "@/assets/variables";
 
+a {
+    color: $body-color;
+    text-decoration: none;
+}
+
 .btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: $spacer-inline;
+    --bs-btn-border-width: #{$spacer-outline * 0.5};
     --bs-btn-border-radius: #{$radius-btn};
     --bs-btn-font-size: #{$font-size-base};
+}
+
+.btn-lg {
+    font-weight: 500;
+}
+
+.btn-outline-primary, .btn-outline-secondary {
+    --bs-btn-color: #{$black};
+}
+
+.btn-circle {
+    width: 2em;
+    height: 2em;
+    padding: 0;
+    border-radius: 50%;
 }
 
 .form-control, .form-select, .input-group-text {

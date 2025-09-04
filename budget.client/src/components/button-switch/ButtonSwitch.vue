@@ -4,7 +4,7 @@
 
     import { onMounted, ref, watch } from 'vue';
 
-    const { options, bgColor } = defineProps(['options', 'bgColor']);
+    const { options, className } = defineProps(['options', 'className']);
     const model = defineModel<number>({ required: true });
     
     const switchIndex = ref(-1);
@@ -37,7 +37,7 @@
 </script>
 
 <template>
-    <div v-if="switchCount > 0" :class="[ `button-switch bg-${bgColor}`, switchIndex === -1 ? 'no-active' : 'has-active' ]" :style="{ '--switchIndex': switchIndex, '--switchCount': switchCount }">
+    <div v-if="switchCount > 0" :class="[ 'button-switch', className, switchIndex === -1 ? 'no-active' : 'has-active' ]" :style="{ '--switchIndex': switchIndex, '--switchCount': switchCount }">
         <div class="button-switch-container">
             <button type="button" v-for="option in options" :key="option.value" class="button-switch-option btn btn-white" @click="model = option.value">
                 <font-awesome-icon v-if="option.icon" :icon="`fa-solid fa-${option.icon}`" size="sm" />

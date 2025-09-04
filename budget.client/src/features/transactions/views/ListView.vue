@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+    import './ListView.scss';
+
     import { onMounted, ref } from 'vue';
     import { routes } from '@/router.ts';
     import { apiCall } from '@/utils/ApiCall.ts';
@@ -9,7 +11,7 @@
     const transactions = ref<ITransaction[]>([]);
     const isLastPage = ref<boolean>(false);
 
-    const itemNumberPerPage = 15;
+    const itemNumberPerPage = 5;
 
     // Init
     onMounted(() => {
@@ -37,27 +39,27 @@
 </script>
 
 <template>
-    <div class="container">
-        <div class="flex justify-center gap-6">
-            <RouterLink :to="routes.transaction.create" class="flex flex-col items-center gap-1">
-                <span class="button primary circle text-xl">
+    <div class="transaction-list container">
+        <div class="transaction-list-actions">
+            <RouterLink :to="routes.transaction.create" class="transaction-list-action-link">
+                <span class="transaction-list-action-icon btn btn-primary btn-circle">
                     <font-awesome-icon icon="fa-solid fa-plus" />
                 </span>
-                <span class="font-semibold">Create</span>
+                <span class="transaction-list-action-label">Create</span>
             </RouterLink>
         </div>
 
-        <div class="flex flex-col gap-2">
-            <RouterLink :to="routes.transaction.update(transaction.id)" v-for="transaction in transactions" :key="transaction.id" class="flex items-center gap-4">
-                <span class="w-2 h-2 bg-neutral-200 rounded-full"></span>
-                <div class="grow flex flex-col gap-1">
-                    <span class="font-bold">{{ transaction.title }}</span>
+        <div class="transaction-list-items">
+            <RouterLink :to="routes.transaction.update(transaction.id)" v-for="transaction in transactions" :key="transaction.id" class="transaction-list-item">
+                <span class="transaction-list-item-icon"></span>
+                <div class="transaction-list-item-details">
+                    <span class="transaction-list-item-title">{{ transaction.title }}</span>
                     <span>{{ formatAmount(transaction.amount) }} €</span>
                 </div>
             </RouterLink>
         </div>
 
-        <button :class="[ isLastPage ? 'd-none' : '' ]" @click="onSeeMoreClick()">
+        <button :class="[ 'btn btn-outline-secondary', isLastPage ? 'd-none' : '' ]" @click="onSeeMoreClick()">
             See more
         </button>
     </div>
