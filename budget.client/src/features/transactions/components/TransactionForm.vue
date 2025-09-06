@@ -137,7 +137,7 @@
                 </span>
             </div>
 
-            <input class="form-control form-control-lg" type="text" id="transaction-title" name="Title" v-model="model.title" placeholder="Title" required @input="onFormFieldInput($event, 'title');" />
+            <input class="form-control form-control-lg" type="text" id="transaction-reason" name="Reason" v-model="model.reason" placeholder="Reason" required @input="onFormFieldInput($event, 'reason');" />
 
             <input class="form-control form-control-lg" type="date" id="transaction-date" name="Date" v-model="model.date" @input="onFormFieldInput($event, 'date');" />
 
@@ -156,7 +156,7 @@
         </div>
 
         <div class="transaction-form-foot transition-opacity" :class="[ model.type === TransactionType.None && 'hidden' ]">
-            <button type="submit" class="transaction-form-submit btn btn-primary btn-lg" :disabled="isSubmitDisabled || model.type === TransactionType.None || !model.amount || !model.title">
+            <button type="submit" class="transaction-form-submit btn btn-primary btn-lg" :disabled="isSubmitDisabled || model.type === TransactionType.None || !model.amount || !model.reason">
                 <span>{{ submitLabel }}</span>
             </button>
         </div>

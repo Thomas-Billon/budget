@@ -9,7 +9,7 @@ namespace Budget.Server.Api.Transactions.Requests
 
         public Optional<double>? Amount { get; init; }
 
-        public Optional<string>? Title { get; init; }
+        public Optional<string>? Reason { get; init; }
 
         public Optional<DateOnly?>? Date { get; init; }
 

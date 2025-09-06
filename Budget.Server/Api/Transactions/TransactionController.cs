@@ -101,7 +101,7 @@ namespace Budget.Server.Api.Transactions
                 Id = transaction.Id,
                 Type = transaction.Type,
                 Amount = transaction.Amount,
-                Title = transaction.Title,
+                Reason = transaction.Reason,
                 Date = transaction.Date,
                 PaymentMethod = transaction.PaymentMethod,
                 Comment = transaction.Comment

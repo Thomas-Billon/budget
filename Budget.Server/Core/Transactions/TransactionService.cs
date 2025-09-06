@@ -67,7 +67,7 @@ namespace Budget.Server.Core.Transactions
             {
                 Type = request.Type,
                 Amount = request.Amount,
-                Title = request.Title,
+                Reason = request.Reason,
                 Date = request.Date,
                 PaymentMethod = request.PaymentMethod,
                 Comment = request.Comment
@@ -85,7 +85,7 @@ namespace Budget.Server.Core.Transactions
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(x => x.Type, request.Type)
                     .SetProperty(x => x.Amount, request.Amount)
-                    .SetProperty(x => x.Title, request.Title)
+                    .SetProperty(x => x.Reason, request.Reason)
                     .SetProperty(x => x.Date, request.Date)
                     .SetProperty(x => x.PaymentMethod, request.PaymentMethod)
                     .SetProperty(x => x.Comment, request.Comment)
@@ -103,7 +103,7 @@ namespace Budget.Server.Core.Transactions
 
             if (request.Type?.IsSet == true) entity.Type = request.Type.Value;
             if (request.Amount?.IsSet == true) entity.Amount = request.Amount.Value;
-            if (request.Title?.IsSet == true) entity.Title = request.Title.Value ?? string.Empty;
+            if (request.Reason?.IsSet == true) entity.Reason = request.Reason.Value ?? string.Empty;
             if (request.Date?.IsSet == true) entity.Date = request.Date.Value;
             if (request.PaymentMethod?.IsSet == true) entity.PaymentMethod = request.PaymentMethod.Value;
             if (request.Comment?.IsSet == true) entity.Comment = request.Comment.Value ?? string.Empty;

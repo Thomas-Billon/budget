@@ -53,7 +53,7 @@
             <RouterLink :to="routes.transaction.update(transaction.id)" v-for="transaction in transactions" :key="transaction.id" class="transaction-list-item">
                 <span class="transaction-list-item-icon"></span>
                 <div class="transaction-list-item-details">
-                    <span class="transaction-list-item-title">{{ transaction.title }}</span>
+                    <span class="transaction-list-item-reason">{{ transaction.reason }}</span>
                     <span>{{ formatAmount(transaction.amount) }} €</span>
                 </div>
             </RouterLink>

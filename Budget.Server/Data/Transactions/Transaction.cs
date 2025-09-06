@@ -1,4 +1,5 @@
 ﻿using Budget.Server.Core.Enums;
+using Budget.Server.Data.Categories;
 using System.ComponentModel.DataAnnotations;
 
 namespace Budget.Server.Data.Transactions
@@ -10,14 +11,13 @@ namespace Budget.Server.Data.Transactions
         public TransactionType Type { get; set; } = TransactionType.None;
         //public Account Account { get; set; } -> Currency will be handled inside the Account entity
         public double Amount { get; set; } = 0;
-        public string Title { get; set; } = string.Empty;
+        public string Reason { get; set; } = string.Empty;
         public DateOnly? Date { get; set; }
         public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.None;
         public string Comment { get; set; } = string.Empty;
 
         // Merchant -> string or entity ?
 
-        // public int? CategoryId { get; set; };
-        // public Category? Category { get; set; };
+        public List<Category>? Categories { get; set; }
     }
 }

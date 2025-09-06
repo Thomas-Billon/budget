@@ -5,7 +5,7 @@ interface ITransaction {
     id: number;
     type: TransactionType;
     amount: number;
-    title: string;
+    reason: string;
     date?: string;
     paymentMethod: PaymentMethod;
     comment: string;
@@ -17,7 +17,7 @@ export const DefaultTransaction: ITransaction = {
     id: 0,
     type: TransactionType.None,
     amount: 0,
-    title: '',
+    reason: '',
     date: undefined,
     paymentMethod: PaymentMethod.None,
     comment: ''
