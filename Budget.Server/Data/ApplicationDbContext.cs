@@ -1,4 +1,5 @@
-﻿using Budget.Server.Data.Transactions;
+﻿using Budget.Server.Data.Categories;
+using Budget.Server.Data.Transactions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Budget.Server.Data
@@ -9,12 +10,14 @@ namespace Budget.Server.Data
 		{
 		}
 
+        public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            CategoryConfiguration.OnModelCreating(modelBuilder);
             TransactionConfiguration.OnModelCreating(modelBuilder);
         }
     }

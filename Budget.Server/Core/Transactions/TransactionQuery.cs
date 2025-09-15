@@ -22,7 +22,7 @@ namespace Budget.Server.Core.Transactions
             Reason = x.Reason,
             Date = x.Date,
             PaymentMethod = x.PaymentMethod,
-            Comment = x.Comment
+            Comment = x.Comment,
         };
     } 
 }

@@ -9,6 +9,10 @@ namespace Budget.Server.Data.Transactions
             var entity = modelBuilder.Entity<Transaction>();
 
             entity.ToTable(nameof(ApplicationDbContext.Transactions));
+
+            entity
+                .HasMany(t => t.Categories)
+                .WithMany(c => c.Transactions);
         }
     }
 }

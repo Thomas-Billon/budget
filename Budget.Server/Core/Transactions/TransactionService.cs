@@ -70,7 +70,7 @@ namespace Budget.Server.Core.Transactions
                 Reason = request.Reason,
                 Date = request.Date,
                 PaymentMethod = request.PaymentMethod,
-                Comment = request.Comment
+                Comment = request.Comment,
             };
 
             _context.Transactions.Add(entity);

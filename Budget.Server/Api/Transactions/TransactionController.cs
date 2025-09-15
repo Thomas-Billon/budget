@@ -104,7 +104,7 @@ namespace Budget.Server.Api.Transactions
                 Reason = transaction.Reason,
                 Date = transaction.Date,
                 PaymentMethod = transaction.PaymentMethod,
-                Comment = transaction.Comment
+                Comment = transaction.Comment,
             };
         }
     }
