@@ -1,2 +1,17 @@
-# CSharp_.NET_Core_Vue_Budget
+# Budget
 
+![Project: Web app](https://img.shields.io/badge/project-web%20app-blue.svg)
+[![License: Proprietary](https://img.shields.io/badge/license-proprietary-red.svg)](EULA.md)
+ 
+Budget web app made with .NET Core 9.0 & Vue.
+
+## Requirements
+
+* .NET 9 SDK
+* Node.js
+
+## License Notice
+
+This project is **proprietary software**.<br>
+You may use it for personal or internal business purposes, but you may **not copy, modify, distribute, or resell** it.<br>
+See [EULA](EULA.md) for more details.
