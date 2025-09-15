@@ -10,11 +10,41 @@ namespace Budget.Server.Core.Categories
         public required string Name { get; set; }
         public required CategoryColor Color { get; set; }
 
-        public static Expression<Func<Category, CategoryQuery>> Select => x => new CategoryQuery
+        public static Expression<Func<Category, CategoryQuery>> Select => x => x.ToQuery();
+    }
+
+    public static class CategoryQueryExtension
+    {
+        public static CategoryQuery ToQuery(this Category x)
         {
-            Id = x.Id,
-            Name = x.Name,
-            Color = x.Color,
+            return new CategoryQuery
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Color = x.Color,
+            };
+        }
+    }
+
+    public class CategoryQueryAll
+    {
+        public required CategoryQuery Base { get; set; }
+
+        public static Expression<Func<Category, CategoryQueryAll>> Select => c => new()
+        {
+            Base = c.ToQuery(),
+        };
+    }
+
+    public class CategoryQueryById
+    {
+        public required CategoryQuery Base { get; set; }
+        public required List<CategoryQuery> SubCategories { get; set; }
+
+        public static Expression<Func<Category, CategoryQueryById>> Select => c => new()
+        {
+            Base = c.ToQuery(),
+            SubCategories = c.SubCategories.Select(sc => sc.ToQuery()).ToList(),
         };
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Budget.Server.Api.Categories.Requests;
-using Budget.Server.Api.Transactions.Responses;
+using Budget.Server.Api.Categories.Responses;
 using Budget.Server.Core.Categories;
-using Budget.Server.Core.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Budget.Server.Api.Categories
@@ -21,16 +20,22 @@ namespace Budget.Server.Api.Categories
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<GetCategoryResponse>>> GetAll()
+        public async Task<ActionResult<List<GetAllCategoryResponse>>> GetAll()
         {
             var categories = await _categoryService.GetAll();
 
-            var response = categories.Select(ToGetCategoryResponse).ToList();
+            var response = categories.Select(x => new GetAllCategoryResponse
+            {
+                Id = x.Base.Id,
+                Name = x.Base.Name,
+                Color = x.Base.Color,
+                ColorHex = _categoryService.GetCategoryColorHex(x.Base.Color),
+            }).ToList();
             return Ok(response);
         }
 
 		[HttpGet("{id:int}")]
-		public async Task<ActionResult<GetCategoryResponse?>> GetById(int id)
+		public async Task<ActionResult<GetAllCategoryResponse?>> GetById(int id)
         {
             var category = await _categoryService.GetById(id);
             if (category == null)
@@ -38,7 +43,20 @@ namespace Budget.Server.Api.Categories
                 return NotFound();
             }
 
-            var response = ToGetCategoryResponse(category);
+            var response = new GetByIdCategoryResponse
+            {
+                Id = category.Base.Id,
+                Name = category.Base.Name,
+                Color = category.Base.Color,
+                ColorHex = _categoryService.GetCategoryColorHex(category.Base.Color),
+                SubCategories = category.SubCategories.Select(x => new GetByIdCategoryResponseBase
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Color = x.Color,
+                    ColorHex = _categoryService.GetCategoryColorHex(x.Color),
+                }).ToList()
+            };
             return Ok(response);
         }
 
@@ -88,17 +106,6 @@ namespace Budget.Server.Api.Categories
             }
 
             return Ok();
-        }
-
-        private GetCategoryResponse ToGetCategoryResponse(CategoryQuery category)
-        {
-            return new GetCategoryResponse()
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Color = category.Color,
-                ColorHex = _categoryService.GetCategoryColorHex(category.Color),
-            };
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Budget.Server.Core.Transactions
             _context = context;
         }
 
-        public async Task<Pagination<TransactionQuery>> GetList(int skip, int take, HashSet<TransactionFilterOption> filters, TransactionSortOption sort)
+        public async Task<Pagination<TransactionQueryList>> GetList(int skip, int take, HashSet<TransactionFilterOption> filters, TransactionSortOption sort)
         {
             var query = _context.Transactions.AsNoTracking();
 
@@ -47,17 +47,17 @@ namespace Budget.Server.Core.Transactions
 
             query = query.ApplyPaginationToQuery(skip, take);
 
-            var entities = await query.Select(TransactionQuery.Select)
+            var entities = await query.Select(TransactionQueryList.Select)
                 .ToListAsync();
 
-            return Pagination<TransactionQuery>.CreateFromQueryResult(entities, take);
+            return Pagination<TransactionQueryList>.CreateFromQueryResult(entities, take);
         }
 
-        public Task<TransactionQuery?> GetById(int id)
+        public Task<TransactionQueryById?> GetById(int id)
         {
             return _context.Transactions.AsNoTracking()
                 .Where(x => x.Id == id)
-                .Select(TransactionQuery.Select)
+                .Select(TransactionQueryById.Select)
                 .FirstOrDefaultAsync();
         }
 

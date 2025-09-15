@@ -18,19 +18,19 @@ namespace Budget.Server.Core.Categories
             _context = context;
         }
 
-        public Task<List<CategoryQuery>> GetAll()
+        public Task<List<CategoryQueryAll>> GetAll()
         {
             return _context.Categories.AsNoTracking()
                 .Where_IsRoot()
-                .Select(CategoryQuery.Select)
+                .Select(CategoryQueryAll.Select)
                 .ToListAsync();
         }
 
-        public Task<CategoryQuery?> GetById(int id)
+        public Task<CategoryQueryById?> GetById(int id)
         {
             return _context.Categories.AsNoTracking()
                 .Where(x => x.Id == id)
-                .Select(CategoryQuery.Select)
+                .Select(CategoryQueryById.Select)
                 .FirstOrDefaultAsync();
         }
 

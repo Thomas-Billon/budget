@@ -1,5 +1,7 @@
-﻿using Budget.Server.Api.Transactions.Requests;
+﻿using Budget.Server.Api.Categories.Responses;
+using Budget.Server.Api.Transactions.Requests;
 using Budget.Server.Api.Transactions.Responses;
+using Budget.Server.Core.Categories;
 using Budget.Server.Core.Helpers;
 using Budget.Server.Core.Transactions;
 using Microsoft.AspNetCore.Mvc;
@@ -11,30 +13,40 @@ namespace Budget.Server.Api.Transactions
 	public class TransactionController : ControllerBase
     {
 		private readonly TransactionService _transactionService;
+        private readonly CategoryService _categoryService;
 
         public TransactionController
         (
-            TransactionService transactionService
+            TransactionService transactionService,
+            CategoryService categoryService
         )
         {
 			_transactionService = transactionService;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<Pagination<GetTransactionResponse>>> GetList([FromQuery] GetListTransactionRequest request)
+        public async Task<ActionResult<Pagination<GetListTransactionResponse>>> GetList([FromQuery] GetListTransactionRequest request)
         {
             var transactions = await _transactionService.GetList(request.Skip, request.Take, request.Filters, request.Sort);
 
-            var response = new Pagination<GetTransactionResponse>()
+            var response = new Pagination<GetListTransactionResponse>()
             {
-                Page = transactions.Page.Select(ToGetTransactionResponse).ToList(),
+                Page = transactions.Page.Select(x => new GetListTransactionResponse
+                {
+                    Id = x.Base.Id,
+                    Type = x.Base.Type,
+                    Amount = x.Base.Amount,
+                    Reason = x.Base.Reason,
+                    Date = x.Base.Date,
+                }).ToList(),
                 IsLastPage = transactions.IsLastPage
             };
             return Ok(response);
         }
 
 		[HttpGet("{id:int}")]
-		public async Task<ActionResult<GetTransactionResponse?>> GetById(int id)
+		public async Task<ActionResult<GetByIdTransactionResponse?>> GetById(int id)
         {
             var transaction = await _transactionService.GetById(id);
             if (transaction == null)
@@ -42,7 +54,23 @@ namespace Budget.Server.Api.Transactions
                 return NotFound();
             }
 
-            var response = ToGetTransactionResponse(transaction);
+            var response = new GetByIdTransactionResponse
+            {
+                Id = transaction.Base.Id,
+                Type = transaction.Base.Type,
+                Amount = transaction.Base.Amount,
+                Reason = transaction.Base.Reason,
+                Date = transaction.Base.Date,
+                PaymentMethod = transaction.Base.PaymentMethod,
+                Comment = transaction.Base.Comment,
+                Categories = transaction.Categories.Select(x => new GetAllCategoryResponse
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Color = x.Color,
+                    ColorHex = _categoryService.GetCategoryColorHex(x.Color),
+                }).ToList()
+            };
             return Ok(response);
         }
 
@@ -92,20 +120,6 @@ namespace Budget.Server.Api.Transactions
             }
 
             return Ok();
-        }
-
-        private GetTransactionResponse ToGetTransactionResponse(TransactionQuery transaction)
-        {
-            return new GetTransactionResponse()
-            {
-                Id = transaction.Id,
-                Type = transaction.Type,
-                Amount = transaction.Amount,
-                Reason = transaction.Reason,
-                Date = transaction.Date,
-                PaymentMethod = transaction.PaymentMethod,
-                Comment = transaction.Comment,
-            };
         }
     }
 }
