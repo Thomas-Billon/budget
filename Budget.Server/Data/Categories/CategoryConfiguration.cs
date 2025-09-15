@@ -14,7 +14,7 @@ namespace Budget.Server.Data.Categories
                 .HasMany(c => c.SubCategories)
                 .WithOne(c => c.ParentCategory)
                 .HasForeignKey(c => c.ParentCategoryId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }
