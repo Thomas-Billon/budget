@@ -1,0 +1,21 @@
+@import "@/assets/variables";
+
+.category-form {
+    &-head {
+    }
+
+    &-body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: $spacer-section;
+    }
+
+    &-foot {
+    }
+
+    &-submit {
+        width: 100%;
+    }
+}

@@ -1,6 +1,6 @@
 import { CategoryColor } from "@/enums/CategoryColor";
 
-interface CategoryListResponse {
+interface ICategoryListResponse {
     items: ICategoryListItemResponse[];
 }
 
@@ -11,4 +11,4 @@ interface ICategoryListItemResponse {
     colorHex: string;
 }
 
-export { type CategoryListResponse, type ICategoryListItemResponse };
+export { type ICategoryListResponse, type ICategoryListItemResponse };

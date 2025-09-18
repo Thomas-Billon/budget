@@ -24,7 +24,7 @@
     };
     
     const { isNew, saveAllResult, savePartialResult } = defineProps<Props>();
-    const model = defineModel<Partial<ITransactionRequest>>({ required: true});
+    const model = defineModel<Partial<ITransactionRequest>>({ required: true });
     const emit = defineEmits<Emits>();
 
     const typeOptions: IButtonSwitchOption[] = [{ value: TransactionType.Income, label: 'Income', icon: 'plus' }, { value: TransactionType.Expense, label: 'Expense', icon: 'minus' }];
@@ -45,7 +45,7 @@
     watch(() => [saveAllResult, savePartialResult], ([all, partial]) => {
         if (all !== undefined && !all.isSuccess) {
             setSubmitButtonToErrorState();
-            resetSubmitButtonToDefaultState();
+            waitAndResetSubmitButtonToDefaultState();
         }
         else {
             if (partial !== undefined && !partial.isSuccess || isNew) {
@@ -53,7 +53,7 @@
             }
             else {
                 setSubmitButtonToSavedState();
-                resetSubmitButtonToDefaultState();
+                waitAndResetSubmitButtonToDefaultState();
             }
         }
     });
@@ -113,7 +113,7 @@
         isSubmitDisabled.value = false;
     }
 
-    const resetSubmitButtonToDefaultState = debounce(setSubmitButtonToDefaultState, 5000);
+    const waitAndResetSubmitButtonToDefaultState = debounce(setSubmitButtonToDefaultState, 5000);
 
     const saveAll = (data: Partial<ITransactionRequest>) => emit('saveAll', data);
     const savePartial = (id: number, data: Partial<ITransactionRequest>) => emit('savePartial', id, data);
@@ -162,7 +162,7 @@
             <input class="form-control form-control-lg" type="date" id="transaction-date" name="Date" v-model="model.date" @input="onFormFieldInput($event, 'date');" />
 
             <select class="form-select form-select-lg" id="transaction-payment-method" name="PaymentMethod" v-model="model.paymentMethod" @input="onFormFieldInput($event, 'paymentMethod');">
-                <option :value="PaymentMethod.None" disabled selected>Select Payment Method</option>
+                <option :value="undefined" disabled selected>Select Payment Method</option>
                 <option :value="PaymentMethod.Cash">{{ PaymentMethod[PaymentMethod.Cash] }}</option>
                 <option :value="PaymentMethod.CreditCard">{{ PaymentMethod[PaymentMethod.CreditCard] }}</option>
                 <option :value="PaymentMethod.DebitCard">{{ PaymentMethod[PaymentMethod.DebitCard] }}</option>

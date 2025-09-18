@@ -71,9 +71,9 @@
 
 <template>
     <TransactionForm :is-new="false"
-                        :save-all-result="saveAllResult"
-                        :save-partial-result="savePartialResult"
-                        v-model="transaction"
-                        @save-all="updateTransactionAll"
-                        @save-partial="updateTransactionPartial" />
+                     :save-all-result="saveAllResult"
+                     :save-partial-result="savePartialResult"
+                     v-model="transaction"
+                     @save-all="updateTransactionAll"
+                     @save-partial="updateTransactionPartial" />
 </template>

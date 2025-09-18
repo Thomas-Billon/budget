@@ -31,7 +31,7 @@
 
 <template>
     <TransactionForm :is-new="true"
-                        :save-all-result="saveAllResult"
-                        v-model="transaction"
-                        @save-all="createTransaction" />
+                     :save-all-result="saveAllResult"
+                     v-model="transaction"
+                     @save-all="createTransaction" />
 </template>
