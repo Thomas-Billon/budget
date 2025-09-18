@@ -3,4 +3,4 @@ interface IPagination<T> {
     isLastPage: boolean;
 }
 
-export type { IPagination };
+export { type IPagination };

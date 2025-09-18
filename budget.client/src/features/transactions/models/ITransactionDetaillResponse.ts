@@ -1,7 +1,8 @@
 import { TransactionType } from '@/enums/TransactionType.ts';
 import { PaymentMethod } from '@/enums/PaymentMethod.ts';
+import { type ICategoryDetailsBaseResponse } from '@/features/categories/models/ICategoryDetailsResponse';
 
-interface ITransaction {
+interface ITransactionDetailsResponse {
     id: number;
     type: TransactionType;
     amount: number;
@@ -9,16 +10,8 @@ interface ITransaction {
     date?: string;
     paymentMethod: PaymentMethod;
     comment: string;
+
+    categories: ICategoryDetailsBaseResponse[];
 }
 
-export type { ITransaction };
-
-export const DefaultTransaction: ITransaction = {
-    id: 0,
-    type: TransactionType.None,
-    amount: 0,
-    reason: '',
-    date: undefined,
-    paymentMethod: PaymentMethod.None,
-    comment: ''
-};
+export { type ITransactionDetailsResponse };

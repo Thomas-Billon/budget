@@ -4,14 +4,14 @@
 
     import { onMounted, ref, watch } from 'vue';
     import { debounce } from '@/utils/Utils';
-    import type { Transaction } from '@/models/Transaction.ts';
     import { TransactionType } from '@/enums/TransactionType.ts';
     import { PaymentMethod } from '@/enums/PaymentMethod.ts';
     import ButtonSwitch from '@/components/button-switch/ButtonSwitch.vue';
     import { formatAmount, parseAmount } from '@/features/transactions/TransactionService.ts'
+    import { type ITransactionRequest } from '@/features/transactions/models/ITransactionRequest';
 
     const { isNew, saveAllResult, savePartialResult } = defineProps(['isNew', 'saveAllResult', 'savePartialResult']);
-    const model = defineModel<Transaction>({ required: true });
+    const model = defineModel<ITransactionRequest>({ required: true });
     const emit = defineEmits(['saveAll', 'savePartial']);
 
     const typeOptions = [{ value: TransactionType.Income, label: 'Income', icon: 'plus' }, { value: TransactionType.Expense, label: 'Expense', icon: 'minus' }];
@@ -20,7 +20,7 @@
     const submitLabel = ref('');
     const isSubmitDisabled = ref(false);
 
-    let partialModel = {};
+    let partialModel: Partial<ITransactionRequest> = {};
 
     // Init
     onMounted(() => {
@@ -57,7 +57,7 @@
     }
 
     // On all form fields input event (any text modification)
-    const onFormFieldInput = (event: Event, fieldName: string): void => {
+    const onFormFieldInput = <T extends keyof ITransactionRequest>(event: Event, fieldName: T): void => {
         setSubmitButtonToDefaultState();
 
         // Edit only for partial update

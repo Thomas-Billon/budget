@@ -5,7 +5,7 @@ enum PaymentMethod {
     DebitCard = 3,
     BankTransfer = 4,
     Cryptocurrency = 5,
-    Other = 6
+    Other = 6,
 }
 
 export { PaymentMethod };

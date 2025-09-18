@@ -3,6 +3,11 @@ interface ApiCallOptions<TRequest> {
     body?: TRequest;
 }
 
+interface ApiCallResult {
+    isSuccess?: boolean;
+    timestamp: number;
+}
+
 const apiCall = async <TRequest, TResponse>(
     urlPath: string,
     options: ApiCallOptions<TRequest> = { method: 'GET' }
@@ -42,5 +47,4 @@ const apiCall = async <TRequest, TResponse>(
     return (response as TResponse);
 }
 
-export type { ApiCallOptions };
-export { apiCall };
+export { apiCall, type ApiCallOptions, type ApiCallResult };

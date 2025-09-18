@@ -5,10 +5,10 @@
     import { onMounted, ref } from 'vue';
     import { routes } from '@/router.ts';
     import { apiCall } from '@/utils/ApiCall.ts';
-    import type { ITransaction } from '@/features/transactions/ITransaction.ts';
-    import { formatAmount } from '@/features/transactions/TransactionService.ts'
+    import { type ITransactionListResponse, type ITransactionListItemResponse } from '@/features/transactions/models/ITransactionListResponse';
+    import { formatAmount } from '@/features/transactions/TransactionService.ts';
 
-    const transactions = ref<ITransaction[]>([]);
+    const transactions = ref<ITransactionListItemResponse[]>([]);
     const isLastPage = ref<boolean>(false);
 
     const itemNumberPerPage = 5;
@@ -23,7 +23,7 @@
     };
 
     const getListTransaction = async (skip: number, take: number) => {
-        apiCall(`transaction?skip=${skip}&take=${take}`, { method: 'GET' })
+        apiCall<undefined, ITransactionListResponse>(`transaction?skip=${skip}&take=${take}`, { method: 'GET' })
             .then(response => {
                 transactions.value.push(...response.page);
                 isLastPage.value = response.isLastPage;
