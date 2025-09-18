@@ -3,34 +3,25 @@
     import './App.scss';
 
     import { ref, watch } from 'vue';
-    import { useRoute, useRouter } from 'vue-router';
+    import { useRoute } from 'vue-router';
 
     const route = useRoute();
-    const router = useRouter();
 
-    const canGoBack = ref(false);
+    const backLink = ref<string | undefined>();
 
     // On route change
     watch(() => route.path, (_) => {
-        canGoBack.value = !!router.options.history.state.back;
+        backLink.value = route.meta.back as string | undefined;
     });
-
-    const goBack = (): void => {
-        if (canGoBack.value) {
-            router.back();
-        }
-    }
 
 </script>
 
 <template>
     <div class="page">
-        <header>
-            <div v-if="canGoBack">
-                <button @click="goBack()" class="btn btn-link">
-                    <font-awesome-icon icon="fa-solid fa-arrow-left" size="lg" />
-                </button>
-            </div>
+        <header class="header container">
+            <RouterLink v-if="backLink" :to="backLink" class="header-item btn btn-link">
+                <font-awesome-icon icon="fa-solid fa-arrow-left" size="lg" />
+            </RouterLink>
         </header>
         <main class="section-container-grow">
             <RouterView />

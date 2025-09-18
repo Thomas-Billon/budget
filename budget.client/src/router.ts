@@ -22,9 +22,9 @@ const routes = {
 
 const routerConfig = [
     { path: routes.home, component: HomeView },
-    { path: routes.transaction.list, component: TransactionListView },
-    { path: routes.transaction.create, component: TransactionCreateView },
-    { path: `${routes.transaction.update(0)}:id`, component: TransactionUpdateView }
+    { path: routes.transaction.list, component: TransactionListView, meta: { back: routes.home } },
+    { path: routes.transaction.create, component: TransactionCreateView, meta: { back: routes.transaction.list } },
+    { path: `${routes.transaction.update(0)}:id`, component: TransactionUpdateView, meta: { back: routes.transaction.list } },
 ];
 
 export { routes, routerConfig };
