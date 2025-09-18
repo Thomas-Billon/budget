@@ -38,8 +38,8 @@
             });
     };
 
-    const updateTransactionAll = async (data: ITransactionRequest) => {
-        apiCall(`transaction/${data.id}`, { method: 'PUT', body: data })
+    const updateTransactionAll = async (data: Partial<ITransactionRequest>) => {
+        apiCall<Partial<ITransactionRequest>, undefined>(`transaction/${data.id}`, { method: 'PUT', body: data })
             .then(_ => {
                 router.push({ path: routes.transaction.list });
             })
@@ -52,7 +52,7 @@
     };
 
     const updateTransactionPartial = async (id: number, data: Partial<ITransactionRequest>) => {
-        apiCall(`transaction/${id}`, { method: 'PATCH', body: data })
+        apiCall<Partial<ITransactionRequest>, undefined>(`transaction/${id}`, { method: 'PATCH', body: data })
             .then(_ => {
                 savePartialResult.value = {
                     isSuccess: true,

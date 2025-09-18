@@ -14,8 +14,8 @@
 
     const saveAllResult = ref<ApiCallResult>();
 
-    const createTransaction = async (data: ITransactionRequest) => {
-        apiCall<ITransactionRequest, undefined>('transaction', { method: 'POST', body: data })
+    const createTransaction = async (data: Partial<ITransactionRequest>) => {
+        apiCall<Partial<ITransactionRequest>, undefined>('transaction', { method: 'POST', body: data })
             .then(_ => {
                 router.push({ path: routes.transaction.list });
             })

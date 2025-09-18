@@ -18,9 +18,14 @@
         savePartialResult?: ApiCallResult;
     }
 
+    type Emits = {
+        saveAll: [data: Partial<ITransactionRequest>];
+        savePartial: [id: number, data: Partial<ITransactionRequest>];
+    };
+    
     const { isNew, saveAllResult, savePartialResult } = defineProps<Props>();
     const model = defineModel<Partial<ITransactionRequest>>({ required: true});
-    const emit = defineEmits(['saveAll', 'savePartial']);
+    const emit = defineEmits<Emits>();
 
     const typeOptions: IButtonSwitchOption[] = [{ value: TransactionType.Income, label: 'Income', icon: 'plus' }, { value: TransactionType.Expense, label: 'Expense', icon: 'minus' }];
     const amountPlaceholder: string = formatAmount(0, { isFalsyValueAllowed: true });
@@ -61,7 +66,7 @@
     // On form submit
     const onSubmit = (): void => {
         setSubmitButtonToSavedState();
-        saveAll();
+        saveAll(model.value);
     }
 
     // On all form fields input event (any text modification)
@@ -110,10 +115,17 @@
 
     const resetSubmitButtonToDefaultState = debounce(setSubmitButtonToDefaultState, 5000);
 
-    const saveAll = () => emit('saveAll', model.value);
-    const savePartial = () => emit('savePartial', model.value.id, partialModel);
+    const saveAll = (data: Partial<ITransactionRequest>) => emit('saveAll', data);
+    const savePartial = (id: number, data: Partial<ITransactionRequest>) => emit('savePartial', id, data);
 
-    const debounceSavePartial = debounce(() => { savePartial(); partialModel = {}; }, 1000);
+    const debounceSavePartial = debounce(() => {
+        if (model.value.id === undefined || Object.keys(partialModel).length === 0) {
+            return;
+        }
+
+        savePartial(model.value.id, partialModel);
+        partialModel = {};
+    }, 1000);
 
 </script>
 
