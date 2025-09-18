@@ -11,7 +11,7 @@
     const route = useRoute();
     const router = useRouter();
 
-    const transaction = ref<ITransactionDetailsResponse>();
+    const transaction = ref<Partial<ITransactionDetailsResponse>>({});
 
     const saveAllResult = ref<ApiCallResult>();
     const savePartialResult = ref<ApiCallResult>();

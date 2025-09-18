@@ -3,12 +3,18 @@
     import './ButtonSwitch.scss';
 
     import { onMounted, ref, watch } from 'vue';
+    import type { IButtonSwitchOption, ButtonSwitchValue } from '@/components/button-switch/IButtonSwitchOption';
 
-    const { options, className } = defineProps(['options', 'className']);
-    const model = defineModel<number>({ required: true });
+    interface Props {
+        options: IButtonSwitchOption[];
+        className?: string;
+    }
+
+    const { options, className } = defineProps<Props>();
+    const model = defineModel<ButtonSwitchValue | undefined>({ required: true });
     
-    const switchIndex = ref(-1);
-    const switchCount = ref(0);
+    const switchIndex = ref<number>(-1);
+    const switchCount = ref<number>(0);
     
     // Init
     onMounted(() => {

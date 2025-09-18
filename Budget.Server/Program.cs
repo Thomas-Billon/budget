@@ -1,3 +1,4 @@
+using Budget.Server.Core.Categories;
 using Budget.Server.Core.Helpers;
 using Budget.Server.Core.Transactions;
 using Budget.Server.Data;
@@ -82,6 +83,7 @@ public static class ProgramExtensions
         builder.Services.AddSingleton<IDbInitializerService, DbInitializerService>();
 
         builder.Services.AddScoped<TransactionService>();
+        builder.Services.AddScoped<CategoryService>();
 
         return builder;
     }

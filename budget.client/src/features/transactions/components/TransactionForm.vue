@@ -9,16 +9,24 @@
     import ButtonSwitch from '@/components/button-switch/ButtonSwitch.vue';
     import { formatAmount, parseAmount } from '@/features/transactions/TransactionService.ts'
     import { type ITransactionRequest } from '@/features/transactions/models/ITransactionRequest';
+    import type { IButtonSwitchOption } from '@/components/button-switch/IButtonSwitchOption';
+    import type { ApiCallResult } from '@/utils/ApiCall';
 
-    const { isNew, saveAllResult, savePartialResult } = defineProps(['isNew', 'saveAllResult', 'savePartialResult']);
-    const model = defineModel<ITransactionRequest>({ required: true });
+    interface Props {
+        isNew: boolean;
+        saveAllResult?: ApiCallResult;
+        savePartialResult?: ApiCallResult;
+    }
+
+    const { isNew, saveAllResult, savePartialResult } = defineProps<Props>();
+    const model = defineModel<Partial<ITransactionRequest>>({ required: true});
     const emit = defineEmits(['saveAll', 'savePartial']);
 
-    const typeOptions = [{ value: TransactionType.Income, label: 'Income', icon: 'plus' }, { value: TransactionType.Expense, label: 'Expense', icon: 'minus' }];
-    const amountPlaceholder = formatAmount(0, { isFalsyValueAllowed: true });
-    const amountDisplayValue = ref('');
-    const submitLabel = ref('');
-    const isSubmitDisabled = ref(false);
+    const typeOptions: IButtonSwitchOption[] = [{ value: TransactionType.Income, label: 'Income', icon: 'plus' }, { value: TransactionType.Expense, label: 'Expense', icon: 'minus' }];
+    const amountPlaceholder: string = formatAmount(0, { isFalsyValueAllowed: true });
+    const amountDisplayValue = ref<string>('');
+    const submitLabel = ref<string>('');
+    const isSubmitDisabled = ref<boolean>(false);
 
     let partialModel: Partial<ITransactionRequest> = {};
 
@@ -30,12 +38,12 @@
 
     // On props change
     watch(() => [saveAllResult, savePartialResult], ([all, partial]) => {
-        if (all.isSuccess == false) {
+        if (all !== undefined && !all.isSuccess) {
             setSubmitButtonToErrorState();
             resetSubmitButtonToDefaultState();
         }
         else {
-            if (partial.isSuccess == false || isNew) {
+            if (partial !== undefined && !partial.isSuccess || isNew) {
                 setSubmitButtonToDefaultState();
             }
             else {
