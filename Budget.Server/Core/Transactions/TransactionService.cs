@@ -1,4 +1,4 @@
-﻿using Budget.Server.Api.Transactions.Requests;
+﻿using Budget.Server.Api.Transactions.Models.Requests;
 using Budget.Server.Core.Helpers;
 using Budget.Server.Data;
 using Budget.Server.Data.Transactions;
@@ -18,7 +18,7 @@ namespace Budget.Server.Core.Transactions
             _context = context;
         }
 
-        public async Task<Pagination<TransactionQueryList>> GetList(int skip, int take, HashSet<TransactionFilterOption> filters, TransactionSortOption sort)
+        public async Task<Pagination<TransactionQueryList>> GetPaginatedList(int skip, int take, HashSet<TransactionFilterOption> filters, TransactionSortOption sort)
         {
             var query = _context.Transactions.AsNoTracking();
 
@@ -61,7 +61,7 @@ namespace Budget.Server.Core.Transactions
                 .FirstOrDefaultAsync();
         }
 
-        public Task<int> Create(CreateTransactionRequest request)
+        public Task<int> Create(TransactionCreateRequest request)
         {
             var entity = new Transaction
             {
@@ -78,7 +78,7 @@ namespace Budget.Server.Core.Transactions
             return _context.SaveChangesAsync();
         }
 
-        public Task<int> Update(int id, UpdateTransactionRequest request)
+        public Task<int> Update(int id, TransactionUpdateRequest request)
         {
             return _context.Transactions
                 .Where(x => x.Id == id)
@@ -92,7 +92,7 @@ namespace Budget.Server.Core.Transactions
                 );
         }
 
-        public async Task<int> Patch(int id, PatchTransactionRequest request)
+        public async Task<int> Patch(int id, TransactionPatchRequest request)
         {
             var entity = await _context.Transactions.FindAsync(id);
 

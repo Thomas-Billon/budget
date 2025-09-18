@@ -1,4 +1,4 @@
-﻿using Budget.Server.Api.Categories.Requests;
+﻿using Budget.Server.Api.Categories.Models.Requests;
 using Budget.Server.Core.Enums;
 using Budget.Server.Data;
 using Budget.Server.Data.Categories;
@@ -34,7 +34,7 @@ namespace Budget.Server.Core.Categories
                 .FirstOrDefaultAsync();
         }
 
-        public Task<int> Create(CreateCategoryRequest request)
+        public Task<int> Create(CategoryCreateRequest request)
         {
             var entity = new Category
             {
@@ -47,7 +47,7 @@ namespace Budget.Server.Core.Categories
             return _context.SaveChangesAsync();
         }
 
-        public Task<int> Update(int id, UpdateCategoryRequest request)
+        public Task<int> Update(int id, CategoryUpdateRequest request)
         {
             return _context.Categories
                 .Where(x => x.Id == id)
@@ -57,7 +57,7 @@ namespace Budget.Server.Core.Categories
                 );
         }
 
-        public async Task<int> Patch(int id, PatchCategoryRequest request)
+        public async Task<int> Patch(int id, CategoryPatchRequest request)
         {
             var entity = await _context.Categories.FindAsync(id);
 

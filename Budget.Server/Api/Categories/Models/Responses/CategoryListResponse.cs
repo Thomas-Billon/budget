@@ -1,8 +1,13 @@
 ﻿using Budget.Server.Core.Enums;
 
-namespace Budget.Server.Api.Categories.Responses
+namespace Budget.Server.Api.Categories.Models.Responses
 {
-    public class GetAllCategoryResponse
+    public class CategoryListResponse
+    {
+        public required List<CategoryListItemResponse> Items { get; set; }
+    }
+
+    public class CategoryListItemResponse
     {
         public required int Id { get; set; }
         public required string Name { get; set; }

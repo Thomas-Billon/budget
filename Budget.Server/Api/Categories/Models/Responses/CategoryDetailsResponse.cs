@@ -1,8 +1,8 @@
 ﻿using Budget.Server.Core.Enums;
 
-namespace Budget.Server.Api.Categories.Responses
+namespace Budget.Server.Api.Categories.Models.Responses
 {
-    public class GetByIdCategoryResponseBase
+    public class CategoryDetailsBaseResponse
     {
         public required int Id { get; set; }
         public required string Name { get; set; }
@@ -10,8 +10,8 @@ namespace Budget.Server.Api.Categories.Responses
         public required string ColorHex { get; set; }
     }
 
-    public class GetByIdCategoryResponse : GetByIdCategoryResponseBase
+    public class CategoryDetailsResponse : CategoryDetailsBaseResponse
     {
-        public required List<GetByIdCategoryResponseBase> SubCategories { get; set; }
+        public required List<CategoryDetailsBaseResponse> SubCategories { get; set; }
     }
 }

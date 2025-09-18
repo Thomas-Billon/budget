@@ -1,9 +1,9 @@
 ﻿using Budget.Server.Core.Enums;
 using Budget.Server.Core.Helpers;
 
-namespace Budget.Server.Api.Transactions.Requests
+namespace Budget.Server.Api.Transactions.Models.Requests
 {
-    public class PatchTransactionRequest
+    public class TransactionPatchRequest
     {
         public Optional<TransactionType>? Type { get; init; }
 

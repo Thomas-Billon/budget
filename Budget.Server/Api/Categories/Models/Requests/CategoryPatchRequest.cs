@@ -1,9 +1,9 @@
 ﻿using Budget.Server.Core.Enums;
 using Budget.Server.Core.Helpers;
 
-namespace Budget.Server.Api.Categories.Requests
+namespace Budget.Server.Api.Categories.Models.Requests
 {
-    public class PatchCategoryRequest
+    public class CategoryPatchRequest
     {
         public Optional<string>? Name { get; init; }
 

@@ -1,6 +1,6 @@
-﻿namespace Budget.Server.Api.Transactions.Requests
+﻿namespace Budget.Server.Api.Transactions.Models.Requests
 {
-    public class GetListTransactionRequest
+    public class TransactionListRequest
     {
         public int Skip { get; init; } = 0;
 

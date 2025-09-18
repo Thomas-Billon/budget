@@ -1,9 +1,9 @@
 ﻿using Budget.Server.Core.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace Budget.Server.Api.Categories.Requests
+namespace Budget.Server.Api.Categories.Models.Requests
 {
-    public class CreateCategoryRequest
+    public class CategoryUpdateRequest
     {
         [Required]
         public string Name { get; init; } = string.Empty;

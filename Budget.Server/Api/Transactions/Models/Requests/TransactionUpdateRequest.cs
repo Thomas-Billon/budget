@@ -1,9 +1,9 @@
 ﻿using Budget.Server.Core.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace Budget.Server.Api.Transactions.Requests
+namespace Budget.Server.Api.Transactions.Models.Requests
 {
-    public class UpdateTransactionRequest
+    public class TransactionUpdateRequest
     {
         [Required]
         public TransactionType Type { get; init; } = TransactionType.None;

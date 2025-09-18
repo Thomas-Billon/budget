@@ -1,4 +1,4 @@
-﻿namespace Budget.Server.Api.Transactions.Requests
+﻿namespace Budget.Server.Api.Transactions.Models.Requests
 {
     public enum TransactionSortOption
     {

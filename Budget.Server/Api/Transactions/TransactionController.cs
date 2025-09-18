@@ -1,8 +1,7 @@
-﻿using Budget.Server.Api.Categories.Responses;
-using Budget.Server.Api.Transactions.Requests;
-using Budget.Server.Api.Transactions.Responses;
+﻿using Budget.Server.Api.Categories.Models.Responses;
+using Budget.Server.Api.Transactions.Models.Requests;
+using Budget.Server.Api.Transactions.Models.Responses;
 using Budget.Server.Core.Categories;
-using Budget.Server.Core.Helpers;
 using Budget.Server.Core.Transactions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,27 +25,29 @@ namespace Budget.Server.Api.Transactions
         }
 
         [HttpGet]
-        public async Task<ActionResult<Pagination<GetListTransactionResponse>>> GetList([FromQuery] GetListTransactionRequest request)
+        public async Task<ActionResult<TransactionListResponse>> List([FromQuery] TransactionListRequest request)
         {
-            var transactions = await _transactionService.GetList(request.Skip, request.Take, request.Filters, request.Sort);
+            var transactions = await _transactionService.GetPaginatedList(request.Skip, request.Take, request.Filters, request.Sort);
 
-            var response = new Pagination<GetListTransactionResponse>()
+            var response = new TransactionListResponse()
             {
-                Page = transactions.Page.Select(x => new GetListTransactionResponse
-                {
-                    Id = x.Base.Id,
-                    Type = x.Base.Type,
-                    Amount = x.Base.Amount,
-                    Reason = x.Base.Reason,
-                    Date = x.Base.Date,
-                }).ToList(),
-                IsLastPage = transactions.IsLastPage
+                Page = transactions.Page
+                    .Select(x => new TransactionListItemResponse
+                    {
+                        Id = x.Base.Id,
+                        Type = x.Base.Type,
+                        Amount = x.Base.Amount,
+                        Reason = x.Base.Reason,
+                        Date = x.Base.Date,
+                    })
+                    .ToList(),
+                IsLastPage = transactions.IsLastPage,
             };
             return Ok(response);
         }
 
 		[HttpGet("{id:int}")]
-		public async Task<ActionResult<GetByIdTransactionResponse?>> GetById(int id)
+		public async Task<ActionResult<TransactionDetailsResponse?>> Details(int id)
         {
             var transaction = await _transactionService.GetById(id);
             if (transaction == null)
@@ -54,7 +55,7 @@ namespace Budget.Server.Api.Transactions
                 return NotFound();
             }
 
-            var response = new GetByIdTransactionResponse
+            var response = new TransactionDetailsResponse
             {
                 Id = transaction.Base.Id,
                 Type = transaction.Base.Type,
@@ -63,19 +64,21 @@ namespace Budget.Server.Api.Transactions
                 Date = transaction.Base.Date,
                 PaymentMethod = transaction.Base.PaymentMethod,
                 Comment = transaction.Base.Comment,
-                Categories = transaction.Categories.Select(x => new GetAllCategoryResponse
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Color = x.Color,
-                    ColorHex = _categoryService.GetCategoryColorHex(x.Color),
-                }).ToList()
+                Categories = transaction.Categories
+                    .Select(x => new CategoryDetailsBaseResponse
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Color = x.Color,
+                        ColorHex = _categoryService.GetCategoryColorHex(x.Color),
+                    })
+                    .ToList(),
             };
             return Ok(response);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] CreateTransactionRequest request)
+        public async Task<ActionResult> Create([FromBody] TransactionCreateRequest request)
         {
             var result = await _transactionService.Create(request);
             if (result == 0)
@@ -87,7 +90,7 @@ namespace Budget.Server.Api.Transactions
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Update(int id, [FromBody] UpdateTransactionRequest request)
+        public async Task<ActionResult> Update(int id, [FromBody] TransactionUpdateRequest request)
         {
             var result = await _transactionService.Update(id, request);
             if (result == 0)
@@ -99,7 +102,7 @@ namespace Budget.Server.Api.Transactions
         }
 
         [HttpPatch("{id:int}")]
-        public async Task<IActionResult> Patch(int id, [FromBody] PatchTransactionRequest request)
+        public async Task<IActionResult> Patch(int id, [FromBody] TransactionPatchRequest request)
         {
             var result = await _transactionService.Patch(id, request);
             if (result == 0)
