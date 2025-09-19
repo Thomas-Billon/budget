@@ -1,36 +1,29 @@
 <script setup lang="ts">
 
-    import { ref } from 'vue';
     import { useRouter } from 'vue-router';
     import { routes } from '@/router.ts';
-    import { apiCall, type ApiCallResult } from '@/utils/ApiCall';
     import type { ICategoryRequest } from '@/features/categories/models/ICategoryRequest';
+    import { type ITransactionDetailsResponse } from '@/features/transactions/models/ITransactionDetailsResponse';
     import CategoryForm from '@/features/categories/components/CategoryForm.vue';
+    import useCreateEntity from '@/composables/useCreateEntity';
 
     const router = useRouter();
 
-    const category = ref<Partial<ICategoryRequest>>({});
-
-    const saveAllResult = ref<ApiCallResult>();
-
-    const createCategory = async (data: Partial<ICategoryRequest>) => {
-        apiCall<Partial<ICategoryRequest>, undefined>('category', { method: 'POST', body: data })
-            .then(_ => {
-                router.push({ path: routes.category.list });
-            })
-            .catch(() => {
-                saveAllResult.value = {
-                    isSuccess: false,
-                    timestamp: Date.now(),
-                };
-            });
+    const onCreateSuccess = () => {
+        router.push({ path: routes.category.list });
     };
+
+    const {
+        entity: category,
+        createEntity: createCategory,
+        createResult: saveAllResult
+    } = useCreateEntity<ICategoryRequest, ITransactionDetailsResponse>({ endpoint: 'category', onCreateSuccess });
 
 </script>
 
 <template>
     <CategoryForm :is-new="true"
-                        :save-all-result="saveAllResult"
-                        v-model="category"
-                        @save-all="createCategory" />
+                  :save-all-result="saveAllResult"
+                  v-model="category"
+                  @save-all="createCategory" />
 </template>

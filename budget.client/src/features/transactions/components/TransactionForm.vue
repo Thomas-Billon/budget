@@ -139,7 +139,7 @@
             <ButtonSwitch v-model="model.type" :options="typeOptions" class-name="bg-secondary bg-opacity-50" />
         </div>
 
-        <div class="transaction-form-body transition-opacity" :class="[ model.type === TransactionType.None && 'hidden' ]">
+        <div class="transaction-form-body transition-opacity" :class="[ !model.type && 'hidden' ]">
 
             <div class="input-group">
                 <input class="transaction-form-input-amount form-control form-control-lg"
@@ -162,7 +162,8 @@
             <input class="form-control form-control-lg" type="date" id="transaction-date" name="Date" v-model="model.date" @input="onFormFieldInput($event, 'date');" />
 
             <select class="form-select form-select-lg" id="transaction-payment-method" name="PaymentMethod" v-model="model.paymentMethod" @input="onFormFieldInput($event, 'paymentMethod');">
-                <option :value="undefined" disabled selected>Select Payment Method</option>
+                <option v-if="model.paymentMethod === undefined" :value="undefined" disabled selected>Select Payment Method</option>
+                <option v-if="model.paymentMethod !== undefined" :value="PaymentMethod.None" disabled>Select Payment Method</option>
                 <option :value="PaymentMethod.Cash">{{ PaymentMethod[PaymentMethod.Cash] }}</option>
                 <option :value="PaymentMethod.CreditCard">{{ PaymentMethod[PaymentMethod.CreditCard] }}</option>
                 <option :value="PaymentMethod.DebitCard">{{ PaymentMethod[PaymentMethod.DebitCard] }}</option>
@@ -175,8 +176,8 @@
 
         </div>
 
-        <div class="transaction-form-foot transition-opacity" :class="[ model.type === TransactionType.None && 'hidden' ]">
-            <button type="submit" class="transaction-form-submit btn btn-primary btn-lg" :disabled="isSubmitDisabled || model.type === TransactionType.None || !model.amount || !model.reason">
+        <div class="transaction-form-foot transition-opacity" :class="[ !model.type && 'hidden' ]">
+            <button type="submit" class="transaction-form-submit btn btn-primary btn-lg" :disabled="isSubmitDisabled || !model.type || !model.amount || !model.reason">
                 <span>{{ submitLabel }}</span>
             </button>
         </div>

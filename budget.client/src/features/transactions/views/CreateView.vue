@@ -1,37 +1,25 @@
 <script setup lang="ts">
 
-    import { ref } from 'vue';
     import { useRouter } from 'vue-router';
     import { routes } from '@/router.ts';
-    import { apiCall, type ApiCallResult } from '@/utils/ApiCall';
-    import { type ITransactionDetailsResponse } from '@/features/transactions/models/ITransactionDetaillResponse';
     import { type ITransactionRequest } from '@/features/transactions/models/ITransactionRequest';
+    import { type ITransactionDetailsResponse } from '@/features/transactions/models/ITransactionDetailsResponse';
     import TransactionForm from '@/features/transactions/components/TransactionForm.vue';
+    import useCreateEntity from '@/composables/useCreateEntity';
 
     const router = useRouter();
 
-    const transaction = ref<Partial<ITransactionDetailsResponse>>({});
-
-    const saveAllResult = ref<ApiCallResult>();
-
-    const createTransaction = async (data: Partial<ITransactionRequest>) => {
-        apiCall<Partial<ITransactionRequest>, undefined>('transaction', { method: 'POST', body: data })
-            .then(_ => {
-                router.push({ path: routes.transaction.list });
-            })
-            .catch(() => {
-                saveAllResult.value = {
-                    isSuccess: false,
-                    timestamp: Date.now(),
-                };
-            });
+    const onCreateSuccess = () => {
+        router.push({ path: routes.transaction.list });
     };
 
+    const { entity: transaction, createEntity, createResult } = useCreateEntity<ITransactionRequest, ITransactionDetailsResponse>({ endpoint: 'transaction', onCreateSuccess });  
+    
 </script>
 
 <template>
     <TransactionForm :is-new="true"
-                     :save-all-result="saveAllResult"
+                     :save-all-result="createResult"
                      v-model="transaction"
-                     @save-all="createTransaction" />
+                     @save-all="createEntity" />
 </template>
