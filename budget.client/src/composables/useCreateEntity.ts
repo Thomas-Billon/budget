@@ -7,7 +7,7 @@ interface Props {
     onCreateError?: () => void;
 }
 
-const useCreateEntity = <TRequest, TResponse>({ endpoint, onCreateSuccess, onCreateError }: Props) => {
+const useCreateEntity = <TRequest extends { id: number }, TResponse>({ endpoint, onCreateSuccess, onCreateError }: Props) => {
     const entity = ref<Partial<TResponse>>({});
 
     const createResult = ref<ApiCallResult>();

@@ -12,7 +12,7 @@ interface Props {
     onPartialUpdateError?: () => void;
 }
 
-const useUpdateEntity = <TRequest, TResponse>({ endpoint, onGetByIdSuccess, onGetByIdError, onUpdateSuccess, onUpdateError, onPartialUpdateSuccess, onPartialUpdateError }: Props) => {
+const useUpdateEntity = <TRequest extends { id: number }, TResponse>({ endpoint, onGetByIdSuccess, onGetByIdError, onUpdateSuccess, onUpdateError, onPartialUpdateSuccess, onPartialUpdateError }: Props) => {
     const route = useRoute();
 
     const entity = ref<Partial<TResponse>>({});
@@ -42,7 +42,11 @@ const useUpdateEntity = <TRequest, TResponse>({ endpoint, onGetByIdSuccess, onGe
     };
 
     const updateEntity = async (data: Partial<TRequest>): Promise<void> => {
-        return apiCall<Partial<TRequest>, void>(endpoint, { method: 'POST', body: data })
+        if (!data.id) {
+            return Promise.reject('Error: Cannot update entity without id.');
+        }
+
+        return apiCall<Partial<TRequest>, void>(`${endpoint}/${data.id}`, { method: 'PUT', body: data })
             .then(() => {
                 onUpdateSuccess?.();
 

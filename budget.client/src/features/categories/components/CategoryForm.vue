@@ -52,8 +52,8 @@
 
     // On form submit
     const onSubmit = (): void => {
-        setSubmitButtonToSavedState();
         saveAll(model.value);
+        setSubmitButtonToSavedState();
     }
 
     // On all form fields input event (any text modification)
