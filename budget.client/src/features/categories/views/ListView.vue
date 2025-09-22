@@ -6,7 +6,6 @@
     import { routes } from '@/router.ts';
     import { apiCall } from '@/utils/ApiCall.ts';
     import { type ICategoryListResponse, type ICategoryListItemResponse } from '@/features/categories/models/ICategoryListResponse';
-    import { formatAmount } from '@/features/transactions/TransactionService.ts';
 
     const categories = ref<ICategoryListItemResponse[]>([]);
 
@@ -34,7 +33,7 @@
                         :key="category.id"
                         :to="routes.category.update(category.id)"
                         class="category-list-item"
-                        :style="{ '--color': category.colorHex }">
+                        v-color="category.colorHex">
                 <font-awesome-icon icon="fa-solid fa-plus" />
                 <span class="category-list-item-name">{{ category.name }}</span>
             </RouterLink>

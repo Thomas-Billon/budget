@@ -7,15 +7,17 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faPlus, faMinus, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { routerConfig } from '@/router.ts';
-
-library.add([faPlus, faMinus, faArrowLeft]);
+import vColor from './directives/color';
 
 const router = createRouter({
     history: createWebHistory(),
     routes: routerConfig
 });
 
+library.add([faPlus, faMinus, faArrowLeft]);
+
 createApp(App)
-    .component('font-awesome-icon', FontAwesomeIcon)
     .use(router)
+    .directive('color', vColor)
+    .component('font-awesome-icon', FontAwesomeIcon)
     .mount('#app');

@@ -12,10 +12,16 @@ $body-color: #242424;
 $font-size-base: 1rem;
 
 $spacer: 1rem;
-$spacer-outline: $spacer * 0.25;
-$spacer-inline: $spacer * 0.5;
-$spacer-block: $spacer;
-$spacer-section: $spacer * 2;
+$spacer-text-sm: $spacer * 0.25;
+$spacer-text-lg: $spacer * 0.5;
+$spacer-inline: $spacer * 0.75;
+$spacer-block : $spacer;
+$spacer-form: $spacer * 1.5;
+$spacer-container: $spacer * 2;
+
+$border: 1rem;
+$border-sm: $spacer * 0.0625;
+$border-lg: $spacer * 0.125;
 
 $radius: 1rem;
 $radius-btn: $radius * 0.25;

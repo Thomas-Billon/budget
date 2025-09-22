@@ -3,8 +3,7 @@
 .transaction-list {
     &-actions {
         display: flex;
-        justify-content: center;
-        gap: $spacer-section;
+        justify-content: space-around;
     }
 
     &-action {
@@ -12,7 +11,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: $spacer-outline;
+            gap: $spacer-text-sm;
         }
 
         &-icon {
@@ -47,7 +46,7 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            gap: $spacer-outline;
+            gap: $spacer-text-sm;
         }
 
         &-reason {

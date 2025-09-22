@@ -2,8 +2,18 @@
 
 .category-list {
     &-items {
+        display: flex;
+        flex-direction: row;
+        gap: $spacer-inline;
     }
 
     &-item {
+        display: flex;
+        align-items: center;
+        gap: $spacer-text-sm;
+        padding: $spacer-text-sm $spacer-text-lg;
+        background-color: rgba(var(--color-rgb), 0.2);
+        border: $border-sm solid var(--color);
+        border-radius: $radius-btn;
     }
 }

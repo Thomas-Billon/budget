@@ -13,8 +13,8 @@ a, .btn-link {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: $spacer-inline;
-    --bs-btn-border-width: #{$spacer-outline * 0.5};
+    gap: $spacer-text-lg;
+    --bs-btn-border-width: 0;
     --bs-btn-border-radius: #{$radius-btn};
     --bs-btn-font-size: #{$font-size-base};
     --bs-btn-disabled-color: #{$black};
@@ -25,6 +25,7 @@ a, .btn-link {
 
 .btn-outline-primary, .btn-outline-secondary {
     --bs-btn-color: #{$black};
+    --bs-btn-border-width: #{$border-lg};
     --bs-btn-disabled-color: #{$disabled};
     --bs-btn-disabled-bg: transparent;
 }

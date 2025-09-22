@@ -1,14 +1,14 @@
 @import "@/assets/variables";
 
 .button-switch {
-    padding: $spacer-outline;
+    padding: $spacer-text-sm;
     border-radius: $radius-btn;
 
     &-container {
         position: relative;
         z-index: 0;
         display: flex;
-        gap: $spacer-outline;
+        gap: $spacer-text-sm;
     }
 
     &-option {
@@ -25,9 +25,9 @@
     }
 
     &-highlight {
-        $switch-width: calc(100% - (var(--switchCount) - 1) * $spacer-outline);
+        $switch-width: calc(100% - (var(--switchCount) - 1) * $spacer-text-sm);
         $option-width: calc($switch-width / var(--switchCount));
-        $offset-left: calc(var(--switchIndex) / var(--switchCount) * $switch-width + var(--switchIndex) * $spacer-outline);
+        $offset-left: calc(var(--switchIndex) / var(--switchCount) * $switch-width + var(--switchIndex) * $spacer-text-sm);
         position: absolute;
         top: 0;
         bottom: 0;
