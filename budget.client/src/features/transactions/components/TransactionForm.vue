@@ -75,7 +75,12 @@
 
         // Edit only for partial update
         if (!isNew) {
-            partialModel[fieldName] = model.value[fieldName];
+            const target = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+            if (target === null) {
+                return;
+            }
+
+            partialModel[fieldName] = target.value as ITransactionRequest[T];
             debounceSavePartial();
         }
     }
