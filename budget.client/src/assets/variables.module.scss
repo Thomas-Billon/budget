@@ -26,3 +26,9 @@ $border-lg: $spacer * 0.125;
 $radius: 1rem;
 $radius-btn: $radius * 0.25;
 $radius-card: $radius * 0.5;
+
+
+:export {
+    primary: $primary;
+    secondary: $secondary;
+}

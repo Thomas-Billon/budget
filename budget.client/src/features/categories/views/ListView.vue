@@ -2,6 +2,8 @@
 
     import './ListView.scss';
 
+    import StyleVariables from '@/assets/variables.module.scss';
+
     import { onMounted, ref } from 'vue';
     import { routes } from '@/router.ts';
     import { apiCall } from '@/utils/ApiCall.ts';
@@ -34,10 +36,9 @@
                         :to="routes.category.update(category.id)"
                         class="category-list-item"
                         v-color="category.colorHex">
-                <font-awesome-icon icon="fa-solid fa-plus" />
                 <span class="category-list-item-name">{{ category.name }}</span>
             </RouterLink>
-            <RouterLink :to="routes.category.create" class="category-list-item btn btn-outline-primary">
+            <RouterLink :to="routes.category.create" class="category-list-item" v-color="StyleVariables['secondary']">
                 <font-awesome-icon icon="fa-solid fa-plus" />
             </RouterLink>
         </div>
