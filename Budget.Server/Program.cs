@@ -1,3 +1,4 @@
+using Budget.Server.Core.Balances;
 using Budget.Server.Core.Categories;
 using Budget.Server.Core.Helpers;
 using Budget.Server.Core.Transactions;
@@ -82,6 +83,7 @@ public static class ProgramExtensions
     {
         builder.Services.AddSingleton<IDbInitializerService, DbInitializerService>();
 
+        builder.Services.AddScoped<BalanceService>();
         builder.Services.AddScoped<TransactionService>();
         builder.Services.AddScoped<CategoryService>();
 

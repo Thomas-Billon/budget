@@ -37,5 +37,15 @@ namespace Budget.Server.Data.Transactions
             var firstDayOfThisYear = new DateOnly(DateTimeOffset.UtcNow.Year, 1, 1);
             return query.Where(x => x.Date != null && x.Date >= firstDayOfThisYear);
         }
+
+        public static IQueryable<Transaction> Where_IsBeforeOrOnDate(this IQueryable<Transaction> query, DateOnly date)
+        {
+            return query.Where(x => x.Date != null && x.Date <= date);
+        }
+
+        public static IQueryable<Transaction> Where_IsAfterOrOnDate(this IQueryable<Transaction> query, DateOnly date)
+        {
+            return query.Where(x => x.Date != null && x.Date >= date);
+        }
     }
 }

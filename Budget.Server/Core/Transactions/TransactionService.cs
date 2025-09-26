@@ -53,6 +53,24 @@ namespace Budget.Server.Core.Transactions
             return Pagination<TransactionQueryList>.CreateFromQueryResult(entities, take);
         }
 
+        public Task<List<TransactionQueryList>> GetListBetweenDates(DateOnly? dateStart, DateOnly? dateEnd)
+        {
+            var query = _context.Transactions.AsNoTracking();
+
+            if (dateStart != null)
+            {
+                query = query.Where_IsAfterOrOnDate(dateStart.Value);
+            }
+
+            if (dateEnd != null)
+            {
+                query = query.Where_IsBeforeOrOnDate(dateEnd.Value);
+            }
+
+            return query.Select(TransactionQueryList.Select)
+                .ToListAsync();
+        }
+
         public Task<TransactionQueryById?> GetById(int id)
         {
             return _context.Transactions.AsNoTracking()
