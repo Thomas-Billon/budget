@@ -9,7 +9,7 @@ namespace Budget.Server.Api.Transactions.Models.Requests
         public TransactionType Type { get; init; } = TransactionType.None;
 
         [Required]
-        public double Amount { get; init; } = 0;
+        public decimal Amount { get; init; } = 0;
 
         [Required]
         public string Reason { get; init; } = string.Empty;

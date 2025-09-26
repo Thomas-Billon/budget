@@ -7,7 +7,7 @@ namespace Budget.Server.Api.Transactions.Models.Requests
     {
         public Optional<TransactionType>? Type { get; init; }
 
-        public Optional<double>? Amount { get; init; }
+        public Optional<decimal>? Amount { get; init; }
 
         public Optional<string>? Reason { get; init; }
 

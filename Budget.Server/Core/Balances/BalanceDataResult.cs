@@ -2,8 +2,8 @@
 {
     public class BalanceDataResult
     {
-        public required double TotalIncome { get; set; }
-        public required double TotalExpense { get; set; }
-        public required double NetBalance { get; set; }
+        public required decimal TotalIncome { get; set; }
+        public required decimal TotalExpense { get; set; }
+        public required decimal NetBalance { get; set; }
     }
 }
