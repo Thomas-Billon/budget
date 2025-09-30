@@ -9,8 +9,8 @@
     import ButtonSwitch from '@/components/button-switch/ButtonSwitch.vue';
     import { formatAmount, parseAmount } from '@/features/transactions/TransactionService.ts'
     import { type ITransactionRequest } from '@/features/transactions/models/ITransactionRequest';
-    import type { IButtonSwitchOption } from '@/components/button-switch/IButtonSwitchOption';
-    import type { ApiCallResult } from '@/utils/ApiCall';
+    import { type ButtonSwitchValue, type IButtonSwitchOption } from '@/components/button-switch/IButtonSwitchOption';
+    import { type ApiCallResult } from '@/utils/ApiCall';
 
     interface Props {
         isNew: boolean;
@@ -27,6 +27,7 @@
     const model = defineModel<Partial<ITransactionRequest>>({ required: true });
     const emit = defineEmits<Emits>();
 
+    const typeInput = ref<HTMLInputElement | undefined>();
     const typeOptions: IButtonSwitchOption[] = [{ value: TransactionType.Income, label: 'Income', icon: 'plus' }, { value: TransactionType.Expense, label: 'Expense', icon: 'minus' }];
     const amountPlaceholder: string = formatAmount(0, { isFalsyValueAllowed: true });
     const amountDisplayValue = ref<string>('');
@@ -69,20 +70,21 @@
         setSubmitButtonToSavedState();
     }
 
+    // On type field switch event
+    const onTypeFieldChange = (value: ButtonSwitchValue | undefined): void => {
+        setSubmitButtonToDefaultState();
+        fillPartialModel('type', value as ITransactionRequest['type']);
+    }
+
     // On all form fields input event (any text modification)
     const onFormFieldInput = <T extends keyof ITransactionRequest>(event: Event, fieldName: T): void => {
-        setSubmitButtonToDefaultState();
-
-        // Edit only for partial update
-        if (!isNew) {
             const target = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
             if (target === null) {
                 return;
             }
 
-            partialModel[fieldName] = target.value as ITransactionRequest[T];
-            debounceSavePartial();
-        }
+        setSubmitButtonToDefaultState();
+        fillPartialModel(fieldName, target.value as ITransactionRequest[T]);
     }
 
     // On amount field input event (any text modification)
@@ -94,6 +96,15 @@
     const onAmountChange = (event: Event): void => {
         updateAmountDisplayValue();
     }
+
+    const fillPartialModel = <T extends keyof ITransactionRequest>(fieldName: T, value: ITransactionRequest[T]): void => {
+        if (isNew) {
+            return;
+        }
+
+        partialModel[fieldName] = value;
+        debounceSavePartial();
+    };
 
     const updateAmountDisplayValue = (): void => {
         amountDisplayValue.value = formatAmount(model.value.amount);
@@ -140,8 +151,8 @@
         <input type="hidden" id="transaction-id" name="Id" v-model="model.id" />
 
         <div class="transaction-form-head">
-            <input type="hidden" id="transaction-type" name="Type" v-model="model.type" />
-            <ButtonSwitch v-model="model.type" :options="typeOptions" class-name="bg-secondary bg-opacity-50" />
+            <input ref="typeInput" type="hidden" id="transaction-type" name="Type" v-model="model.type" required />
+            <ButtonSwitch v-model="model.type" :options="typeOptions" class-name="bg-secondary bg-opacity-50" v-on:update:modelValue="onTypeFieldChange($event)" />
         </div>
 
         <div class="transaction-form-body transition-opacity" :class="[ !model.type && 'hidden' ]">
