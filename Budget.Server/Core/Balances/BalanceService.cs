@@ -1,10 +1,6 @@
-﻿using Budget.Server.Api.Transactions.Models.Requests;
-using Budget.Server.Core.Enums;
-using Budget.Server.Core.Helpers;
+﻿using Budget.Server.Core.Enums;
 using Budget.Server.Core.Transactions;
 using Budget.Server.Data;
-using Budget.Server.Data.Transactions;
-using Microsoft.EntityFrameworkCore;
 
 namespace Budget.Server.Core.Balances
 {

@@ -3,11 +3,13 @@ using Budget.Server.Core.Categories;
 using Budget.Server.Core.Helpers;
 using Budget.Server.Core.Transactions;
 using Budget.Server.Data;
+using Budget.Server.Middleware.Converters;
 using Budget.Server.Middleware.Error;
 using Budget.Server.Middleware.Startup;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Scalar.AspNetCore;
+using System.ComponentModel;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +32,8 @@ public static class ProgramExtensions
 {
     public static WebApplicationBuilder ConfigureBuilder(this WebApplicationBuilder builder)
     {
+        TypeDescriptor.AddAttributes(typeof(DateOnly), new TypeConverterAttribute(typeof(DateOnlyTypeConverter)));
+
         builder.Services.AddControllers().AddNewtonsoftJson(options =>
         {
             options.SerializerSettings.NullValueHandling = NullValueHandling.Include;

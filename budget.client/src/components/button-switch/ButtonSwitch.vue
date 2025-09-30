@@ -8,7 +8,7 @@
     interface Props {
         options: IButtonSwitchOption[];
         className?: string;
-    }
+    };
 
     const { options, className } = defineProps<Props>();
     const model = defineModel<ButtonSwitchValue | undefined>({ required: true });
@@ -34,11 +34,11 @@
 
     const updateSwitchIndex = (): void => {
         switchIndex.value = options.findIndex(option => option.value === model.value);
-    }
+    };
 
     const updateSwitchCount = (): void => {
         switchCount.value = options?.length ?? 0;
-    }
+    };
 
 </script>
 

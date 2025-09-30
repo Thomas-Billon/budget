@@ -1,4 +1,5 @@
 import HomeView from '@/views/HomeView.vue';
+import BalanceDetailsView from '@/features/balances/views/DetailsView.vue';
 import TransactionListView from '@/features/transactions/views/ListView.vue';
 import TransactionCreateView from '@/features/transactions/views/CreateView.vue';
 import TransactionUpdateView from '@/features/transactions/views/UpdateView.vue';
@@ -16,6 +17,9 @@ const getIdParam = (id: number): string => {
 
 const routes = {
     home: '/',
+    balance: {
+        details: '/balance/details',
+    },
     transaction: {
         list: '/transaction/list',
         create: '/transaction/create',
@@ -30,6 +34,7 @@ const routes = {
 
 const routerConfig = [
     { path: routes.home, component: HomeView },
+    { path: routes.balance.details, component: BalanceDetailsView, meta: { back: routes.home } },
     { path: routes.transaction.list, component: TransactionListView, meta: { back: routes.home } },
     { path: routes.transaction.create, component: TransactionCreateView, meta: { back: routes.transaction.list } },
     { path: `${routes.transaction.update(0)}:id`, component: TransactionUpdateView, meta: { back: routes.transaction.list } },

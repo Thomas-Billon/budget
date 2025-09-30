@@ -6,13 +6,13 @@
     import { debounce } from '@/utils/Utils';
     import { CategoryColor } from '@/enums/CategoryColor.ts';
     import { type ICategoryRequest } from '@/features/categories/models/ICategoryRequest';
-    import type { ApiCallResult } from '@/utils/ApiCall';
+    import { type ApiCallResult } from '@/utils/ApiCall';
 
     interface Props {
         isNew: boolean;
         saveAllResult?: ApiCallResult;
         savePartialResult?: ApiCallResult;
-    }
+    };
 
     type Emits = {
         saveAll: [data: Partial<ICategoryRequest>];

@@ -16,7 +16,7 @@
         isNew: boolean;
         saveAllResult?: ApiCallResult;
         savePartialResult?: ApiCallResult;
-    }
+    };
 
     type Emits = {
         saveAll: [data: Partial<ITransactionRequest>];
@@ -78,10 +78,10 @@
 
     // On all form fields input event (any text modification)
     const onFormFieldInput = <T extends keyof ITransactionRequest>(event: Event, fieldName: T): void => {
-            const target = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
-            if (target === null) {
-                return;
-            }
+        const target = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+        if (target === null) {
+            return;
+        }
 
         setSubmitButtonToDefaultState();
         fillPartialModel(fieldName, target.value as ITransactionRequest[T]);

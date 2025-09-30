@@ -5,9 +5,9 @@ namespace Budget.Server.Api.Balances.Models.Requests
     public class BalanceDetailsRequest
     {
         [Required]
-        public DateOnly DateStart { get; init; }
+        public DateOnly startDate { get; init; }
 
         [Required]
-        public DateOnly DateEnd { get; init; }
+        public DateOnly endDate { get; init; }
     }
 }
