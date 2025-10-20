@@ -20,27 +20,45 @@ namespace Budget.Server.Api.Categories
         }
 
         [HttpGet]
-        public async Task<ActionResult<CategoryListResponse>> List()
+        public async Task<ActionResult<CategoryFlatListResponse>> FlatList()
         {
             var categories = await _categoryService.GetAll();
 
-            var response = new CategoryListResponse
+            var response = new CategoryFlatListResponse
             {
-                Items = categories
-                    .Select(x => new CategoryListItemResponse
-                    {
-                        Id = x.Base.Id,
-                        Name = x.Base.Name,
-                        Color = x.Base.Color,
-                        ColorHex = _categoryService.GetCategoryColorHex(x.Base.Color),
-                    })
-                    .ToList(),
+                Items = categories.Select(x => new CategoryFlatListItemResponse()
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Color = x.Color,
+                    ColorHex = _categoryService.GetCategoryColorHex(x.Color),
+                }).ToList(),
             };
+
+            return Ok(response);
+        }
+
+        [HttpGet]
+        [Route("tree")]
+        public async Task<ActionResult<CategoryTreeListResponse>> TreeList()
+        {
+            var categories = await _categoryService.GetTree();
+
+            var response = new CategoryTreeListResponse
+            {
+                Items = new(),
+            };
+
+            foreach (var category in categories)
+            {
+                response.Items.Add(ToCategoryTreeListItemResponse(category));
+            }
+
             return Ok(response);
         }
 
 		[HttpGet("{id:int}")]
-		public async Task<ActionResult<CategoryListItemResponse?>> Details(int id)
+		public async Task<ActionResult<CategoryTreeListItemResponse?>> Details(int id)
         {
             var category = await _categoryService.GetById(id);
             if (category == null)
@@ -54,6 +72,7 @@ namespace Budget.Server.Api.Categories
                 Name = category.Base.Name,
                 Color = category.Base.Color,
                 ColorHex = _categoryService.GetCategoryColorHex(category.Base.Color),
+                ParentCategoryId = category.ParentCategoryId,
                 SubCategories = category.SubCategories
                     .Select(x => new CategoryDetailsBaseResponse
                     {
@@ -113,6 +132,27 @@ namespace Budget.Server.Api.Categories
             }
 
             return Ok();
+        }
+
+        private CategoryTreeListItemResponse ToCategoryTreeListItemResponse(CategoryQueryTree category)
+        {
+            var result = new CategoryTreeListItemResponse
+            {
+                Id = category.Base.Id,
+                Name = category.Base.Name,
+                Color = category.Base.Color,
+                ColorHex = _categoryService.GetCategoryColorHex(category.Base.Color),
+                ParentCategoryId = category.ParentCategoryId,
+                SubCategories = new(),
+            };
+
+            // Avoids recursion inside select
+            foreach (var subCategory in category.SubCategories)
+            {
+                result.SubCategories.Add(ToCategoryTreeListItemResponse(subCategory));
+            }
+
+            return result;
         }
     }
 }

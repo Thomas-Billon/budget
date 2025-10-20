@@ -19,12 +19,12 @@
     };
 
     type Emits = {
-        saveAll: [data: Partial<ITransactionRequest>];
+        saveAll: [data: ITransactionRequest];
         savePartial: [id: number, data: Partial<ITransactionRequest>];
     };
     
     const { isNew, saveAllResult, savePartialResult } = defineProps<Props>();
-    const model = defineModel<Partial<ITransactionRequest>>({ required: true });
+    const model = defineModel<ITransactionRequest>({ required: true });
     const emit = defineEmits<Emits>();
 
     const typeInput = ref<HTMLInputElement | undefined>();
@@ -131,7 +131,7 @@
 
     const waitAndResetSubmitButtonToDefaultState = debounce(setSubmitButtonToDefaultState, 5000);
 
-    const saveAll = (data: Partial<ITransactionRequest>) => emit('saveAll', data);
+    const saveAll = (data: ITransactionRequest) => emit('saveAll', data);
     const savePartial = (id: number, data: Partial<ITransactionRequest>) => emit('savePartial', id, data);
 
     const debounceSavePartial = debounce(() => {

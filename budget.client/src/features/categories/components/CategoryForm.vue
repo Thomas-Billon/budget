@@ -4,8 +4,10 @@
 
     import { onMounted, ref, watch } from 'vue';
     import { debounce } from '@/utils/Utils';
+    import { apiCall } from '@/utils/ApiCall.ts';
     import { CategoryColor } from '@/enums/CategoryColor.ts';
     import { type ICategoryRequest } from '@/features/categories/models/ICategoryRequest';
+    import { type ICategoryFlatListResponse, type ICategoryFlatListItemResponse } from '@/features/categories/models/ICategoryFlatListResponse';
     import { type ApiCallResult } from '@/utils/ApiCall';
 
     interface Props {
@@ -15,21 +17,23 @@
     };
 
     type Emits = {
-        saveAll: [data: Partial<ICategoryRequest>];
+        saveAll: [data: ICategoryRequest];
         savePartial: [id: number, data: Partial<ICategoryRequest>];
     };
     
     const { isNew, saveAllResult, savePartialResult } = defineProps<Props>();
-    const model = defineModel<Partial<ICategoryRequest>>({ required: true });
+    const model = defineModel<ICategoryRequest>({ required: true });
     const emit = defineEmits<Emits>();
 
     const submitLabel = ref<string>('');
     const isSubmitDisabled = ref<boolean>(false);
+    const categoryOptions = ref<ICategoryFlatListItemResponse[]>([]);
 
     let partialModel: Partial<ICategoryRequest> = {};
 
     // Init
     onMounted(() => {
+        getCategoryFlatList();
         setSubmitButtonToDefaultState();
     });
 
@@ -72,6 +76,18 @@
         }
     }
 
+    const getCategoryFlatList = (): void => {
+        if (!isNew) {
+            apiCall<undefined, ICategoryFlatListResponse>(`category`, { method: 'GET' })
+            .then(response => {
+                categoryOptions.value = response.items;
+            })
+            .catch(() => {
+                // TODO: Add error
+            });
+        }
+    }
+
     const setSubmitButtonToDefaultState = (): void => {
         submitLabel.value = isNew ? 'Add category' : 'Edit category';
         isSubmitDisabled.value = false;
@@ -89,7 +105,7 @@
 
     const waitAndResetSubmitButtonToDefaultState = debounce(setSubmitButtonToDefaultState, 5000);
 
-    const saveAll = (data: Partial<ICategoryRequest>) => emit('saveAll', data);
+    const saveAll = (data: ICategoryRequest) => emit('saveAll', data);
     const savePartial = (id: number, data: Partial<ICategoryRequest>) => emit('savePartial', id, data);
 
     const debounceSavePartial = debounce(() => {
@@ -120,7 +136,15 @@
                 <option :value="CategoryColor.Orange">{{ CategoryColor[CategoryColor.Orange] }}</option>
                 <option :value="CategoryColor.Red">{{ CategoryColor[CategoryColor.Red] }}</option>
             </select>
-        
+            
+            <select v-if="!isNew" class="form-select form-select-lg" id="category-parent-category-id" name="ParentCategoryId" v-model="model.parentCategoryId" @input="onFormFieldInput($event, 'parentCategoryId');">
+                <option v-if="model.parentCategoryId === undefined" :value="undefined" selected>No parent category</option>
+                <option v-if="model.parentCategoryId !== undefined" :value="null">No parent category</option>
+                <option v-for="option in categoryOptions" :key="option.id" :value="option.id">{{ option.name }}</option>
+            </select>
+
+            <input v-if="isNew" type="hidden" id="category-parent-category-id" name="ParentCategoryId" v-model="model.parentCategoryId" />
+
         </div>
 
         <div class="category-form-foot">

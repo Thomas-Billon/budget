@@ -6,30 +6,38 @@ interface Props {
     endpoint: string;
     onGetByIdSuccess?: <TResponse>(response: TResponse) => void;
     onGetByIdError?: () => void;
-    onUpdateSuccess?: () => void;
-    onUpdateError?: () => void;
+    onFullUpdateSuccess?: () => void;
+    onFullUpdateError?: () => void;
     onPartialUpdateSuccess?: () => void;
     onPartialUpdateError?: () => void;
 }
 
-const useUpdateEntity = <TRequest extends { id: number }, TResponse>({ endpoint, onGetByIdSuccess, onGetByIdError, onUpdateSuccess, onUpdateError, onPartialUpdateSuccess, onPartialUpdateError }: Props) => {
+const useUpdateEntity = <TRequest extends { id: number }, TResponse>({ endpoint, onGetByIdSuccess, onGetByIdError, onFullUpdateSuccess, onFullUpdateError, onPartialUpdateSuccess, onPartialUpdateError }: Props) => {
     const route = useRoute();
 
-    const entity = ref<Partial<TResponse>>({});
+    const entity = ref<TRequest>({} as TRequest); // TODO: Fix casting
     
+    // #region Get by id
+
     // Init
     onMounted(() => {
-        const entityId = parseInt(route.params.id as string);
-        getTransactionById(entityId);
+        getFromUrl(route.params?.id);
     });
 
     // On route change
-    watch(() => route.params.id, (id) => {
-        const entityId = parseInt(id as string);
-        getTransactionById(entityId);
+    watch(() => route.params?.id, (id) => {
+        getFromUrl(id);
     });
 
-    const getTransactionById = async (id: number) => {
+    const getFromUrl = (id?: string | string[]) => {
+        if (id === undefined || typeof id !== 'string') {
+            return;
+        }
+        const entityId = parseInt(id);
+        getById(entityId);
+    };
+
+    const getById = async (id: number) => {
         apiCall<void, TResponse>(`${endpoint}/${id}`, { method: 'GET' })
             .then(response => {
                 onGetByIdSuccess?.(response);
@@ -41,38 +49,46 @@ const useUpdateEntity = <TRequest extends { id: number }, TResponse>({ endpoint,
             });
     };
 
-    const updateEntity = async (data: Partial<TRequest>): Promise<void> => {
+    // #endregion Get by id
+
+    // #region Full update
+
+    const fullUpdate = async (data: TRequest): Promise<void> => {
         if (!data.id) {
             return Promise.reject('Error: Cannot update entity without id.');
         }
 
-        return apiCall<Partial<TRequest>, void>(`${endpoint}/${data.id}`, { method: 'PUT', body: data })
+        return apiCall<TRequest, void>(`${endpoint}/${data.id}`, { method: 'PUT', body: data })
             .then(() => {
-                onUpdateSuccess?.();
+                onFullUpdateSuccess?.();
 
-                updateResult.value = {
+                fullUpdateResult.value = {
                     isSuccess: true,
                     timestamp: Date.now(),
                 };
             })
             .catch(() => {
-                onUpdateError?.();
+                onFullUpdateError?.();
 
-                updateResult.value = {
+                fullUpdateResult.value = {
                     isSuccess: false,
                     timestamp: Date.now(),
                 };
             });
     }
 
-    const updateResult = ref<ApiCallResult>();
+    const fullUpdateResult = ref<ApiCallResult>();
+    
+    // #endregion Full update
 
-    const updateEntityPartial = async (id: number, data: Partial<TRequest>) => {
+    // #region Partial update
+
+    const partialUpdate = async (id: number, data: Partial<TRequest>) => {
         apiCall<Partial<TRequest>, void>(`${endpoint}/${id}`, { method: 'PATCH', body: data })
             .then(_ => {
                 onPartialUpdateSuccess?.();
 
-                updatePartialResult.value = {
+                partialUpdateResult.value = {
                     isSuccess: true,
                     timestamp: Date.now()
                 };
@@ -80,16 +96,18 @@ const useUpdateEntity = <TRequest extends { id: number }, TResponse>({ endpoint,
             .catch(() => {
                 onPartialUpdateError?.();
                     
-                updatePartialResult.value = {
+                partialUpdateResult.value = {
                     isSuccess: false,
                     timestamp: Date.now()
                 };
             });
     };
 
-    const updatePartialResult = ref<ApiCallResult>();
+    const partialUpdateResult = ref<ApiCallResult>();
 
-    return { entity, updateEntity, updateResult, updateEntityPartial, updatePartialResult };
+    // #endregion Partial update
+
+    return { entity, fullUpdate, fullUpdateResult, partialUpdate, partialUpdateResult };
 }
 
 export default useUpdateEntity;

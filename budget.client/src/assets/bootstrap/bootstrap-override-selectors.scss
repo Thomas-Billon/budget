@@ -9,6 +9,10 @@ a, .btn-link {
     }
 }
 
+.row {
+    --bs-gutter-y: #{$spacer-block};
+}
+
 .btn {
     display: flex;
     align-items: center;

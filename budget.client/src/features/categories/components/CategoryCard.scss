@@ -1,0 +1,10 @@
+@import "@/assets/variables.module";
+
+.category-card {
+    display: flex;
+    flex-direction: column;
+    padding: $spacer-text-sm $spacer-text-lg;
+    background-color: rgba(var(--color-rgb), 0.2);
+    border: $border-sm solid var(--color);
+    border-radius: $radius-card;
+}

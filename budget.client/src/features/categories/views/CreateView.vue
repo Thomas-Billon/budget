@@ -15,6 +15,8 @@
 
     const { entity: category, createEntity, createResult } = useCreateEntity<ICategoryRequest, ICategoryDetailsResponse>({ endpoint: 'category', onCreateSuccess });
 
+    category.value.parentCategoryId = history.state?.parentCategoryId;
+
 </script>
 
 <template>

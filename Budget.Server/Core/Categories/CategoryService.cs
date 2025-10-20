@@ -18,12 +18,20 @@ namespace Budget.Server.Core.Categories
             _context = context;
         }
 
-        public Task<List<CategoryQueryAll>> GetAll()
+        public Task<List<CategoryQuery>> GetAll()
         {
             return _context.Categories.AsNoTracking()
-                .Where_IsRoot()
-                .Select(CategoryQueryAll.Select)
+                .Select(CategoryQuery.Select)
                 .ToListAsync();
+        }
+
+        public async Task<List<CategoryQueryTree>> GetTree()
+        {
+            var categories = await _context.Categories.AsNoTracking()
+                .Select(CategoryQueryTree.Select)
+                .ToListAsync();
+
+            return BuildCategoriesTreeFromList(categories);
         }
 
         public Task<CategoryQueryById?> GetById(int id)
@@ -40,6 +48,7 @@ namespace Budget.Server.Core.Categories
             {
                 Name = request.Name,
                 Color = request.Color,
+                ParentCategoryId = request.ParentCategoryId,
             };
 
             _context.Categories.Add(entity);
@@ -54,6 +63,7 @@ namespace Budget.Server.Core.Categories
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(x => x.Name, request.Name)
                     .SetProperty(x => x.Color, request.Color)
+                    .SetProperty(x => x.ParentCategoryId, request.ParentCategoryId)
                 );
         }
 
@@ -68,6 +78,7 @@ namespace Budget.Server.Core.Categories
 
             if (request.Name?.IsSet == true) entity.Name = request.Name.Value ?? string.Empty;
             if (request.Color?.IsSet == true) entity.Color = request.Color.Value;
+            if (request.ParentCategoryId?.IsSet == true) entity.ParentCategoryId = request.ParentCategoryId.Value;
 
             return await _context.SaveChangesAsync();
         }
@@ -78,6 +89,22 @@ namespace Budget.Server.Core.Categories
                 .Where(x => x.Id == id)
                 .ExecuteDeleteAsync();
         }
+
+        #region Tree
+
+        private List<CategoryQueryTree> BuildCategoriesTreeFromList(List<CategoryQueryTree> categories)
+        {
+            var lookup = categories.ToLookup(x => x.ParentCategoryId);
+
+            foreach (var category in categories)
+            {
+                category.SubCategories = lookup[category.Base.Id].ToList();
+            }
+
+            return lookup[null].ToList();
+        }
+
+        #endregion Tree
 
         #region Colors
 

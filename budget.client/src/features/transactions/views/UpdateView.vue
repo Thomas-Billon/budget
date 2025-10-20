@@ -13,19 +13,19 @@
         // TODO: Add error
     };
 
-    const onUpdateSuccess = () => {
+    const onFullUpdateSuccess = () => {
         router.push({ path: routes.transaction.list });
     };
 
-    const { entity: transaction, updateEntity, updateResult, updateEntityPartial, updatePartialResult, } = useUpdateEntity<ITransactionRequest, ITransactionDetailsResponse>({ endpoint: 'transaction', onGetByIdError, onUpdateSuccess });
+    const { entity: transaction, fullUpdate, fullUpdateResult, partialUpdate, partialUpdateResult } = useUpdateEntity<ITransactionRequest, ITransactionDetailsResponse>({ endpoint: 'transaction', onGetByIdError, onFullUpdateSuccess });
 
 </script>
 
 <template>
     <TransactionForm :is-new="false"
-                     :save-all-result="updateResult"
-                     :save-partial-result="updatePartialResult"
+                     :save-all-result="fullUpdateResult"
+                     :save-partial-result="partialUpdateResult"
                      v-model="transaction"
-                     @save-all="updateEntity"
-                     @save-partial="updateEntityPartial" />
+                     @save-all="fullUpdate"
+                     @save-partial="partialUpdate" />
 </template>

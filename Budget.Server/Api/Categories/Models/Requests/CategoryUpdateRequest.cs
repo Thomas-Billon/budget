@@ -10,5 +10,7 @@ namespace Budget.Server.Api.Categories.Models.Requests
 
         [Required]
         public CategoryColor Color { get; init; } = CategoryColor.None;
+
+        public int? ParentCategoryId { get; init; } = null;
     }
 }

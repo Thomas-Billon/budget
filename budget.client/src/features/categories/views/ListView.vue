@@ -5,19 +5,19 @@
     import StyleVariables from '@/assets/variables.module.scss';
 
     import { onMounted, ref } from 'vue';
-    import { routes } from '@/router.ts';
     import { apiCall } from '@/utils/ApiCall.ts';
-    import { type ICategoryListResponse, type ICategoryListItemResponse } from '@/features/categories/models/ICategoryListResponse';
+    import { type ICategoryTreeListResponse, type ICategoryTreeListItemResponse } from '@/features/categories/models/ICategoryTreeListResponse';
+    import CategoryCard from '@/features/categories/components/CategoryCard.vue';
 
-    const categories = ref<ICategoryListItemResponse[]>([]);
+    const categories = ref<ICategoryTreeListItemResponse[]>([]);
 
     // Init
     onMounted(() => {
-        getCategoryList();
+        getCategoryTreeList();
     });
 
-    const getCategoryList = async () => {
-        apiCall<undefined, ICategoryListResponse>(`category`, { method: 'GET' })
+    const getCategoryTreeList = async () => {
+        apiCall<undefined, ICategoryTreeListResponse>(`category/tree`, { method: 'GET' })
             .then(response => {
                 categories.value = response.items;
             })
@@ -30,17 +30,15 @@
 
 <template>
     <div class="category-list section-container container">
-        <div class="category-list-items">
-            <RouterLink v-for="category in categories"
-                        :key="category.id"
-                        :to="routes.category.update(category.id)"
-                        class="category-list-item"
-                        v-color="category.colorHex">
-                <span class="category-list-item-name">{{ category.name }}</span>
-            </RouterLink>
-            <RouterLink :to="routes.category.create" class="category-list-item" v-color="StyleVariables['secondary']">
-                <font-awesome-icon icon="fa-solid fa-plus" />
-            </RouterLink>
+        <div class="category-list-items row">
+            <div v-for="category in categories" :key="category.id" class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <CategoryCard v-bind="category" :can-add-sub-categories="true" />
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <CategoryCard :color-hex="StyleVariables.secondary">
+                    <font-awesome-icon icon="fa-solid fa-plus" />
+                </CategoryCard>
+            </div>
         </div>
     </div>
 </template>

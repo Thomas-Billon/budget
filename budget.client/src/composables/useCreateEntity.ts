@@ -8,7 +8,9 @@ interface Props {
 }
 
 const useCreateEntity = <TRequest extends { id: number }, TResponse>({ endpoint, onCreateSuccess, onCreateError }: Props) => {
-    const entity = ref<Partial<TResponse>>({});
+    const entity = ref<TRequest>({} as TRequest); // TODO: Fix casting
+
+    // #region Create
 
     const createResult = ref<ApiCallResult>();
 
@@ -26,6 +28,8 @@ const useCreateEntity = <TRequest extends { id: number }, TResponse>({ endpoint,
                 };
             });
     }
+
+    // #endregion Create
 
     return { entity, createEntity, createResult };
 }

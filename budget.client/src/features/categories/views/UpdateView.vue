@@ -13,19 +13,19 @@
         // TODO: Add error
     };
 
-    const onUpdateSuccess = () => {
+    const onFullUpdateSuccess = () => {
         router.push({ path: routes.category.list });
     };
 
-    const { entity: category, updateEntity, updateResult, updateEntityPartial, updatePartialResult, } = useUpdateEntity<ICategoryRequest, ICategoryDetailsResponse>({ endpoint: 'category', onGetByIdError, onUpdateSuccess });
+    const { entity: category, fullUpdate, fullUpdateResult, partialUpdate, partialUpdateResult } = useUpdateEntity<ICategoryRequest, ICategoryDetailsResponse>({ endpoint: 'category', onGetByIdError, onFullUpdateSuccess });
 
 </script>
 
 <template>
     <CategoryForm :is-new="false"
-                  :save-all-result="updateResult"
-                  :save-partial-result="updatePartialResult"
+                  :save-all-result="fullUpdateResult"
+                  :save-partial-result="partialUpdateResult"
                   v-model="category"
-                  @save-all="updateEntity"
-                  @save-partial="updateEntityPartial" />
+                  @save-all="fullUpdate"
+                  @save-partial="partialUpdate" />
 </template>
