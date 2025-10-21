@@ -1,9 +1,9 @@
 import { TransactionType } from '@/enums/TransactionType.ts';
 import { type IPagination } from '@/utils/IPagination';
 
-interface ITransactionListResponse extends IPagination<ITransactionListItemResponse> {}
+interface ITransactionHistoryResponse extends IPagination<ITransactionHistoryItemResponse> {}
 
-interface ITransactionListItemResponse {
+interface ITransactionHistoryItemResponse {
     id: number;
     type: TransactionType;
     amount: number;
@@ -11,4 +11,4 @@ interface ITransactionListItemResponse {
     date?: string;
 }
 
-export { type ITransactionListResponse, type ITransactionListItemResponse };
+export { type ITransactionHistoryResponse, type ITransactionHistoryItemResponse };

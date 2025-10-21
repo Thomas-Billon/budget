@@ -2,6 +2,7 @@
 using Budget.Server.Api.Transactions.Models.Requests;
 using Budget.Server.Api.Transactions.Models.Responses;
 using Budget.Server.Core.Categories;
+using Budget.Server.Core.Helpers;
 using Budget.Server.Core.Transactions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,14 +26,17 @@ namespace Budget.Server.Api.Transactions
         }
 
         [HttpGet]
-        public async Task<ActionResult<TransactionListResponse>> List([FromQuery] TransactionListRequest request)
+        public async Task<ActionResult<TransactionHistoryResponse>> GetTransactionHistory([FromQuery] TransactionHistoryRequest request)
         {
-            var transactions = await _transactionService.GetPaginatedList(request.Skip, request.Take, request.Filters, request.Sort);
+            var parameters = new TransactionHistoryParameters(request, isPaginationEnabled: true);
 
-            var response = new TransactionListResponse()
+            var transactions = await _transactionService.GetTransactionHistory(parameters);
+            var paginatedTransactions = transactions.ToPagination(request.Take);
+
+            var response = new TransactionHistoryResponse()
             {
-                Page = transactions.Page
-                    .Select(x => new TransactionListItemResponse
+                Page = paginatedTransactions.Page
+                    .Select(x => new TransactionHistoryItemResponse
                     {
                         Id = x.Base.Id,
                         Type = x.Base.Type,
@@ -41,7 +45,7 @@ namespace Budget.Server.Api.Transactions
                         Date = x.Base.Date,
                     })
                     .ToList(),
-                IsLastPage = transactions.IsLastPage,
+                IsLastPage = paginatedTransactions.IsLastPage,
             };
             return Ok(response);
         }

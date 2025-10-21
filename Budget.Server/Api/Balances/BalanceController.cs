@@ -30,7 +30,9 @@ namespace Budget.Server.Api.Balances
         [HttpGet]
         public async Task<ActionResult<BalanceDetailsResponse>> Details([FromQuery] BalanceDetailsRequest request)
         {
-            var transactions = await _transactionService.GetListBetweenDates(request.startDate, request.endDate);
+            var parameters = new TransactionHistoryParameters(request);
+
+            var transactions = await _transactionService.GetTransactionHistory(parameters);
             var balance = _balanceService.CalculateBalanceData(transactions);
 
             var response = new BalanceDetailsResponse()

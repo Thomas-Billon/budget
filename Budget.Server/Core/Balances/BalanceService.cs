@@ -16,7 +16,7 @@ namespace Budget.Server.Core.Balances
             _context = context;
         }
 
-        public BalanceDataResult CalculateBalanceData(List<TransactionQueryList> transactions)
+        public BalanceDataResult CalculateBalanceData(List<TransactionQuery_History> transactions)
         {
             var totalIncome = CalculateTotalIncome(transactions);
             var totalExpense = CalculateTotalExpense(transactions);
@@ -29,24 +29,24 @@ namespace Budget.Server.Core.Balances
             };
         }
 
-        public decimal CalculateTotalIncome(List<TransactionQueryList> transactions)
+        public decimal CalculateTotalIncome(List<TransactionQuery_History> transactions)
         {
             return CalculateTotalTransactionType(transactions, TransactionType.Income);
         }
 
-        public decimal CalculateTotalExpense(List<TransactionQueryList> transactions)
+        public decimal CalculateTotalExpense(List<TransactionQuery_History> transactions)
         {
             return CalculateTotalTransactionType(transactions, TransactionType.Expense);
         }
 
-        public decimal CalculateTotalTransactionType(List<TransactionQueryList> transactions, TransactionType type)
+        public decimal CalculateTotalTransactionType(List<TransactionQuery_History> transactions, TransactionType type)
         {
             return transactions
                 .Where(t => t.Base.Type == type)
                 .Sum(t => t.Base.Amount);
         }
 
-        public decimal CalculateNetBalance(List<TransactionQueryList> transactions)
+        public decimal CalculateNetBalance(List<TransactionQuery_History> transactions)
         {
             var totalIncome = CalculateTotalIncome(transactions);
             var totalExpense = CalculateTotalExpense(transactions);

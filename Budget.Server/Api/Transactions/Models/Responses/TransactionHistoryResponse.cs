@@ -3,9 +3,9 @@ using Budget.Server.Core.Helpers;
 
 namespace Budget.Server.Api.Transactions.Models.Responses
 {
-    public class TransactionListResponse : Pagination<TransactionListItemResponse> {}
+    public class TransactionHistoryResponse : Pagination<TransactionHistoryItemResponse> {}
 
-    public class TransactionListItemResponse
+    public class TransactionHistoryItemResponse
     {
         public required int Id { get; set; }
         public required TransactionType Type { get; set; }

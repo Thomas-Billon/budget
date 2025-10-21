@@ -1,6 +1,6 @@
 import HomeView from '@/views/HomeView.vue';
 import BalanceDetailsView from '@/features/balances/views/DetailsView.vue';
-import TransactionListView from '@/features/transactions/views/ListView.vue';
+import TransactionHistoryView from '@/features/transactions/views/HistoryView.vue';
 import TransactionCreateView from '@/features/transactions/views/CreateView.vue';
 import TransactionUpdateView from '@/features/transactions/views/UpdateView.vue';
 import CategoryListView from '@/features/categories/views/ListView.vue';
@@ -21,7 +21,7 @@ const routes = {
         details: '/balance/details',
     },
     transaction: {
-        list: '/transaction/list',
+        history: '/transaction/history',
         create: '/transaction/create',
         update: (id: number) => `/transaction/update/${getIdParam(id)}`,
     },
@@ -35,9 +35,9 @@ const routes = {
 const routerConfig = [
     { path: routes.home, component: HomeView },
     { path: routes.balance.details, component: BalanceDetailsView, meta: { back: routes.home } },
-    { path: routes.transaction.list, component: TransactionListView, meta: { back: routes.home } },
-    { path: routes.transaction.create, component: TransactionCreateView, meta: { back: routes.transaction.list } },
-    { path: `${routes.transaction.update(0)}:id`, component: TransactionUpdateView, meta: { back: routes.transaction.list } },
+    { path: routes.transaction.history, component: TransactionHistoryView, meta: { back: routes.home } },
+    { path: routes.transaction.create, component: TransactionCreateView, meta: { back: routes.transaction.history } },
+    { path: `${routes.transaction.update(0)}:id`, component: TransactionUpdateView, meta: { back: routes.transaction.history } },
     { path: routes.category.list, component: CategoryListView, meta: { back: routes.home } },
     { path: routes.category.create, component: CategoryCreateView, meta: { back: routes.category.list } },
     { path: `${routes.category.update(0)}:id`, component: CategoryUpdateView, meta: { back: routes.category.list } },

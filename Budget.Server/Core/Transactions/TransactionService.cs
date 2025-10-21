@@ -1,6 +1,7 @@
 ﻿using Budget.Server.Api.Transactions.Models.Requests;
-using Budget.Server.Core.Helpers;
+using Budget.Server.Core.Enums;
 using Budget.Server.Data;
+using Budget.Server.Data.Extensions;
 using Budget.Server.Data.Transactions;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,42 +19,59 @@ namespace Budget.Server.Core.Transactions
             _context = context;
         }
 
-        public async Task<Pagination<TransactionQueryList>> GetPaginatedList(int skip, int take, HashSet<TransactionFilterOption> filters, TransactionSortOption sort)
+        public Task<List<TransactionQuery_History>> GetTransactionHistory(TransactionHistoryParameters args)
         {
             var query = _context.Transactions.AsNoTracking();
 
-            foreach (var filter in filters)
+            query = args.Filter.Type switch
             {
-                query = filter switch
+                TransactionType.Income => query.Where_IsIncome(),
+                TransactionType.Expense => query.Where_IsExpense(),
+                _ => query
+            };
+
+            if (args.Filter.DateRange != null && args.Filter.DateRange.IsCustom)
+            {
+                if (args.Filter.DateRange.StartDate != null)
                 {
-                    TransactionFilterOption.Income => query.Where_IsIncome(),
-                    TransactionFilterOption.Expense => query.Where_IsExpense(),
-                    TransactionFilterOption.Last7Days => query.Where_IsInLast7Days(),
-                    TransactionFilterOption.Last30Days => query.Where_IsInLast30Days(),
-                    TransactionFilterOption.ThisMonth => query.Where_IsInThisMonth(),
-                    TransactionFilterOption.ThisYear => query.Where_IsInThisYear(),
+                    query = query.Where_IsAfterOrOnDate(args.Filter.DateRange.StartDate.Value);
+                }
+                if (args.Filter.DateRange.EndDate != null)
+                {
+                    query = query.Where_IsBeforeOrOnDate(args.Filter.DateRange.EndDate.Value);
+                }
+            }
+            else
+            {
+                query = args.Filter.DateRange?.Preset switch
+                {
+                    DateRangePreset.Last7Days => query.Where_IsInLast7Days(),
+                    DateRangePreset.Last30Days => query.Where_IsInLast30Days(),
+                    DateRangePreset.ThisMonth => query.Where_IsInThisMonth(),
+                    DateRangePreset.LastMonth => query.Where_IsInLastMonth(),
+                    DateRangePreset.ThisYear => query.Where_IsInThisYear(),
+                    DateRangePreset.LastYear => query.Where_IsInLastYear(),
                     _ => query
                 };
             }
 
-            query = sort switch
+            foreach (var (key, direction) in args.Sort)
             {
-                TransactionSortOption.DateAsc => query.OrderBy(x => x.Date),
-                TransactionSortOption.DateDesc => query.OrderByDescending(x => x.Date),
-                TransactionSortOption.AmountAsc => query.OrderBy(x => x.Amount),
-                TransactionSortOption.AmountDesc => query.OrderByDescending(x => x.Amount),
-                _ => query
-            };
+                query = key switch
+                {
+                    nameof(Transaction.Amount) => query.OrderBy_Amount(direction),
+                    nameof(Transaction.Date) => query.OrderBy_Date(direction),
+                    _ => query,
+                };
+            }
 
-            query = query.ApplyPaginationToQuery(skip, take);
+            query = query.SkipTake(args.Skip, args.Take, args.IsPaginationEnabled);
 
-            var entities = await query.Select(TransactionQueryList.Select)
+            return query.Select(TransactionQuery_History.Select)
                 .ToListAsync();
-
-            return Pagination<TransactionQueryList>.CreateFromQueryResult(entities, take);
         }
 
-        public Task<List<TransactionQueryList>> GetListBetweenDates(DateOnly? startDate, DateOnly? endDate)
+        public Task<List<TransactionQuery_History>> GetTransactionHistoryBetweenDates(DateOnly? startDate, DateOnly? endDate)
         {
             var query = _context.Transactions.AsNoTracking();
 
@@ -67,7 +85,7 @@ namespace Budget.Server.Core.Transactions
                 query = query.Where_IsBeforeOrOnDate(endDate.Value);
             }
 
-            return query.Select(TransactionQueryList.Select)
+            return query.Select(TransactionQuery_History.Select)
                 .ToListAsync();
         }
 

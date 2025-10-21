@@ -33,11 +33,11 @@ namespace Budget.Server.Core.Transactions
         }
     }
 
-    public class TransactionQueryList
+    public class TransactionQuery_History
     {
         public required TransactionQuery Base { get; set; }
 
-        public static Expression<Func<Transaction, TransactionQueryList>> Select => t => new()
+        public static Expression<Func<Transaction, TransactionQuery_History>> Select => t => new()
         {
             Base = t.ToQuery(),
         };

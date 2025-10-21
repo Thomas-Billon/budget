@@ -10,7 +10,7 @@
     const router = useRouter();
 
     const onCreateSuccess = () => {
-        router.push({ path: routes.transaction.list });
+        router.push({ path: routes.transaction.history });
     };
 
     const { entity: transaction, createEntity, createResult } = useCreateEntity<ITransactionRequest, ITransactionDetailsResponse>({ endpoint: 'transaction', onCreateSuccess });  
