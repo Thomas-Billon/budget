@@ -71,33 +71,15 @@ namespace Budget.Server.Core.Transactions
                 .ToListAsync();
         }
 
-        public Task<List<TransactionQuery_History>> GetTransactionHistoryBetweenDates(DateOnly? startDate, DateOnly? endDate)
-        {
-            var query = _context.Transactions.AsNoTracking();
-
-            if (startDate != null)
-            {
-                query = query.Where_IsAfterOrOnDate(startDate.Value);
-            }
-
-            if (endDate != null)
-            {
-                query = query.Where_IsBeforeOrOnDate(endDate.Value);
-            }
-
-            return query.Select(TransactionQuery_History.Select)
-                .ToListAsync();
-        }
-
-        public Task<TransactionQueryById?> GetById(int id)
+        public Task<TransactionQuery_Details?> GetTransactionDetails(int id)
         {
             return _context.Transactions.AsNoTracking()
                 .Where(x => x.Id == id)
-                .Select(TransactionQueryById.Select)
+                .Select(TransactionQuery_Details.Select)
                 .FirstOrDefaultAsync();
         }
 
-        public Task<int> Create(TransactionCreateRequest request)
+        public Task<int> CreateTransaction(TransactionCreateRequest request)
         {
             var entity = new Transaction
             {
@@ -114,7 +96,7 @@ namespace Budget.Server.Core.Transactions
             return _context.SaveChangesAsync();
         }
 
-        public Task<int> Update(int id, TransactionUpdateRequest request)
+        public Task<int> UpdateTransaction(int id, TransactionUpdateRequest request)
         {
             return _context.Transactions
                 .Where(x => x.Id == id)
@@ -128,7 +110,7 @@ namespace Budget.Server.Core.Transactions
                 );
         }
 
-        public async Task<int> Patch(int id, TransactionPatchRequest request)
+        public async Task<int> PatchTransaction(int id, TransactionPatchRequest request)
         {
             var entity = await _context.Transactions.FindAsync(id);
 
@@ -147,7 +129,7 @@ namespace Budget.Server.Core.Transactions
             return await _context.SaveChangesAsync();
         }
 
-        public Task<int> Delete(int id)
+        public Task<int> DeleteTransaction(int id)
         {
             return _context.Transactions
                 .Where(x => x.Id == id)

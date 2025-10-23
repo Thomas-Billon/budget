@@ -25,7 +25,7 @@ namespace Budget.Server.Api.Transactions
             _categoryService = categoryService;
         }
 
-        [HttpGet]
+        [HttpGet("history")]
         public async Task<ActionResult<TransactionHistoryResponse>> GetTransactionHistory([FromQuery] TransactionHistoryRequest request)
         {
             var parameters = new TransactionHistoryParameters(request, isPaginationEnabled: true);
@@ -51,9 +51,9 @@ namespace Budget.Server.Api.Transactions
         }
 
 		[HttpGet("{id:int}")]
-		public async Task<ActionResult<TransactionDetailsResponse?>> Details(int id)
+		public async Task<ActionResult<TransactionDetailsResponse?>> GetTransactionDetails(int id)
         {
-            var transaction = await _transactionService.GetById(id);
+            var transaction = await _transactionService.GetTransactionDetails(id);
             if (transaction == null)
             {
                 return NotFound();
@@ -82,9 +82,9 @@ namespace Budget.Server.Api.Transactions
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] TransactionCreateRequest request)
+        public async Task<ActionResult> CreateTransaction([FromBody] TransactionCreateRequest request)
         {
-            var result = await _transactionService.Create(request);
+            var result = await _transactionService.CreateTransaction(request);
             if (result == 0)
             {
                 return BadRequest("Transaction creation failed.");
@@ -94,9 +94,9 @@ namespace Budget.Server.Api.Transactions
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Update(int id, [FromBody] TransactionUpdateRequest request)
+        public async Task<ActionResult> UpdateTransaction(int id, [FromBody] TransactionUpdateRequest request)
         {
-            var result = await _transactionService.Update(id, request);
+            var result = await _transactionService.UpdateTransaction(id, request);
             if (result == 0)
             {
                 return BadRequest("Transaction update failed.");
@@ -106,9 +106,9 @@ namespace Budget.Server.Api.Transactions
         }
 
         [HttpPatch("{id:int}")]
-        public async Task<IActionResult> Patch(int id, [FromBody] TransactionPatchRequest request)
+        public async Task<IActionResult> PatchTransaction(int id, [FromBody] TransactionPatchRequest request)
         {
-            var result = await _transactionService.Patch(id, request);
+            var result = await _transactionService.PatchTransaction(id, request);
             if (result == 0)
             {
                 return BadRequest("Transaction patch failed.");
@@ -118,9 +118,9 @@ namespace Budget.Server.Api.Transactions
         }
 
         [HttpDelete("{id:int}")]
-		public async Task<ActionResult> Delete(int id)
+		public async Task<ActionResult> DeleteTransaction(int id)
         {
-            var result = await _transactionService.Delete(id);
+            var result = await _transactionService.DeleteTransaction(id);
             if (result == 0)
             {
                 return BadRequest("Transaction deletion failed.");

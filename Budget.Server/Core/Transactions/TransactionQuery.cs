@@ -43,12 +43,12 @@ namespace Budget.Server.Core.Transactions
         };
     }
 
-    public class TransactionQueryById
+    public class TransactionQuery_Details
     {
         public required TransactionQuery Base { get; set; }
         public required List<CategoryQuery> Categories { get; set; }
 
-        public static Expression<Func<Transaction, TransactionQueryById>> Select => t => new()
+        public static Expression<Func<Transaction, TransactionQuery_Details>> Select => t => new()
         {
             Base = t.ToQuery(),
             Categories = t.Categories.Select(c => c.ToQuery()).ToList(),

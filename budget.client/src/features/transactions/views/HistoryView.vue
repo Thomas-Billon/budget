@@ -5,7 +5,7 @@
     import { onMounted, ref } from 'vue';
     import { routes } from '@/router.ts';
     import { apiCall } from '@/utils/ApiCall.ts';
-    import { type ITransactionHistoryResponse, type ITransactionHistoryItemResponse } from '@/features/transactions/models/ITransactionListResponse';
+    import { type ITransactionHistoryResponse, type ITransactionHistoryItemResponse } from '@/features/transactions/models/ITransactionHistoryResponse';
     import { formatAmount } from '@/features/transactions/TransactionService.ts';
 
     const transactions = ref<ITransactionHistoryItemResponse[]>([]);
@@ -23,7 +23,7 @@
     };
 
     const getTransactionHistory = async (skip: number, take: number) => {
-        apiCall<undefined, ITransactionHistoryResponse>(`transaction?skip=${skip}&take=${take}`, { method: 'GET' })
+        apiCall<undefined, ITransactionHistoryResponse>(`transaction/history?skip=${skip}&take=${take}`, { method: 'GET' })
             .then(response => {
                 transactions.value.push(...response.page);
                 isLastPage.value = response.isLastPage;
