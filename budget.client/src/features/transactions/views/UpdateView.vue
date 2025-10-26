@@ -6,10 +6,11 @@
     import { type ITransactionRequest } from '@/features/transactions/models/ITransactionRequest';
     import TransactionForm from '@/features/transactions/components/TransactionForm.vue';
     import useUpdateEntity from '@/composables/useUpdateEntity';
+    import useDeleteEntity from '@/composables/useDeleteEntity';
 
     const router = useRouter();
 
-    const onGetByIdError = () => {
+    const onGetDetailsError = () => {
         // TODO: Add error
     };
 
@@ -17,7 +18,12 @@
         router.push({ path: routes.transaction.history });
     };
 
-    const { entity: transaction, fullUpdate, fullUpdateResult, partialUpdate, partialUpdateResult } = useUpdateEntity<ITransactionRequest, ITransactionDetailsResponse>({ endpoint: 'transaction', onGetByIdError, onFullUpdateSuccess });
+    const onDeleteSuccess = () => {
+        router.push({ path: routes.transaction.history });
+    };
+
+    const { entity: transaction, fullUpdateEntity, fullUpdateResult, partialUpdateEntity, partialUpdateResult } = useUpdateEntity<ITransactionRequest, ITransactionDetailsResponse>({ endpoint: 'transaction', onGetDetailsError, onFullUpdateSuccess });
+    const { deleteEntity, deleteResult } = useDeleteEntity({ endpoint: 'transaction', onDeleteSuccess });
 
 </script>
 
@@ -25,7 +31,9 @@
     <TransactionForm :is-new="false"
                      :save-all-result="fullUpdateResult"
                      :save-partial-result="partialUpdateResult"
+                     :delete-result="deleteResult"
                      v-model="transaction"
-                     @save-all="fullUpdate"
-                     @save-partial="partialUpdate" />
+                     @save-all="fullUpdateEntity"
+                     @save-partial="partialUpdateEntity"
+                     @delete="deleteEntity" />
 </template>

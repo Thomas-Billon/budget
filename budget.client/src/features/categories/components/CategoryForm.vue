@@ -14,19 +14,23 @@
         isNew: boolean;
         saveAllResult?: ApiCallResult;
         savePartialResult?: ApiCallResult;
+        deleteResult?: ApiCallResult;
     };
 
     type Emits = {
         saveAll: [data: ICategoryRequest];
         savePartial: [id: number, data: Partial<ICategoryRequest>];
+        delete: [id: number];
     };
-    
-    const { isNew, saveAllResult, savePartialResult } = defineProps<Props>();
+
+    const { isNew, saveAllResult, savePartialResult, deleteResult } = defineProps<Props>();
     const model = defineModel<ICategoryRequest>({ required: true });
     const emit = defineEmits<Emits>();
 
     const submitLabel = ref<string>('');
-    const isSubmitDisabled = ref<boolean>(false);
+    const deleteLabel = ref<string>('');
+    const areButtonsDisabled = ref<boolean>(false);
+
     const categoryOptions = ref<ICategoryOptionsItemResponse[]>([]);
 
     let partialModel: Partial<ICategoryRequest> = {};
@@ -34,47 +38,65 @@
     // Init
     onMounted(() => {
         getCategoryOptions();
-        setSubmitButtonToDefaultState();
+        setButtonsToDefaultState();
     });
 
     // On props change
-    watch(() => [saveAllResult, savePartialResult], ([all, partial]) => {
-        if (all !== undefined && !all.isSuccess) {
+    watch(() => [saveAllResult, savePartialResult, deleteResult], ([newSaveAll, newSavePartial, newDelete]) => {
+        if (newSaveAll !== undefined && !newSaveAll.isSuccess) {
             setSubmitButtonToErrorState();
-            waitAndResetSubmitButtonToDefaultState();
+            waitAndResetButtonsToDefaultState();
+        }
+        else if (newSavePartial !== undefined && !newSavePartial.isSuccess || isNew) {
+            setButtonsToDefaultState();
+        }
+        else if (newDelete !== undefined && !newDelete.isSuccess) {
+            setDeleteButtonToErrorState();
+            waitAndResetButtonsToDefaultState();
         }
         else {
-            if (partial !== undefined && !partial.isSuccess || isNew) {
-                setSubmitButtonToDefaultState();
-            }
-            else {
-                setSubmitButtonToSavedState();
-                waitAndResetSubmitButtonToDefaultState();
-            }
+            setSubmitButtonToSavedState();
+            waitAndResetButtonsToDefaultState();
         }
     });
 
     // On form submit
     const onSubmit = (): void => {
         saveAll(model.value);
-        setSubmitButtonToSavedState();
+        disableButtons();
     }
+
+    // On delete button click
+    const onDelete = (): void => {
+        emitDelete(model.value.id);
+        disableButtons();
+    }
+
+    // #region Partial update
 
     // On all form fields input event (any text modification)
     const onFormFieldInput = <T extends keyof ICategoryRequest>(event: Event, fieldName: T): void => {
-        setSubmitButtonToDefaultState();
-
-        // Edit only for partial update
-        if (!isNew) {
-            const target = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
-            if (target === null) {
-                return;
-            }
-
-            partialModel[fieldName] = target.value as ICategoryRequest[T];
-            debounceSavePartial();
+        const target = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+        if (target === null) {
+            return;
         }
+
+        setButtonsToDefaultState();
+        fillPartialModel(fieldName, target.value as ICategoryRequest[T]);
     }
+
+    const fillPartialModel = <T extends keyof ICategoryRequest>(fieldName: T, value: ICategoryRequest[T]): void => {
+        if (isNew) {
+            return;
+        }
+
+        partialModel[fieldName] = value;
+        debounceSavePartial();
+    };
+
+    // #endregion Partial update
+
+    // #region Options
 
     const getCategoryOptions = (): void => {
         if (!isNew) {
@@ -88,25 +110,48 @@
         }
     }
 
-    const setSubmitButtonToDefaultState = (): void => {
+    // #endregion Options
+
+    // #region Buttons
+
+    const setButtonsToDefaultState = (): void => {
         submitLabel.value = isNew ? 'Add category' : 'Edit category';
-        isSubmitDisabled.value = false;
+        deleteLabel.value = 'Delete category';
+        enableButtons();
     }
 
     const setSubmitButtonToSavedState = (): void => {
         submitLabel.value = 'Saved';
-        isSubmitDisabled.value = true;
+        disableButtons();
     }
 
     const setSubmitButtonToErrorState = (): void => {
         submitLabel.value = 'Error';
-        isSubmitDisabled.value = false;
+        enableButtons();
     }
 
-    const waitAndResetSubmitButtonToDefaultState = debounce(setSubmitButtonToDefaultState, 5000);
+    const setDeleteButtonToErrorState = (): void => {
+        deleteLabel.value = 'Error';
+        enableButtons();
+    }
+
+    const disableButtons = (): void => {
+        areButtonsDisabled.value = true;
+    }
+
+    const enableButtons = (): void => {
+        areButtonsDisabled.value = false;
+    }
+
+    const waitAndResetButtonsToDefaultState = debounce(setButtonsToDefaultState, 5000);
+
+    // #endregion Buttons
+
+    // #region Emits
 
     const saveAll = (data: ICategoryRequest) => emit('saveAll', data);
     const savePartial = (id: number, data: Partial<ICategoryRequest>) => emit('savePartial', id, data);
+    const emitDelete = (id: number) => emit('delete', id);
 
     const debounceSavePartial = debounce(() => {
         if (model.value.id === undefined || Object.keys(partialModel).length === 0) {
@@ -116,6 +161,8 @@
         savePartial(model.value.id, partialModel);
         partialModel = {};
     }, 1000);
+
+    // #endregion Emits
 
 </script>
 
@@ -148,7 +195,12 @@
         </div>
 
         <div class="category-form-foot">
-            <button type="submit" class="category-form-submit btn btn-primary btn-lg" :disabled="isSubmitDisabled || !model.name">
+            <button v-if="!isNew" class="category-form-button btn btn-outline-danger btn-lg" :disabled="areButtonsDisabled" @click="onDelete">
+                <font-awesome-icon icon="fa-solid fa-trash" />
+                <span>{{ deleteLabel }}</span>
+            </button>
+            <button type="submit" class="category-form-button btn btn-primary btn-lg" :disabled="areButtonsDisabled || !model.name">
+                <font-awesome-icon icon="fa-solid fa-check" />
                 <span>{{ submitLabel }}</span>
             </button>
         </div>

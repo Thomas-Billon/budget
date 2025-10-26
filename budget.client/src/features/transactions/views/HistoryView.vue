@@ -60,7 +60,7 @@
         </div>
 
         <button :class="[ 'btn btn-outline-secondary', isLastPage ? 'disabled' : '' ]" @click="onSeeMoreClick()">
-            See more
+            <span>See more</span>
         </button>
     </div>
 </template>

@@ -1,3 +1,4 @@
+@import "bootstrap/scss/variables";
 @import "@/assets/variables.module";
 
 a, .btn-link {
@@ -27,11 +28,13 @@ a, .btn-link {
     --bs-btn-disabled-opacity: 1;
 }
 
-.btn-outline-primary, .btn-outline-secondary {
-    --bs-btn-color: #{$black};
-    --bs-btn-border-width: #{$border-lg};
-    --bs-btn-disabled-color: #{$disabled};
-    --bs-btn-disabled-bg: transparent;
+@each $color, $value in $theme-colors {
+    .btn-outline-#{$color} {
+        --bs-btn-color: #{$black};
+        --bs-btn-border-width: #{$border-lg};
+        --bs-btn-disabled-color: #{$disabled};
+        --bs-btn-disabled-bg: transparent;
+    }
 }
 
 .btn-lg {

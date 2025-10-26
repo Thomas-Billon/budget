@@ -6,10 +6,11 @@
     import { type ICategoryRequest } from '@/features/categories/models/ICategoryRequest';
     import CategoryForm from '@/features/categories/components/CategoryForm.vue';
     import useUpdateEntity from '@/composables/useUpdateEntity';
+    import useDeleteEntity from '@/composables/useDeleteEntity';
 
     const router = useRouter();
 
-    const onGetByIdError = () => {
+    const onGetDetailsError = () => {
         // TODO: Add error
     };
 
@@ -17,7 +18,12 @@
         router.push({ path: routes.category.hierarchy });
     };
 
-    const { entity: category, fullUpdate, fullUpdateResult, partialUpdate, partialUpdateResult } = useUpdateEntity<ICategoryRequest, ICategoryDetailsResponse>({ endpoint: 'category', onGetByIdError, onFullUpdateSuccess });
+    const onDeleteSuccess = () => {
+        router.push({ path: routes.category.hierarchy });
+    };
+
+    const { entity: category, fullUpdateEntity, fullUpdateResult, partialUpdateEntity, partialUpdateResult } = useUpdateEntity<ICategoryRequest, ICategoryDetailsResponse>({ endpoint: 'category', onGetDetailsError, onFullUpdateSuccess });
+    const { deleteEntity, deleteResult } = useDeleteEntity({ endpoint: 'category', onDeleteSuccess });
 
 </script>
 
@@ -25,7 +31,9 @@
     <CategoryForm :is-new="false"
                   :save-all-result="fullUpdateResult"
                   :save-partial-result="partialUpdateResult"
+                  :delete-result="deleteResult"
                   v-model="category"
-                  @save-all="fullUpdate"
-                  @save-partial="partialUpdate" />
+                  @save-all="fullUpdateEntity"
+                  @save-partial="partialUpdateEntity"
+                  @delete="deleteEntity" />
 </template>

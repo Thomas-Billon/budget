@@ -4,56 +4,56 @@ import { useRoute } from 'vue-router';
 
 interface Props {
     endpoint: string;
-    onGetByIdSuccess?: <TResponse>(response: TResponse) => void;
-    onGetByIdError?: () => void;
+    onGetDetailsSuccess?: <TResponse>(response: TResponse) => void;
+    onGetDetailsError?: () => void;
     onFullUpdateSuccess?: () => void;
     onFullUpdateError?: () => void;
     onPartialUpdateSuccess?: () => void;
     onPartialUpdateError?: () => void;
 }
 
-const useUpdateEntity = <TRequest extends { id: number }, TResponse>({ endpoint, onGetByIdSuccess, onGetByIdError, onFullUpdateSuccess, onFullUpdateError, onPartialUpdateSuccess, onPartialUpdateError }: Props) => {
+const useUpdateEntity = <TRequest extends { id: number }, TResponse>({ endpoint, onGetDetailsSuccess, onGetDetailsError, onFullUpdateSuccess, onFullUpdateError, onPartialUpdateSuccess, onPartialUpdateError }: Props) => {
     const route = useRoute();
 
     const entity = ref<TRequest>({} as TRequest); // TODO: Fix casting
     
-    // #region Get by id
+    // #region Get details
 
     // Init
     onMounted(() => {
-        getFromUrl(route.params?.id);
+        getFromRoute(route.params?.id);
     });
 
     // On route change
     watch(() => route.params?.id, (id) => {
-        getFromUrl(id);
+        getFromRoute(id);
     });
 
-    const getFromUrl = (id?: string | string[]) => {
+    const getFromRoute = (id?: string | string[]) => {
         if (id === undefined || typeof id !== 'string') {
             return;
         }
         const entityId = parseInt(id);
-        getById(entityId);
+        getEntityDetails(entityId);
     };
 
-    const getById = async (id: number) => {
-        apiCall<void, TResponse>(`${endpoint}/${id}`, { method: 'GET' })
+    const getEntityDetails = async (id: number): Promise<void> => {
+        return apiCall<void, TResponse>(`${endpoint}/${id}`, { method: 'GET' })
             .then(response => {
-                onGetByIdSuccess?.(response);
+                onGetDetailsSuccess?.(response);
 
                 entity.value = response;
             })
             .catch(() => {
-                onGetByIdError?.();
+                onGetDetailsError?.();
             });
     };
 
-    // #endregion Get by id
+    // #endregion Get details
 
     // #region Full update
 
-    const fullUpdate = async (data: TRequest): Promise<void> => {
+    const fullUpdateEntity = async (data: TRequest): Promise<void> => {
         if (!data.id) {
             return Promise.reject('Error: Cannot update entity without id.');
         }
@@ -83,8 +83,8 @@ const useUpdateEntity = <TRequest extends { id: number }, TResponse>({ endpoint,
 
     // #region Partial update
 
-    const partialUpdate = async (id: number, data: Partial<TRequest>) => {
-        apiCall<Partial<TRequest>, void>(`${endpoint}/${id}`, { method: 'PATCH', body: data })
+    const partialUpdateEntity = async (id: number, data: Partial<TRequest>): Promise<void> => {
+        return apiCall<Partial<TRequest>, void>(`${endpoint}/${id}`, { method: 'PATCH', body: data })
             .then(_ => {
                 onPartialUpdateSuccess?.();
 
@@ -107,7 +107,7 @@ const useUpdateEntity = <TRequest extends { id: number }, TResponse>({ endpoint,
 
     // #endregion Partial update
 
-    return { entity, fullUpdate, fullUpdateResult, partialUpdate, partialUpdateResult };
+    return { entity, fullUpdateEntity, fullUpdateResult, partialUpdateEntity, partialUpdateResult };
 }
 
 export default useUpdateEntity;

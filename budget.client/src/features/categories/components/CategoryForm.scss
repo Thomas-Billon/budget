@@ -13,9 +13,12 @@
     }
 
     &-foot {
+        display: flex;
+        flex-direction: column;
+        gap: $spacer-inline;
     }
 
-    &-submit {
+    &-button {
         width: 100%;
     }
 }

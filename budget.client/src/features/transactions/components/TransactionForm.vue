@@ -16,63 +16,73 @@
         isNew: boolean;
         saveAllResult?: ApiCallResult;
         savePartialResult?: ApiCallResult;
+        deleteResult?: ApiCallResult;
     };
 
     type Emits = {
         saveAll: [data: ITransactionRequest];
         savePartial: [id: number, data: Partial<ITransactionRequest>];
+        delete: [id: number];
     };
     
-    const { isNew, saveAllResult, savePartialResult } = defineProps<Props>();
+    const { isNew, saveAllResult, savePartialResult, deleteResult } = defineProps<Props>();
     const model = defineModel<ITransactionRequest>({ required: true });
     const emit = defineEmits<Emits>();
 
     const typeInput = ref<HTMLInputElement | undefined>();
     const typeOptions: IButtonSwitchOption[] = [{ value: TransactionType.Income, label: 'Income', icon: 'plus' }, { value: TransactionType.Expense, label: 'Expense', icon: 'minus' }];
+    
     const amountPlaceholder: string = formatAmount(0, { isFalsyValueAllowed: true });
     const amountDisplayValue = ref<string>('');
+
     const submitLabel = ref<string>('');
-    const isSubmitDisabled = ref<boolean>(false);
+    const deleteLabel = ref<string>('');
+    const areButtonsDisabled = ref<boolean>(false);
 
     let partialModel: Partial<ITransactionRequest> = {};
 
     // Init
     onMounted(() => {
         updateAmountDisplayValue();
-        setSubmitButtonToDefaultState();
+        setButtonsToDefaultState();
     });
 
     // On props change
-    watch(() => [saveAllResult, savePartialResult], ([all, partial]) => {
-        if (all !== undefined && !all.isSuccess) {
+    watch(() => [saveAllResult, savePartialResult, deleteResult], ([newSaveAll, newSavePartial, newDelete]) => {
+        if (newSaveAll !== undefined && !newSaveAll.isSuccess) {
             setSubmitButtonToErrorState();
-            waitAndResetSubmitButtonToDefaultState();
+            waitAndResetButtonsToDefaultState();
+        }
+        else if (newSavePartial !== undefined && !newSavePartial.isSuccess || isNew) {
+            setButtonsToDefaultState();
+        }
+        else if (newDelete !== undefined && !newDelete.isSuccess) {
+            setDeleteButtonToErrorState();
+            waitAndResetButtonsToDefaultState();
         }
         else {
-            if (partial !== undefined && !partial.isSuccess || isNew) {
-                setSubmitButtonToDefaultState();
-            }
-            else {
-                setSubmitButtonToSavedState();
-                waitAndResetSubmitButtonToDefaultState();
-            }
+            setSubmitButtonToSavedState();
+            waitAndResetButtonsToDefaultState();
         }
-    });
-
-    // On model change
-    watch(() => model.value, (_) => {
-        updateAmountDisplayValue();
     });
 
     // On form submit
     const onSubmit = (): void => {
-        saveAll(model.value);
-        setSubmitButtonToSavedState();
+        emitSaveAll(model.value);
+        disableButtons();
     }
+
+    // On delete button click
+    const onDelete = (): void => {
+        emitDelete(model.value.id);
+        disableButtons();
+    }
+
+    // #region Partial update
 
     // On type field switch event
     const onTypeFieldChange = (value: ButtonSwitchValue | undefined): void => {
-        setSubmitButtonToDefaultState();
+        setButtonsToDefaultState();
         fillPartialModel('type', value as ITransactionRequest['type']);
     }
 
@@ -83,18 +93,8 @@
             return;
         }
 
-        setSubmitButtonToDefaultState();
+        setButtonsToDefaultState();
         fillPartialModel(fieldName, target.value as ITransactionRequest[T]);
-    }
-
-    // On amount field input event (any text modification)
-    const onAmountInput = (event: Event): void => {
-        updateAmountRealValue(amountDisplayValue.value);
-    }
-
-    // On amount field change event (basically after blur)
-    const onAmountChange = (event: Event): void => {
-        updateAmountDisplayValue();
     }
 
     const fillPartialModel = <T extends keyof ITransactionRequest>(fieldName: T, value: ITransactionRequest[T]): void => {
@@ -106,6 +106,25 @@
         debounceSavePartial();
     };
 
+    // #endregion Partial update
+
+    // #region Amount
+
+    // On model change
+    watch(() => model.value, (_) => {
+        updateAmountDisplayValue();
+    });
+
+    // On amount field input event (any text modification)
+    const onAmountInput = (event: Event): void => {
+        updateAmountRealValue(amountDisplayValue.value);
+    }
+
+    // On amount field change event (basically after blur)
+    const onAmountChange = (event: Event): void => {
+        updateAmountDisplayValue();
+    }
+
     const updateAmountDisplayValue = (): void => {
         amountDisplayValue.value = formatAmount(model.value.amount);
     };
@@ -114,34 +133,59 @@
         model.value.amount = parseAmount(value);
     }
 
-    const setSubmitButtonToDefaultState = (): void => {
+    // #endregion Amount
+
+    // #region Buttons
+
+    const setButtonsToDefaultState = (): void => {
         submitLabel.value = isNew ? 'Add transaction' : 'Edit transaction';
-        isSubmitDisabled.value = false;
+        deleteLabel.value = 'Delete transaction';
+        enableButtons();
     }
 
     const setSubmitButtonToSavedState = (): void => {
         submitLabel.value = 'Saved';
-        isSubmitDisabled.value = true;
+        disableButtons();
     }
 
     const setSubmitButtonToErrorState = (): void => {
         submitLabel.value = 'Error';
-        isSubmitDisabled.value = false;
+        enableButtons();
     }
 
-    const waitAndResetSubmitButtonToDefaultState = debounce(setSubmitButtonToDefaultState, 5000);
+    const setDeleteButtonToErrorState = (): void => {
+        deleteLabel.value = 'Error';
+        enableButtons();
+    }
 
-    const saveAll = (data: ITransactionRequest) => emit('saveAll', data);
-    const savePartial = (id: number, data: Partial<ITransactionRequest>) => emit('savePartial', id, data);
+    const disableButtons = (): void => {
+        areButtonsDisabled.value = true;
+    }
+
+    const enableButtons = (): void => {
+        areButtonsDisabled.value = false;
+    }
+
+    const waitAndResetButtonsToDefaultState = debounce(setButtonsToDefaultState, 5000);
+
+    // #endregion Buttons
+
+    // #region Emits
+
+    const emitSaveAll = (data: ITransactionRequest) => emit('saveAll', data);
+    const emitSavePartial = (id: number, data: Partial<ITransactionRequest>) => emit('savePartial', id, data);
+    const emitDelete = (id: number) => emit('delete', id);
 
     const debounceSavePartial = debounce(() => {
         if (model.value.id === undefined || Object.keys(partialModel).length === 0) {
             return;
         }
 
-        savePartial(model.value.id, partialModel);
+        emitSavePartial(model.value.id, partialModel);
         partialModel = {};
     }, 1000);
+
+    // #endregion Emits
 
 </script>
 
@@ -193,7 +237,12 @@
         </div>
 
         <div class="transaction-form-foot transition-opacity" :class="[ !model.type && 'hidden' ]">
-            <button type="submit" class="transaction-form-submit btn btn-primary btn-lg" :disabled="isSubmitDisabled || !model.type || !model.amount || !model.reason">
+            <button v-if="!isNew" class="transaction-form-button btn btn-outline-danger btn-lg" :disabled="areButtonsDisabled" @click="onDelete">
+                <font-awesome-icon icon="fa-solid fa-trash" />
+                <span>{{ deleteLabel }}</span>
+            </button>
+            <button type="submit" class="transaction-form-button btn btn-primary btn-lg" :disabled="areButtonsDisabled || !model.type || !model.amount || !model.reason">
+                <font-awesome-icon icon="fa-solid fa-check" />
                 <span>{{ submitLabel }}</span>
             </button>
         </div>
