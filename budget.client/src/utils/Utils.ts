@@ -6,4 +6,8 @@ const debounce = <T extends (...args: any[]) => void>(callback: T, delay: number
     };
 };
 
-export { debounce };
+const getIsoDay = (date: Date): number => {
+    return (date.getDay() + 6) % 7;
+};
+
+export { debounce, getIsoDay };

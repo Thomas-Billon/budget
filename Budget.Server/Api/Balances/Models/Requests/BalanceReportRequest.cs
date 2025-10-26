@@ -2,7 +2,7 @@
 
 namespace Budget.Server.Api.Balances.Models.Requests
 {
-    public class BalanceDetailsRequest
+    public class BalanceReportRequest
     {
         [Required]
         public DateOnly startDate { get; init; }

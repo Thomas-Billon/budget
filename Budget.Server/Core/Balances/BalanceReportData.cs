@@ -1,6 +1,6 @@
-﻿namespace Budget.Server.Api.Balances.Models.Responses
+﻿namespace Budget.Server.Core.Balances
 {
-    public class BalanceDetailsResponse
+    public class BalanceReportData
     {
         public required decimal TotalIncome { get; set; }
         public required decimal TotalExpense { get; set; }

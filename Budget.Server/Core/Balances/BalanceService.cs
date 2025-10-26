@@ -16,12 +16,12 @@ namespace Budget.Server.Core.Balances
             _context = context;
         }
 
-        public BalanceDataResult CalculateBalanceData(List<TransactionQuery_History> transactions)
+        public BalanceReportData CalculateBalanceReport(List<TransactionQuery_History> transactions)
         {
             var totalIncome = CalculateTotalIncome(transactions);
             var totalExpense = CalculateTotalExpense(transactions);
 
-            return new BalanceDataResult
+            return new BalanceReportData
             {
                 TotalIncome = totalIncome,
                 TotalExpense = totalExpense,

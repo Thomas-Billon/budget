@@ -67,7 +67,7 @@ namespace Budget.Server.Core.Transactions
             }
         }
 
-        public TransactionHistoryParameters(BalanceDetailsRequest request)
+        public TransactionHistoryParameters(BalanceReportRequest request)
         {
             Filter = new()
             {

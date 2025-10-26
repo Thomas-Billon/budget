@@ -1,7 +1,7 @@
-interface IBalanceDetailsResponse {
+interface IBalanceReportResponse {
     totalIncome: number;
     totalExpense: number;
     netBalance: number;
 }
 
-export { type IBalanceDetailsResponse };
+export { type IBalanceReportResponse };

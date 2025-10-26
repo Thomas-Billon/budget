@@ -1,9 +1,10 @@
 import { DateRange } from "@/enums/DateRange";
 import { Month } from "@/enums/Month";
+import { getIsoDay } from "@/utils/Utils";
 
 const lastDayOfPreviousMonth: number = 0;
 
-const getDatesFromDateRange = (dateRange: DateRange): { startDate: Date, endDate: Date } => {
+const getLocalDatesFromDateRange = (dateRange: DateRange): { startDate: Date, endDate: Date } => {
     const now = new Date();
 
     let startDate: Date;
@@ -21,13 +22,13 @@ const getDatesFromDateRange = (dateRange: DateRange): { startDate: Date, endDate
             break;
 
         case DateRange.CurrentWeek:
-            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-            endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (6 - now.getDay()));
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - getIsoDay(now));
+            endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (6 - getIsoDay(now)));
             break;
 
         case DateRange.LastWeek:
-            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() - 7);
-            endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() - 1);
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - getIsoDay(now) - 7);
+            endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - getIsoDay(now) - 1);
             break;
 
         case DateRange.CurrentMonth:
@@ -62,4 +63,13 @@ const getDatesFromDateRange = (dateRange: DateRange): { startDate: Date, endDate
     return { startDate, endDate };
 };
 
-export { getDatesFromDateRange };
+const getUtcDatesFromDateRange = (dateRange: DateRange): { startDate: Date, endDate: Date } => {
+    let { startDate, endDate } = getLocalDatesFromDateRange(dateRange);
+
+    startDate = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
+    endDate = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000);
+
+    return { startDate, endDate };
+};
+
+export { getLocalDatesFromDateRange, getUtcDatesFromDateRange };

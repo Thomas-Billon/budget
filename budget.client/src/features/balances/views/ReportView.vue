@@ -1,34 +1,34 @@
 <script setup lang="ts">
 
-    import './DetailsView.scss';
+    import './ReportView.scss';
 
     import { onMounted, ref, watch } from 'vue';
     import { apiCall } from '@/utils/ApiCall.ts';
-    import { type IBalanceDetailsResponse } from '@/features/balances/models/IBalanceDetailsResponse.ts';
-    import { getDatesFromDateRange } from '@/utils/DateRange.ts';
+    import { type IBalanceReportResponse } from '@/features/balances/models/IBalanceReportResponse.ts';
+    import { getUtcDatesFromDateRange } from '@/utils/DateRange.ts';
     import { DateRange } from '@/enums/DateRange.ts';
 
     const dateRange = ref<DateRange>(DateRange.CurrentMonth);
-    const balanceDetails = ref<IBalanceDetailsResponse | undefined>();
+    const balanceReport = ref<IBalanceReportResponse | undefined>();
 
     // Init
     onMounted(() => {
-        const { startDate, endDate } = getDatesFromDateRange(DateRange.CurrentMonth);
-        getBalanceDetails(startDate, endDate);
+        const { startDate, endDate } = getUtcDatesFromDateRange(DateRange.CurrentMonth);
+        getBalanceReport(startDate, endDate);
     });
 
     watch(dateRange, (newDateRange) => {
-        const { startDate, endDate } = getDatesFromDateRange(newDateRange);
-        getBalanceDetails(startDate, endDate);
+        const { startDate, endDate } = getUtcDatesFromDateRange(newDateRange);
+        getBalanceReport(startDate, endDate);
     });
 
-    const getBalanceDetails = async (startDate: Date, endDate: Date) => {
+    const getBalanceReport = async (startDate: Date, endDate: Date) => {
         const startDateStr = startDate.toISOString().split("T")[0];
         const endDateStr = endDate.toISOString().split("T")[0];
 
-        apiCall<undefined, IBalanceDetailsResponse>(`balance?startDate=${startDateStr}&endDate=${endDateStr}`, { method: 'GET' })
+        apiCall<undefined, IBalanceReportResponse>(`balance?startDate=${startDateStr}&endDate=${endDateStr}`, { method: 'GET' })
             .then(response => {
-                balanceDetails.value = response;
+                balanceReport.value = response;
             })
             .catch(() => {
                 // TODO: Add error
@@ -38,7 +38,7 @@
 </script>
 
 <template>
-    <div class="balance-details section-container container">
+    <div class="balance-report section-container container">
         <select class="form-select form-select-lg" id="balance-date-range" name="DateRange" v-model="dateRange">
             <option :value="DateRange.Today">Today</option>
             <option :value="DateRange.Yesterday">Yesterday</option>
@@ -52,9 +52,9 @@
         </select>
 
         <div class="balance-summary">
-            <p>Total Income: {{ balanceDetails?.totalIncome }}</p>
-            <p>Total Expense: {{ balanceDetails?.totalExpense }}</p>
-            <p>Net Balance: {{ balanceDetails?.netBalance }}</p>
+            <p>Total Income: {{ balanceReport?.totalIncome }}</p>
+            <p>Total Expense: {{ balanceReport?.totalExpense }}</p>
+            <p>Net Balance: {{ balanceReport?.netBalance }}</p>
         </div>
     </div>
 </template>

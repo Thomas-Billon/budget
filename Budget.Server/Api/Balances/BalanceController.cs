@@ -28,14 +28,14 @@ namespace Budget.Server.Api.Balances
         }
 
         [HttpGet]
-        public async Task<ActionResult<BalanceDetailsResponse>> Details([FromQuery] BalanceDetailsRequest request)
+        public async Task<ActionResult<BalanceReportResponse>> Report([FromQuery] BalanceReportRequest request)
         {
             var parameters = new TransactionHistoryParameters(request);
 
             var transactions = await _transactionService.GetTransactionHistory(parameters);
-            var balance = _balanceService.CalculateBalanceData(transactions);
+            var balance = _balanceService.CalculateBalanceReport(transactions);
 
-            var response = new BalanceDetailsResponse()
+            var response = new BalanceReportResponse()
             {
                 TotalIncome = balance.TotalIncome,
                 TotalExpense = balance.TotalExpense,
