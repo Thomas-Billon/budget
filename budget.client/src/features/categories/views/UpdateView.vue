@@ -14,7 +14,7 @@
     };
 
     const onFullUpdateSuccess = () => {
-        router.push({ path: routes.category.list });
+        router.push({ path: routes.category.hierarchy });
     };
 
     const { entity: category, fullUpdate, fullUpdateResult, partialUpdate, partialUpdateResult } = useUpdateEntity<ICategoryRequest, ICategoryDetailsResponse>({ endpoint: 'category', onGetByIdError, onFullUpdateSuccess });

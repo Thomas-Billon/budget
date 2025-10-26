@@ -7,7 +7,7 @@
     import { apiCall } from '@/utils/ApiCall.ts';
     import { CategoryColor } from '@/enums/CategoryColor.ts';
     import { type ICategoryRequest } from '@/features/categories/models/ICategoryRequest';
-    import { type ICategoryFlatListResponse, type ICategoryFlatListItemResponse } from '@/features/categories/models/ICategoryFlatListResponse';
+    import { type ICategoryOptionsResponse, type ICategoryOptionsItemResponse } from '@/features/categories/models/ICategoryOptionsResponse';
     import { type ApiCallResult } from '@/utils/ApiCall';
 
     interface Props {
@@ -27,13 +27,13 @@
 
     const submitLabel = ref<string>('');
     const isSubmitDisabled = ref<boolean>(false);
-    const categoryOptions = ref<ICategoryFlatListItemResponse[]>([]);
+    const categoryOptions = ref<ICategoryOptionsItemResponse[]>([]);
 
     let partialModel: Partial<ICategoryRequest> = {};
 
     // Init
     onMounted(() => {
-        getCategoryFlatList();
+        getCategoryOptions();
         setSubmitButtonToDefaultState();
     });
 
@@ -76,9 +76,9 @@
         }
     }
 
-    const getCategoryFlatList = (): void => {
+    const getCategoryOptions = (): void => {
         if (!isNew) {
-            apiCall<undefined, ICategoryFlatListResponse>(`category`, { method: 'GET' })
+            apiCall<undefined, ICategoryOptionsResponse>(`category/options`, { method: 'GET' })
             .then(response => {
                 categoryOptions.value = response.items;
             })

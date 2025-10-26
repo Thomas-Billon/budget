@@ -19,48 +19,47 @@ namespace Budget.Server.Api.Categories
             _categoryService = categoryService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<CategoryFlatListResponse>> FlatList()
+        [HttpGet("options")]
+        public async Task<ActionResult<CategoryOptionsResponse>> GetCategoryOptions()
         {
-            var categories = await _categoryService.GetAll();
+            var categories = await _categoryService.GetCategoryOptions();
 
-            var response = new CategoryFlatListResponse
+            var response = new CategoryOptionsResponse
             {
-                Items = categories.Select(x => new CategoryFlatListItemResponse()
+                Items = categories.Select(x => new CategoryOptionsItemResponse()
                 {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Color = x.Color,
-                    ColorHex = _categoryService.GetCategoryColorHex(x.Color),
+                    Id = x.Base.Id,
+                    Name = x.Base.Name,
+                    Color = x.Base.Color,
+                    ColorHex = _categoryService.GetCategoryColorHex(x.Base.Color),
                 }).ToList(),
             };
 
             return Ok(response);
         }
 
-        [HttpGet]
-        [Route("tree")]
-        public async Task<ActionResult<CategoryTreeListResponse>> TreeList()
+        [HttpGet("hierarchy")]
+        public async Task<ActionResult<CategoryHierarchyResponse>> GetCategoryHierarchy()
         {
-            var categories = await _categoryService.GetTree();
+            var categories = await _categoryService.GetCategoryHierarchy();
 
-            var response = new CategoryTreeListResponse
+            var response = new CategoryHierarchyResponse
             {
                 Items = new(),
             };
 
             foreach (var category in categories)
             {
-                response.Items.Add(ToCategoryTreeListItemResponse(category));
+                response.Items.Add(ToCategoryHierarchyItemResponse(category));
             }
 
             return Ok(response);
         }
 
-		[HttpGet("{id:int}")]
-		public async Task<ActionResult<CategoryTreeListItemResponse?>> Details(int id)
+        [HttpGet("{id:int}")]
+		public async Task<ActionResult<CategoryDetailsResponse?>> Details(int id)
         {
-            var category = await _categoryService.GetById(id);
+            var category = await _categoryService.GetCategoryDetails(id);
             if (category == null)
             {
                 return NotFound();
@@ -87,9 +86,9 @@ namespace Budget.Server.Api.Categories
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] CategoryCreateRequest request)
+        public async Task<ActionResult> CreateCategory([FromBody] CategoryCreateRequest request)
         {
-            var result = await _categoryService.Create(request);
+            var result = await _categoryService.CreateCategory(request);
             if (result == 0)
             {
                 return BadRequest("Category creation failed.");
@@ -99,9 +98,9 @@ namespace Budget.Server.Api.Categories
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Update(int id, [FromBody] CategoryUpdateRequest request)
+        public async Task<ActionResult> UpdateCategory(int id, [FromBody] CategoryUpdateRequest request)
         {
-            var result = await _categoryService.Update(id, request);
+            var result = await _categoryService.UpdateCategory(id, request);
             if (result == 0)
             {
                 return BadRequest("Category update failed.");
@@ -111,9 +110,9 @@ namespace Budget.Server.Api.Categories
         }
 
         [HttpPatch("{id:int}")]
-        public async Task<IActionResult> Patch(int id, [FromBody] CategoryPatchRequest request)
+        public async Task<IActionResult> PatchCategory(int id, [FromBody] CategoryPatchRequest request)
         {
-            var result = await _categoryService.Patch(id, request);
+            var result = await _categoryService.PatchCategory(id, request);
             if (result == 0)
             {
                 return BadRequest("Category patch failed.");
@@ -123,9 +122,9 @@ namespace Budget.Server.Api.Categories
         }
 
         [HttpDelete("{id:int}")]
-		public async Task<ActionResult> Delete(int id)
+		public async Task<ActionResult> DeleteCategory(int id)
         {
-            var result = await _categoryService.Delete(id);
+            var result = await _categoryService.DeleteCategory(id);
             if (result == 0)
             {
                 return BadRequest("Category deletion failed.");
@@ -134,9 +133,11 @@ namespace Budget.Server.Api.Categories
             return Ok();
         }
 
-        private CategoryTreeListItemResponse ToCategoryTreeListItemResponse(CategoryQueryTree category)
+        #region Hierarchy
+
+        private CategoryHierarchyItemResponse ToCategoryHierarchyItemResponse(CategoryQuery_Hierarchy category)
         {
-            var result = new CategoryTreeListItemResponse
+            var result = new CategoryHierarchyItemResponse
             {
                 Id = category.Base.Id,
                 Name = category.Base.Name,
@@ -149,10 +150,12 @@ namespace Budget.Server.Api.Categories
             // Avoids recursion inside select
             foreach (var subCategory in category.SubCategories)
             {
-                result.SubCategories.Add(ToCategoryTreeListItemResponse(subCategory));
+                result.SubCategories.Add(ToCategoryHierarchyItemResponse(subCategory));
             }
 
             return result;
         }
+
+        #endregion Hierarchy
     }
 }

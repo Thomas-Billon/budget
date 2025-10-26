@@ -10,7 +10,7 @@
     const router = useRouter();
 
     const onCreateSuccess = () => {
-        router.push({ path: routes.category.list });
+        router.push({ path: routes.category.hierarchy });
     };
 
     const { entity: category, createEntity, createResult } = useCreateEntity<ICategoryRequest, ICategoryDetailsResponse>({ endpoint: 'category', onCreateSuccess });

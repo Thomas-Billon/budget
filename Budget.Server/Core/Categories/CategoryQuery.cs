@@ -26,40 +26,38 @@ namespace Budget.Server.Core.Categories
         }
     }
 
-    public class CategoryQueryList
+    public class CategoryQuery_Options
     {
         public required CategoryQuery Base { get; set; }
 
-        public static Expression<Func<Category, CategoryQueryList>> Select => c => new()
+        public static Expression<Func<Category, CategoryQuery_Options>> Select => c => new()
         {
             Base = c.ToQuery(),
         };
     }
 
-    public class CategoryQueryTree
+    public class CategoryQuery_Hierarchy
     {
         public required CategoryQuery Base { get; set; }
         public required int? ParentCategoryId { get; set; }
 
-        /// <summary>
-        /// Needs to be set manually after querying, as EF Core does not support recursive queries.
-        /// </summary>
-        public List<CategoryQueryTree> SubCategories { get; set; } = new();
+        // Needs to be set manually after querying, as EF Core does not support recursive queries.
+        public List<CategoryQuery_Hierarchy> SubCategories { get; set; } = new();
 
-        public static Expression<Func<Category, CategoryQueryTree>> Select => c => new()
+        public static Expression<Func<Category, CategoryQuery_Hierarchy>> Select => c => new()
         {
             Base = c.ToQuery(),
             ParentCategoryId = c.ParentCategoryId,
         };
     }
 
-    public class CategoryQueryById
+    public class CategoryQuery_Details
     {
         public required CategoryQuery Base { get; set; }
         public required int? ParentCategoryId { get; set; }
         public required List<CategoryQuery> SubCategories { get; set; }
 
-        public static Expression<Func<Category, CategoryQueryById>> Select => c => new()
+        public static Expression<Func<Category, CategoryQuery_Details>> Select => c => new()
         {
             Base = c.ToQuery(),
             ParentCategoryId = c.ParentCategoryId,

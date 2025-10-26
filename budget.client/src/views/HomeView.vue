@@ -6,6 +6,6 @@
     <div class="container">
         <RouterLink :to="routes.balance.details">Balance</RouterLink>
         <RouterLink :to="routes.transaction.history">Transactions</RouterLink>
-        <RouterLink :to="routes.category.list">Categories</RouterLink>
+        <RouterLink :to="routes.category.hierarchy">Categories</RouterLink>
     </div>
 </template>

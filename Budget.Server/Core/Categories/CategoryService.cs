@@ -18,31 +18,31 @@ namespace Budget.Server.Core.Categories
             _context = context;
         }
 
-        public Task<List<CategoryQuery>> GetAll()
+        public Task<List<CategoryQuery_Options>> GetCategoryOptions()
         {
             return _context.Categories.AsNoTracking()
-                .Select(CategoryQuery.Select)
+                .Select(CategoryQuery_Options.Select)
                 .ToListAsync();
         }
 
-        public async Task<List<CategoryQueryTree>> GetTree()
+        public async Task<List<CategoryQuery_Hierarchy>> GetCategoryHierarchy()
         {
             var categories = await _context.Categories.AsNoTracking()
-                .Select(CategoryQueryTree.Select)
+                .Select(CategoryQuery_Hierarchy.Select)
                 .ToListAsync();
 
-            return BuildCategoriesTreeFromList(categories);
+            return BuildCategoryHierarchyFromList(categories);
         }
 
-        public Task<CategoryQueryById?> GetById(int id)
+        public Task<CategoryQuery_Details?> GetCategoryDetails(int id)
         {
             return _context.Categories.AsNoTracking()
                 .Where(x => x.Id == id)
-                .Select(CategoryQueryById.Select)
+                .Select(CategoryQuery_Details.Select)
                 .FirstOrDefaultAsync();
         }
 
-        public Task<int> Create(CategoryCreateRequest request)
+        public Task<int> CreateCategory(CategoryCreateRequest request)
         {
             var entity = new Category
             {
@@ -56,7 +56,7 @@ namespace Budget.Server.Core.Categories
             return _context.SaveChangesAsync();
         }
 
-        public Task<int> Update(int id, CategoryUpdateRequest request)
+        public Task<int> UpdateCategory(int id, CategoryUpdateRequest request)
         {
             return _context.Categories
                 .Where(x => x.Id == id)
@@ -67,7 +67,7 @@ namespace Budget.Server.Core.Categories
                 );
         }
 
-        public async Task<int> Patch(int id, CategoryPatchRequest request)
+        public async Task<int> PatchCategory(int id, CategoryPatchRequest request)
         {
             var entity = await _context.Categories.FindAsync(id);
 
@@ -83,16 +83,16 @@ namespace Budget.Server.Core.Categories
             return await _context.SaveChangesAsync();
         }
 
-        public Task<int> Delete(int id)
+        public Task<int> DeleteCategory(int id)
         {
             return _context.Categories
                 .Where(x => x.Id == id)
                 .ExecuteDeleteAsync();
         }
 
-        #region Tree
+        #region Hierarchy
 
-        private List<CategoryQueryTree> BuildCategoriesTreeFromList(List<CategoryQueryTree> categories)
+        private List<CategoryQuery_Hierarchy> BuildCategoryHierarchyFromList(List<CategoryQuery_Hierarchy> categories)
         {
             var lookup = categories.ToLookup(x => x.ParentCategoryId);
 
@@ -104,7 +104,7 @@ namespace Budget.Server.Core.Categories
             return lookup[null].ToList();
         }
 
-        #endregion Tree
+        #endregion Hierarchy
 
         #region Colors
 
