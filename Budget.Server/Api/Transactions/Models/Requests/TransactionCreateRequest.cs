@@ -14,12 +14,16 @@ namespace Budget.Server.Api.Transactions.Models.Requests
         [Required]
         public string Reason { get; init; } = string.Empty;
 
-        public DateOnly? Date { get; init; }
+        [Required]
+        public DateOnly Date { get; init; }
 
         [Required]
         public PaymentMethod PaymentMethod { get; init; } = PaymentMethod.None;
 
         [Required(AllowEmptyStrings = true)]
         public string Comment { get; init; } = string.Empty;
+
+
+        public List<int> CategoryIds { get; init; } = new();
     }
 }

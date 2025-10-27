@@ -3,6 +3,7 @@ using Budget.Server.Api.Transactions.Models.Requests;
 using Budget.Server.Core.Enums;
 using Budget.Server.Core.Helpers;
 using Budget.Server.Data.Transactions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Budget.Server.Core.Transactions
 {
@@ -73,6 +74,51 @@ namespace Budget.Server.Core.Transactions
             {
                 DateRange = new DateOnlyRange(request.startDate, request.endDate),
             };
+        }
+    }
+
+    public class TransactionCreateParameters
+    {
+        public required TransactionCreateRequest Request { get; set; }
+        public Dictionary<int, bool> AreCategoriesValid { get; set; } = [];
+
+
+        public TransactionCreateParameters() { }
+
+        [SetsRequiredMembers]
+        public TransactionCreateParameters(TransactionCreateRequest request)
+        {
+            Request = request;
+        }
+    }
+
+    public class TransactionUpdateParameters
+    {
+        public required TransactionUpdateRequest Request { get; set; }
+        public Dictionary<int, bool> AreCategoriesValid { get; set; } = [];
+
+
+        public TransactionUpdateParameters() { }
+
+        [SetsRequiredMembers]
+        public TransactionUpdateParameters(TransactionUpdateRequest request)
+        {
+            Request = request;
+        }
+    }
+
+    public class TransactionPatchParameters
+    {
+        public required TransactionPatchRequest Request { get; set; }
+        public Dictionary<int, bool> AreCategoriesValid { get; set; } = [];
+
+
+        public TransactionPatchParameters() { }
+
+        [SetsRequiredMembers]
+        public TransactionPatchParameters(TransactionPatchRequest request)
+        {
+            Request = request;
         }
     }
 }

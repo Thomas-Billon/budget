@@ -1,5 +1,4 @@
-﻿using Budget.Server.Api.Transactions.Models.Requests;
-using Budget.Server.Core.Enums;
+﻿using Budget.Server.Core.Enums;
 using Budget.Server.Data;
 using Budget.Server.Data.Extensions;
 using Budget.Server.Data.Transactions;
@@ -19,31 +18,31 @@ namespace Budget.Server.Core.Transactions
             _context = context;
         }
 
-        public Task<List<TransactionQuery_History>> GetTransactionHistory(TransactionHistoryParameters args)
+        public Task<List<TransactionQuery_History>> GetTransactionHistory(TransactionHistoryParameters parameters)
         {
             var query = _context.Transactions.AsNoTracking();
 
-            query = args.Filter.Type switch
+            query = parameters.Filter.Type switch
             {
                 TransactionType.Income => query.Where_IsIncome(),
                 TransactionType.Expense => query.Where_IsExpense(),
                 _ => query
             };
 
-            if (args.Filter.DateRange != null && args.Filter.DateRange.IsCustom)
+            if (parameters.Filter.DateRange != null && parameters.Filter.DateRange.IsCustom)
             {
-                if (args.Filter.DateRange.StartDate != null)
+                if (parameters.Filter.DateRange.StartDate != null)
                 {
-                    query = query.Where_IsAfterOrOnDate(args.Filter.DateRange.StartDate.Value);
+                    query = query.Where_IsAfterOrOnDate(parameters.Filter.DateRange.StartDate.Value);
                 }
-                if (args.Filter.DateRange.EndDate != null)
+                if (parameters.Filter.DateRange.EndDate != null)
                 {
-                    query = query.Where_IsBeforeOrOnDate(args.Filter.DateRange.EndDate.Value);
+                    query = query.Where_IsBeforeOrOnDate(parameters.Filter.DateRange.EndDate.Value);
                 }
             }
             else
             {
-                query = args.Filter.DateRange?.Preset switch
+                query = parameters.Filter.DateRange?.Preset switch
                 {
                     DateRangePreset.Last7Days => query.Where_IsInLast7Days(),
                     DateRangePreset.Last30Days => query.Where_IsInLast30Days(),
@@ -55,7 +54,7 @@ namespace Budget.Server.Core.Transactions
                 };
             }
 
-            foreach (var (key, direction) in args.Sort)
+            foreach (var (key, direction) in parameters.Sort)
             {
                 query = key switch
                 {
@@ -65,7 +64,7 @@ namespace Budget.Server.Core.Transactions
                 };
             }
 
-            query = query.SkipTake(args.Skip, args.Take, args.IsPaginationEnabled);
+            query = query.SkipTake(parameters.Skip, parameters.Take, parameters.IsPaginationEnabled);
 
             return query.Select(TransactionQuery_History.Select)
                 .ToListAsync();
@@ -79,38 +78,42 @@ namespace Budget.Server.Core.Transactions
                 .FirstOrDefaultAsync();
         }
 
-        public Task<int> CreateTransaction(TransactionCreateRequest request)
+        public Task<int> CreateTransaction(TransactionCreateParameters parameters)
         {
             var entity = new Transaction
             {
-                Type = request.Type,
-                Amount = request.Amount,
-                Reason = request.Reason,
-                Date = request.Date,
-                PaymentMethod = request.PaymentMethod,
-                Comment = request.Comment,
+                Type = parameters.Request.Type,
+                Amount = parameters.Request.Amount,
+                Reason = parameters.Request.Reason,
+                Date = parameters.Request.Date,
+                PaymentMethod = parameters.Request.PaymentMethod,
+                Comment = parameters.Request.Comment,
             };
+
+            // Categories
 
             _context.Transactions.Add(entity);
 
             return _context.SaveChangesAsync();
         }
 
-        public Task<int> UpdateTransaction(int id, TransactionUpdateRequest request)
+        public Task<int> UpdateTransaction(int id, TransactionUpdateParameters parameters)
         {
             return _context.Transactions
                 .Where(x => x.Id == id)
                 .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(x => x.Type, request.Type)
-                    .SetProperty(x => x.Amount, request.Amount)
-                    .SetProperty(x => x.Reason, request.Reason)
-                    .SetProperty(x => x.Date, request.Date)
-                    .SetProperty(x => x.PaymentMethod, request.PaymentMethod)
-                    .SetProperty(x => x.Comment, request.Comment)
+                    .SetProperty(x => x.Type, parameters.Request.Type)
+                    .SetProperty(x => x.Amount, parameters.Request.Amount)
+                    .SetProperty(x => x.Reason, parameters.Request.Reason)
+                    .SetProperty(x => x.Date, parameters.Request.Date)
+                    .SetProperty(x => x.PaymentMethod, parameters.Request.PaymentMethod)
+                    .SetProperty(x => x.Comment, parameters.Request.Comment)
                 );
+
+            // Categories
         }
 
-        public async Task<int> PatchTransaction(int id, TransactionPatchRequest request)
+        public async Task<int> PatchTransaction(int id, TransactionPatchParameters parameters)
         {
             var entity = await _context.Transactions.FindAsync(id);
 
@@ -119,12 +122,14 @@ namespace Budget.Server.Core.Transactions
                 return 0;
             }
 
-            if (request.Type?.IsSet == true) entity.Type = request.Type.Value;
-            if (request.Amount?.IsSet == true) entity.Amount = request.Amount.Value;
-            if (request.Reason?.IsSet == true) entity.Reason = request.Reason.Value ?? string.Empty;
-            if (request.Date?.IsSet == true) entity.Date = request.Date.Value;
-            if (request.PaymentMethod?.IsSet == true) entity.PaymentMethod = request.PaymentMethod.Value;
-            if (request.Comment?.IsSet == true) entity.Comment = request.Comment.Value ?? string.Empty;
+            if (parameters.Request.Type?.IsSet == true) entity.Type = parameters.Request.Type.Value;
+            if (parameters.Request.Amount?.IsSet == true) entity.Amount = parameters.Request.Amount.Value;
+            if (parameters.Request.Reason?.IsSet == true) entity.Reason = parameters.Request.Reason.Value ?? string.Empty;
+            if (parameters.Request.Date?.IsSet == true) entity.Date = parameters.Request.Date.Value;
+            if (parameters.Request.PaymentMethod?.IsSet == true) entity.PaymentMethod = parameters.Request.PaymentMethod.Value;
+            if (parameters.Request.Comment?.IsSet == true) entity.Comment = parameters.Request.Comment.Value ?? string.Empty;
+
+            // Categories
 
             return await _context.SaveChangesAsync();
         }

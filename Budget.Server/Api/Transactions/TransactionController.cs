@@ -43,6 +43,15 @@ namespace Budget.Server.Api.Transactions
                         Amount = x.Base.Amount,
                         Reason = x.Base.Reason,
                         Date = x.Base.Date,
+                        Categories = x.Categories
+                            .Select(x => new CategoryDetailsBaseResponse
+                            {
+                                Id = x.Id,
+                                Name = x.Name,
+                                Color = x.Color,
+                                ColorHex = _categoryService.GetCategoryColorHex(x.Color),
+                            })
+                            .ToList(),
                     })
                     .ToList(),
                 IsLastPage = paginatedTransactions.IsLastPage,
@@ -84,7 +93,10 @@ namespace Budget.Server.Api.Transactions
         [HttpPost]
         public async Task<ActionResult> CreateTransaction([FromBody] TransactionCreateRequest request)
         {
-            var result = await _transactionService.CreateTransaction(request);
+            var parameters = new TransactionCreateParameters(request);
+            parameters.AreCategoriesValid = await _categoryService.DoesCategoriesExist(request.CategoryIds);
+
+            var result = await _transactionService.CreateTransaction(parameters);
             if (result == 0)
             {
                 return BadRequest("Transaction creation failed.");
@@ -96,7 +108,10 @@ namespace Budget.Server.Api.Transactions
         [HttpPut("{id:int}")]
         public async Task<ActionResult> UpdateTransaction(int id, [FromBody] TransactionUpdateRequest request)
         {
-            var result = await _transactionService.UpdateTransaction(id, request);
+            var parameters = new TransactionUpdateParameters(request);
+            parameters.AreCategoriesValid = await _categoryService.DoesCategoriesExist(request.CategoryIds);
+
+            var result = await _transactionService.UpdateTransaction(id, parameters);
             if (result == 0)
             {
                 return BadRequest("Transaction update failed.");
@@ -108,7 +123,14 @@ namespace Budget.Server.Api.Transactions
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> PatchTransaction(int id, [FromBody] TransactionPatchRequest request)
         {
-            var result = await _transactionService.PatchTransaction(id, request);
+            var parameters = new TransactionPatchParameters(request);
+
+            if (request.CategoryIds?.IsSet == true && request.CategoryIds.Value != null)
+            {
+                parameters.AreCategoriesValid = await _categoryService.DoesCategoriesExist(request.CategoryIds.Value);
+            }
+
+            var result = await _transactionService.PatchTransaction(id, parameters);
             if (result == 0)
             {
                 return BadRequest("Transaction patch failed.");

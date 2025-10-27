@@ -1,5 +1,4 @@
-﻿using Budget.Server.Api.Categories.Models.Requests;
-using Budget.Server.Core.Enums;
+﻿using Budget.Server.Core.Enums;
 using Budget.Server.Data;
 using Budget.Server.Data.Categories;
 using Microsoft.EntityFrameworkCore;
@@ -42,13 +41,13 @@ namespace Budget.Server.Core.Categories
                 .FirstOrDefaultAsync();
         }
 
-        public Task<int> CreateCategory(CategoryCreateRequest request)
+        public Task<int> CreateCategory(CategoryCreateParameters parameters)
         {
             var entity = new Category
             {
-                Name = request.Name,
-                Color = request.Color,
-                ParentCategoryId = request.ParentCategoryId,
+                Name = parameters.Request.Name,
+                Color = parameters.Request.Color,
+                ParentCategoryId = parameters.IsParentCategoryValid ? parameters.Request.ParentCategoryId : null,
             };
 
             _context.Categories.Add(entity);
@@ -56,18 +55,18 @@ namespace Budget.Server.Core.Categories
             return _context.SaveChangesAsync();
         }
 
-        public Task<int> UpdateCategory(int id, CategoryUpdateRequest request)
+        public Task<int> UpdateCategory(int id, CategoryUpdateParameters parameters)
         {
             return _context.Categories
                 .Where(x => x.Id == id)
                 .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(x => x.Name, request.Name)
-                    .SetProperty(x => x.Color, request.Color)
-                    .SetProperty(x => x.ParentCategoryId, request.ParentCategoryId)
+                    .SetProperty(x => x.Name, parameters.Request.Name)
+                    .SetProperty(x => x.Color, parameters.Request.Color)
+                    .SetProperty(x => x.ParentCategoryId, parameters.IsParentCategoryValid ? parameters.Request.ParentCategoryId : null)
                 );
         }
 
-        public async Task<int> PatchCategory(int id, CategoryPatchRequest request)
+        public async Task<int> PatchCategory(int id, CategoryPatchParameters parameters)
         {
             var entity = await _context.Categories.FindAsync(id);
 
@@ -76,9 +75,12 @@ namespace Budget.Server.Core.Categories
                 return 0;
             }
 
-            if (request.Name?.IsSet == true) entity.Name = request.Name.Value ?? string.Empty;
-            if (request.Color?.IsSet == true) entity.Color = request.Color.Value;
-            if (request.ParentCategoryId?.IsSet == true) entity.ParentCategoryId = request.ParentCategoryId.Value;
+            if (parameters.Request.Name?.IsSet == true) entity.Name = parameters.Request.Name.Value ?? string.Empty;
+            if (parameters.Request.Color?.IsSet == true) entity.Color = parameters.Request.Color.Value;
+            if (parameters.Request.ParentCategoryId?.IsSet == true)
+            {
+                entity.ParentCategoryId = parameters.IsParentCategoryValid ? parameters.Request.ParentCategoryId.Value : null;
+            }
 
             return await _context.SaveChangesAsync();
         }
@@ -89,6 +91,34 @@ namespace Budget.Server.Core.Categories
                 .Where(x => x.Id == id)
                 .ExecuteDeleteAsync();
         }
+
+        #region Exists
+
+        public Task<bool> DoesCategoryExist(int id)
+        {
+            return _context.Categories.AsNoTracking()
+                .Where(x => x.Id == id)
+                .AnyAsync();
+        }
+
+        public async Task<Dictionary<int, bool>> DoesCategoriesExist(List<int> ids)
+        {
+            var result = await _context.Categories.AsNoTracking()
+                .Where(x => ids.Contains(x.Id))
+                .ToDictionaryAsync(x => x.Id, x => true);
+
+            foreach (var id in ids)
+            {
+                if (!result.ContainsKey(id))
+                {
+                    result.Add(id, false);
+                }
+            }
+
+            return result;
+        }
+
+        #endregion Exists
 
         #region Hierarchy
 

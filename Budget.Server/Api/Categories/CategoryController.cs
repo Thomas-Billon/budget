@@ -88,7 +88,14 @@ namespace Budget.Server.Api.Categories
         [HttpPost]
         public async Task<ActionResult> CreateCategory([FromBody] CategoryCreateRequest request)
         {
-            var result = await _categoryService.CreateCategory(request);
+            var parameters = new CategoryCreateParameters(request, isParentCategoryValid: true);
+
+            if (request.ParentCategoryId != null)
+            {
+                parameters.IsParentCategoryValid = await _categoryService.DoesCategoryExist(request.ParentCategoryId.Value);
+            }
+
+            var result = await _categoryService.CreateCategory(parameters);
             if (result == 0)
             {
                 return BadRequest("Category creation failed.");
@@ -100,7 +107,14 @@ namespace Budget.Server.Api.Categories
         [HttpPut("{id:int}")]
         public async Task<ActionResult> UpdateCategory(int id, [FromBody] CategoryUpdateRequest request)
         {
-            var result = await _categoryService.UpdateCategory(id, request);
+            var parameters = new CategoryUpdateParameters(request, isParentCategoryValid: true);
+
+            if (request.ParentCategoryId != null)
+            {
+                parameters.IsParentCategoryValid = await _categoryService.DoesCategoryExist(request.ParentCategoryId.Value);
+            }
+
+            var result = await _categoryService.UpdateCategory(id, parameters);
             if (result == 0)
             {
                 return BadRequest("Category update failed.");
@@ -112,7 +126,14 @@ namespace Budget.Server.Api.Categories
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> PatchCategory(int id, [FromBody] CategoryPatchRequest request)
         {
-            var result = await _categoryService.PatchCategory(id, request);
+            var parameters = new CategoryPatchParameters(request, isParentCategoryValid: true);
+
+            if (request.ParentCategoryId?.IsSet == true && request.ParentCategoryId.Value != null)
+            {
+                parameters.IsParentCategoryValid = await _categoryService.DoesCategoryExist(request.ParentCategoryId.Value.Value);
+            }
+
+            var result = await _categoryService.PatchCategory(id, parameters);
             if (result == 0)
             {
                 return BadRequest("Category patch failed.");
