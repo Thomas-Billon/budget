@@ -7,15 +7,21 @@ interface Props {
     onDeleteError?: () => void;
 }
 
-const useDeleteEntity = <TRequest extends { id: number }, TResponse>({ endpoint, onDeleteSuccess, onDeleteError }: Props) => {
-    // #region Delete
-
-    const deleteResult = ref<ApiCallResult>();
+const useDeleteEntity = ({ endpoint, onDeleteSuccess, onDeleteError }: Props) => {
 
     const deleteEntity = async (id: number): Promise<void> => {
-        apiCall<void, TResponse>(`${endpoint}/${id}`, { method: 'DELETE' })
+        if (!id) {
+            return Promise.reject('Error: Cannot delete entity without id.');
+        }
+
+        apiCall<void, void>(`${endpoint}/${id}`, { method: 'DELETE' })
             .then(() => {
                 onDeleteSuccess?.();
+
+                deleteResult.value = {
+                    isSuccess: true,
+                    timestamp: Date.now(),
+                };
             })
             .catch(() => {
                 onDeleteError?.();
@@ -27,7 +33,7 @@ const useDeleteEntity = <TRequest extends { id: number }, TResponse>({ endpoint,
             });
     };
 
-    // #endregion Delete
+    const deleteResult = ref<ApiCallResult>();
 
     return { deleteEntity, deleteResult };
 }

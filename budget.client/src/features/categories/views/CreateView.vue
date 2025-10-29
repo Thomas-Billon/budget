@@ -1,21 +1,33 @@
 <script setup lang="ts">
 
+    import { ref } from 'vue';
     import { useRouter } from 'vue-router';
     import { routes } from '@/router.ts';
-    import { type ICategoryRequest, defaultCategoryRequest } from '@/features/categories/models/ICategoryRequest';
-    import { type ICategoryDetailsResponse } from '@/features/categories/models/ICategoryDetailsResponse';
+    import { type ICategoryRequest, getDefaultCategoryRequest } from '@/features/categories/models/ICategoryRequest';
     import CategoryForm from '@/features/categories/components/CategoryForm.vue';
     import useCreateEntity from '@/composables/useCreateEntity';
+    import { getIdFromRoute } from '@/utils/Route';
+    import useMountedOrRouteParamUpdate from '@/composables/useMountedOrRouteParamUpdate';
 
     const router = useRouter();
+
+    const category = ref(getDefaultCategoryRequest());
+
+    useMountedOrRouteParamUpdate((params) => {
+        if (params?.parentCategoryId) {
+            const parentCategoryId = getIdFromRoute(params?.parentCategoryId);
+
+            if (parentCategoryId) {
+                category.value.parentCategoryId = parentCategoryId;
+            }
+        }
+    });
 
     const onCreateSuccess = () => {
         router.push({ path: routes.category.hierarchy });
     };
 
-    const { entity: category, createEntity, createResult } = useCreateEntity<ICategoryRequest, ICategoryDetailsResponse>({ endpoint: 'category', defaultEntity: defaultCategoryRequest, onCreateSuccess });
-
-    category.value.parentCategoryId = history.state?.parentCategoryId;
+    const { createEntity, createResult } = useCreateEntity<ICategoryRequest>({ endpoint: 'category', onCreateSuccess });
 
 </script>
 

@@ -12,7 +12,7 @@ interface ITransactionRequest {
     categoryIds: number[];
 }
 
-const defaultTransactionRequest: ITransactionRequest = {
+const getDefaultTransactionRequest = ():ITransactionRequest => JSON.parse(JSON.stringify({
     id: 0,
     type: TransactionType.None,
     amount: 0,
@@ -21,6 +21,6 @@ const defaultTransactionRequest: ITransactionRequest = {
     paymentMethod: PaymentMethod.None,
     comment: '',
     categoryIds: []
-};
+}));
 
-export { type ITransactionRequest, defaultTransactionRequest };
+export { type ITransactionRequest, getDefaultTransactionRequest };

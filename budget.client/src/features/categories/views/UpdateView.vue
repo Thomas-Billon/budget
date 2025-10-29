@@ -1,16 +1,30 @@
 <script setup lang="ts">
 
+    import { ref, watch } from 'vue';
     import { useRouter } from 'vue-router';
     import { routes } from '@/router.ts';
     import { type ICategoryDetailsResponse } from '@/features/categories/models/ICategoryDetailsResponse';
-    import { type ICategoryRequest, defaultCategoryRequest } from '@/features/categories/models/ICategoryRequest';
+    import { type ICategoryRequest, getDefaultCategoryRequest } from '@/features/categories/models/ICategoryRequest';
     import CategoryForm from '@/features/categories/components/CategoryForm.vue';
+    import useGetEntity from '@/composables/useGetEntity';
     import useUpdateEntity from '@/composables/useUpdateEntity';
     import useDeleteEntity from '@/composables/useDeleteEntity';
+    import useMountedOrRouteParamUpdate from '@/composables/useMountedOrRouteParamUpdate';
+    import { getIdFromRoute } from '@/utils/Route';
 
     const router = useRouter();
 
-    const onGetDetailsError = () => {
+    const category = ref(getDefaultCategoryRequest());
+
+    useMountedOrRouteParamUpdate((params) => {
+        const id = getIdFromRoute(params?.id);
+
+        if (id) {
+            getEntity(id);
+        }
+    });
+
+    const onGetError = () => {
         // TODO: Add error
     };
 
@@ -22,17 +36,23 @@
         router.push({ path: routes.category.hierarchy });
     };
 
-    const mapResponseToRequest = (response: ICategoryDetailsResponse): ICategoryRequest => {
-        return {
-            id: response.id,
-            name: response.name,
-            color: response.color,
-            parentCategoryId: response.parentCategoryId
-        };
-    };
+    const endpoint = 'category';
 
-    const { entity: category, fullUpdateEntity, fullUpdateResult, partialUpdateEntity, partialUpdateResult } = useUpdateEntity<ICategoryRequest, ICategoryDetailsResponse>({ endpoint: 'category', defaultEntity: defaultCategoryRequest, mapResponseToRequest, onGetDetailsError, onFullUpdateSuccess });
-    const { deleteEntity, deleteResult } = useDeleteEntity({ endpoint: 'category', onDeleteSuccess });
+    const { entity, getEntity } = useGetEntity<ICategoryDetailsResponse>({ endpoint, onGetError });
+    const { fullUpdateEntity, fullUpdateResult, partialUpdateEntity, partialUpdateResult } = useUpdateEntity<ICategoryRequest>({ endpoint, onFullUpdateSuccess });
+    const { deleteEntity, deleteResult } = useDeleteEntity({ endpoint, onDeleteSuccess });
+
+    // Convert entity from db to request object
+    watch(entity, (result) => {
+        if (result) {
+            category.value = {
+                id: result.id,
+                name: result.name,
+                color: result.color,
+                parentCategoryId: result.parentCategoryId
+            };
+        }
+    });
 
 </script>
 

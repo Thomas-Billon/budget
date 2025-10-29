@@ -25,7 +25,7 @@
         savePartial: [id: number, data: Partial<ITransactionRequest>];
         delete: [id: number];
     };
-    
+
     const { isNew, saveAllResult, savePartialResult, deleteResult } = defineProps<Props>();
     const model = defineModel<ITransactionRequest>({ required: true });
     const emit = defineEmits<Emits>();
@@ -39,10 +39,10 @@
 
     const typeInput = ref<HTMLInputElement | undefined>();
     const typeOptions: IButtonSwitchOption[] = [{ value: TransactionType.Income, label: 'Income', icon: 'plus' }, { value: TransactionType.Expense, label: 'Expense', icon: 'minus' }];
-    
+
     const amountPlaceholder: string = formatAmount(0, { isFalsyValueAllowed: true });
     const amountDisplayValue = ref<string>('');
-    
+
     const categoryOptions = ref<ICategoryOptionsItemResponse[]>([]);
 
     // #region Init
@@ -55,7 +55,7 @@
 
     // #endregion Init
 
-    // 
+    //
 
     // #region Actions
 
@@ -311,8 +311,7 @@
             <input class="form-control form-control-lg" type="date" id="transaction-date" name="Date" v-model="model.date" required @input="onFieldChange($event, 'date');" />
 
             <select class="form-select form-select-lg" id="transaction-payment-method" name="PaymentMethod" v-model="model.paymentMethod" @change="onFieldChange($event, 'paymentMethod');">
-                <option v-if="model.paymentMethod === undefined" :value="undefined" disabled selected>Select Payment Method</option>
-                <option v-if="model.paymentMethod !== undefined" :value="PaymentMethod.None" disabled>Select Payment Method</option>
+                <option :value="PaymentMethod.None" disabled selected>Select Payment Method</option>
                 <option :value="PaymentMethod.Cash">{{ PaymentMethod[PaymentMethod.Cash] }}</option>
                 <option :value="PaymentMethod.CreditCard">{{ PaymentMethod[PaymentMethod.CreditCard] }}</option>
                 <option :value="PaymentMethod.DebitCard">{{ PaymentMethod[PaymentMethod.DebitCard] }}</option>

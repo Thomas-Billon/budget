@@ -7,9 +7,9 @@ import CategoryHierarchyView from '@/features/categories/views/HierarchyView.vue
 import CategoryCreateView from '@/features/categories/views/CreateView.vue';
 import CategoryUpdateView from '@/features/categories/views/UpdateView.vue';
 
-const getIdParam = (id: number): string => {
-    if (id > 0) {
-        return id.toString();
+const getIdParam = (id?: number): string => {
+    if (id) {
+        return `/${id}`;
     }
 
     return '';
@@ -23,12 +23,12 @@ const routes = {
     transaction: {
         history: '/transaction/history',
         create: '/transaction/create',
-        update: (id: number) => `/transaction/update/${getIdParam(id)}`,
+        update: (id?: number) => `/transaction/update${getIdParam(id)}`,
     },
     category: {
         hierarchy: '/category/hierarchy',
-        create: '/category/create',
-        update: (id: number) => `/category/update/${getIdParam(id)}`,
+        create: (parentCategoryId?: number) => `/category/create${getIdParam(parentCategoryId)}`,
+        update: (id?: number) => `/category/update${getIdParam(id)}`,
     }
 };
 
@@ -37,10 +37,11 @@ const routerConfig = [
     { path: routes.balance.report, component: BalanceReportView, meta: { back: routes.home } },
     { path: routes.transaction.history, component: TransactionHistoryView, meta: { back: routes.home } },
     { path: routes.transaction.create, component: TransactionCreateView, meta: { back: routes.transaction.history } },
-    { path: `${routes.transaction.update(0)}:id`, component: TransactionUpdateView, meta: { back: routes.transaction.history } },
+    { path: `${routes.transaction.update()}/:id`, component: TransactionUpdateView, meta: { back: routes.transaction.history } },
     { path: routes.category.hierarchy, component: CategoryHierarchyView, meta: { back: routes.home } },
-    { path: routes.category.create, component: CategoryCreateView, meta: { back: routes.category.hierarchy } },
-    { path: `${routes.category.update(0)}:id`, component: CategoryUpdateView, meta: { back: routes.category.hierarchy } },
+    { path: `${routes.category.create()}`, component: CategoryCreateView, meta: { back: routes.category.hierarchy } },
+    { path: `${routes.category.create()}/:parentCategoryId`, component: CategoryCreateView, meta: { back: routes.category.hierarchy } },
+    { path: `${routes.category.update()}/:id`, component: CategoryUpdateView, meta: { back: routes.category.hierarchy } },
 ];
 
 export { routes, routerConfig };

@@ -22,7 +22,7 @@
             return routes.category.update(id);
         }
         else {
-            return { path: routes.category.create, state: { parentCategoryId } };
+            return { path: routes.category.create(parentCategoryId) };
         }
     };
 

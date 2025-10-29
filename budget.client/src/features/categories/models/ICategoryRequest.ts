@@ -4,14 +4,13 @@ interface ICategoryRequest {
     id: number;
     name: string;
     color: CategoryColor;
-    parentCategoryId?: number;
+    parentCategoryId: number | null;
 }
 
-const defaultCategoryRequest: ICategoryRequest = {
+const getDefaultCategoryRequest = (): ICategoryRequest => JSON.parse(JSON.stringify({
     id: 0,
     name: '',
-    color: CategoryColor.None,
-    parentCategoryId: undefined
-};
+    color: CategoryColor.None
+}));
 
-export { type ICategoryRequest, defaultCategoryRequest };
+export { type ICategoryRequest, getDefaultCategoryRequest };

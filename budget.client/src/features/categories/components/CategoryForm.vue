@@ -44,7 +44,7 @@
     });
 
     // #endregion Init
-    
+
     // #region Actions
 
     // On form submit
@@ -64,7 +64,7 @@
     }
 
     // #endregion Actions
-    
+
     // #region API call results
 
     watch(() => saveAllResult, (result) => {
@@ -232,17 +232,16 @@
             <input class="form-control form-control-lg" type="text" id="category-name" name="Name" v-model="model.name" placeholder="Name" required @input="onFormFieldInput($event, 'name');" />
 
             <select class="form-select form-select-lg" id="category-color" name="Color" v-model="model.color" @input="onFormFieldInput($event, 'color');">
-                <option :value="undefined" disabled selected>Select Color</option>
+                <option :value="CategoryColor.None" disabled selected>Select Color</option>
                 <option :value="CategoryColor.Blue">{{ CategoryColor[CategoryColor.Blue] }}</option>
                 <option :value="CategoryColor.Green">{{ CategoryColor[CategoryColor.Green] }}</option>
                 <option :value="CategoryColor.Yellow">{{ CategoryColor[CategoryColor.Yellow] }}</option>
                 <option :value="CategoryColor.Orange">{{ CategoryColor[CategoryColor.Orange] }}</option>
                 <option :value="CategoryColor.Red">{{ CategoryColor[CategoryColor.Red] }}</option>
             </select>
-            
+
             <select v-if="!isNew" class="form-select form-select-lg" id="category-parent-category-id" name="ParentCategoryId" v-model="model.parentCategoryId" @input="onFormFieldInput($event, 'parentCategoryId');">
-                <option v-if="model.parentCategoryId === undefined" :value="undefined" selected>No parent category</option>
-                <option v-if="model.parentCategoryId !== undefined" :value="null">No parent category</option>
+                <option :value="null" selected>No parent category</option>
                 <option v-for="option in categoryOptions" :key="option.id" :value="option.id">{{ option.name }}</option>
             </select>
 

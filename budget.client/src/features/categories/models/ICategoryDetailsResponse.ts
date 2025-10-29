@@ -8,7 +8,7 @@ interface ICategoryDetailsBaseResponse {
 }
 
 interface ICategoryDetailsResponse extends ICategoryDetailsBaseResponse {
-    parentCategoryId?: number;
+    parentCategoryId: number | null;
     subCategories: ICategoryDetailsBaseResponse[];
 }
 

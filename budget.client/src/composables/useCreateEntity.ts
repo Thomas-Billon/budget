@@ -1,29 +1,23 @@
 import { ref } from 'vue';
 import { apiCall, type ApiCallResult } from '@/utils/ApiCall';
 
-interface Props<TRequest> {
+interface Props {
     endpoint: string;
-    defaultEntity: TRequest;
     onCreateSuccess?: () => void;
     onCreateError?: () => void;
 }
 
-const useCreateEntity = <TRequest extends { id: number }, TResponse>({
-    endpoint,
-    defaultEntity,
-    onCreateSuccess,
-    onCreateError
-}: Props<TRequest>) => {
-    const entity = ref<TRequest>(defaultEntity);
-
-    // #region Create
-
-    const createResult = ref<ApiCallResult>();
-
+const useCreateEntity = <TRequest extends { id: number }>({ endpoint, onCreateSuccess, onCreateError }: Props) => {
+    
     const createEntity = async (data: Partial<TRequest>): Promise<void> => {
         return apiCall<Partial<TRequest>, void>(endpoint, { method: 'POST', body: data })
             .then(() => {
                 onCreateSuccess?.();
+
+                createResult.value = {
+                    isSuccess: true,
+                    timestamp: Date.now(),
+                };
             })
             .catch(() => {
                 onCreateError?.();
@@ -35,9 +29,9 @@ const useCreateEntity = <TRequest extends { id: number }, TResponse>({
             });
     }
 
-    // #endregion Create
+    const createResult = ref<ApiCallResult>();
 
-    return { entity, createEntity, createResult };
+    return { createEntity, createResult };
 }
 
 export default useCreateEntity;
