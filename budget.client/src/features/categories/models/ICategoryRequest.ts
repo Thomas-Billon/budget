@@ -7,4 +7,11 @@ interface ICategoryRequest {
     parentCategoryId?: number;
 }
 
-export { type ICategoryRequest };
+const defaultCategoryRequest: ICategoryRequest = {
+    id: 0,
+    name: '',
+    color: CategoryColor.None,
+    parentCategoryId: undefined
+};
+
+export { type ICategoryRequest, defaultCategoryRequest };

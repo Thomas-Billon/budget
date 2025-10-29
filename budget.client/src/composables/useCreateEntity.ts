@@ -1,14 +1,20 @@
 import { ref } from 'vue';
 import { apiCall, type ApiCallResult } from '@/utils/ApiCall';
 
-interface Props {
+interface Props<TRequest> {
     endpoint: string;
+    defaultEntity: TRequest;
     onCreateSuccess?: () => void;
     onCreateError?: () => void;
 }
 
-const useCreateEntity = <TRequest extends { id: number }, TResponse>({ endpoint, onCreateSuccess, onCreateError }: Props) => {
-    const entity = ref<TRequest>({} as TRequest); // TODO: Fix casting
+const useCreateEntity = <TRequest extends { id: number }, TResponse>({
+    endpoint,
+    defaultEntity,
+    onCreateSuccess,
+    onCreateError
+}: Props<TRequest>) => {
+    const entity = ref<TRequest>(defaultEntity);
 
     // #region Create
 

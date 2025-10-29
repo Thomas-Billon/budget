@@ -42,7 +42,7 @@ namespace Budget.Server.Core.Categories
         public required int? ParentCategoryId { get; set; }
 
         // Needs to be set manually after querying, as EF Core does not support recursive queries.
-        public List<CategoryQuery_Hierarchy> SubCategories { get; set; } = new();
+        public List<CategoryQuery_Hierarchy> SubCategories { get; set; } = [];
 
         public static Expression<Func<Category, CategoryQuery_Hierarchy>> Select => c => new()
         {

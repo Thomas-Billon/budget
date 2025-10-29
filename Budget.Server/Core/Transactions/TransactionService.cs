@@ -1,4 +1,5 @@
-﻿using Budget.Server.Core.Enums;
+﻿using Budget.Server.Api.Transactions.Models.Requests;
+using Budget.Server.Core.Enums;
 using Budget.Server.Data;
 using Budget.Server.Data.Extensions;
 using Budget.Server.Data.Transactions;
@@ -78,58 +79,66 @@ namespace Budget.Server.Core.Transactions
                 .FirstOrDefaultAsync();
         }
 
-        public Task<int> CreateTransaction(TransactionCreateParameters parameters)
+        public async Task<int> CreateTransaction(TransactionCreateRequest request)
         {
             var entity = new Transaction
             {
-                Type = parameters.Request.Type,
-                Amount = parameters.Request.Amount,
-                Reason = parameters.Request.Reason,
-                Date = parameters.Request.Date,
-                PaymentMethod = parameters.Request.PaymentMethod,
-                Comment = parameters.Request.Comment,
+                Type = request.Type,
+                Amount = request.Amount,
+                Reason = request.Reason,
+                Date = request.Date,
+                PaymentMethod = request.PaymentMethod,
+                Comment = request.Comment,
             };
 
             // Categories
+            await AddCategoriesToTransaction(entity, request.CategoryIds);
 
             _context.Transactions.Add(entity);
-
-            return _context.SaveChangesAsync();
+            return await _context.SaveChangesAsync();
         }
 
-        public Task<int> UpdateTransaction(int id, TransactionUpdateParameters parameters)
+        public async Task<int> UpdateTransaction(int id, TransactionUpdateRequest request)
         {
-            return _context.Transactions
-                .Where(x => x.Id == id)
-                .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(x => x.Type, parameters.Request.Type)
-                    .SetProperty(x => x.Amount, parameters.Request.Amount)
-                    .SetProperty(x => x.Reason, parameters.Request.Reason)
-                    .SetProperty(x => x.Date, parameters.Request.Date)
-                    .SetProperty(x => x.PaymentMethod, parameters.Request.PaymentMethod)
-                    .SetProperty(x => x.Comment, parameters.Request.Comment)
-                );
-
-            // Categories
-        }
-
-        public async Task<int> PatchTransaction(int id, TransactionPatchParameters parameters)
-        {
-            var entity = await _context.Transactions.FindAsync(id);
-
+            var entity = await GetTransactionById(id);
             if (entity == null)
             {
                 return 0;
             }
 
-            if (parameters.Request.Type?.IsSet == true) entity.Type = parameters.Request.Type.Value;
-            if (parameters.Request.Amount?.IsSet == true) entity.Amount = parameters.Request.Amount.Value;
-            if (parameters.Request.Reason?.IsSet == true) entity.Reason = parameters.Request.Reason.Value ?? string.Empty;
-            if (parameters.Request.Date?.IsSet == true) entity.Date = parameters.Request.Date.Value;
-            if (parameters.Request.PaymentMethod?.IsSet == true) entity.PaymentMethod = parameters.Request.PaymentMethod.Value;
-            if (parameters.Request.Comment?.IsSet == true) entity.Comment = parameters.Request.Comment.Value ?? string.Empty;
+            entity.Type = request.Type;
+            entity.Amount = request.Amount;
+            entity.Reason = request.Reason;
+            entity.Date = request.Date;
+            entity.PaymentMethod = request.PaymentMethod;
+            entity.Comment = request.Comment;
 
             // Categories
+            await AddCategoriesToTransaction(entity, request.CategoryIds);
+
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> PatchTransaction(int id, TransactionPatchRequest request)
+        {
+            var entity = await GetTransactionById(id);
+            if (entity == null)
+            {
+                return 0;
+            }
+
+            if (request.Type?.IsSet == true) entity.Type = request.Type.Value;
+            if (request.Amount?.IsSet == true) entity.Amount = request.Amount.Value;
+            if (request.Reason?.IsSet == true) entity.Reason = request.Reason.Value ?? string.Empty;
+            if (request.Date?.IsSet == true) entity.Date = request.Date.Value;
+            if (request.PaymentMethod?.IsSet == true) entity.PaymentMethod = request.PaymentMethod.Value;
+            if (request.Comment?.IsSet == true) entity.Comment = request.Comment.Value ?? string.Empty;
+
+            // Categories
+            if (request.CategoryIds?.IsSet == true)
+            {
+                await AddCategoriesToTransaction(entity, request.CategoryIds.Value ?? []);
+            }
 
             return await _context.SaveChangesAsync();
         }
@@ -140,5 +149,34 @@ namespace Budget.Server.Core.Transactions
                 .Where(x => x.Id == id)
                 .ExecuteDeleteAsync();
         }
+
+        #region Private
+
+        private Task<Transaction?> GetTransactionById(int id)
+        {
+            return _context.Transactions
+                .Include(t => t.Categories)
+                .Where(t => t.Id == id)
+                .FirstOrDefaultAsync();
+        }
+
+        private async Task AddCategoriesToTransaction(Transaction entity, List<int> categoryIds)
+        {
+            entity.Categories.Clear();
+
+            if (categoryIds.Any() == true)
+            {
+                var categories = await _context.Categories
+                    .Where(x => categoryIds.Contains(x.Id))
+                    .ToListAsync();
+
+                foreach (var category in categories)
+                {
+                    entity.Categories.Add(category);
+                }
+            }
+        }
+
+        #endregion Private
     }
 }

@@ -27,50 +27,86 @@
     const model = defineModel<ICategoryRequest>({ required: true });
     const emit = defineEmits<Emits>();
 
+    let partialModel: Partial<ICategoryRequest> = {};
+
     const submitLabel = ref<string>('');
     const deleteLabel = ref<string>('');
-    const areButtonsDisabled = ref<boolean>(false);
+    const isSubmitButtonDisabled = ref<boolean>(false);
+    const isDeleteButtonDisabled = ref<boolean>(false);
 
     const categoryOptions = ref<ICategoryOptionsItemResponse[]>([]);
 
-    let partialModel: Partial<ICategoryRequest> = {};
+    // #region Init
 
-    // Init
     onMounted(() => {
         getCategoryOptions();
         setButtonsToDefaultState();
     });
 
-    // On props change
-    watch(() => [saveAllResult, savePartialResult, deleteResult], ([newSaveAll, newSavePartial, newDelete]) => {
-        if (newSaveAll !== undefined && !newSaveAll.isSuccess) {
-            setSubmitButtonToErrorState();
-            waitAndResetButtonsToDefaultState();
-        }
-        else if (newSavePartial !== undefined && !newSavePartial.isSuccess || isNew) {
-            setButtonsToDefaultState();
-        }
-        else if (newDelete !== undefined && !newDelete.isSuccess) {
-            setDeleteButtonToErrorState();
-            waitAndResetButtonsToDefaultState();
-        }
-        else {
-            setSubmitButtonToSavedState();
-            waitAndResetButtonsToDefaultState();
-        }
-    });
+    // #endregion Init
+    
+    // #region Actions
 
     // On form submit
     const onSubmit = (): void => {
-        saveAll(model.value);
+        if (!isFormValid()) {
+            return;
+        }
+
         disableButtons();
+        emitSaveAll(model.value);
     }
 
     // On delete button click
     const onDelete = (): void => {
-        emitDelete(model.value.id);
         disableButtons();
+        emitDelete(model.value.id);
     }
+
+    // #endregion Actions
+    
+    // #region API call results
+
+    watch(() => saveAllResult, (result) => {
+        if (result !== undefined && !result.isSuccess) {
+            // Error on save all -> set submit button to error state for a while
+            setSubmitButtonToErrorState();
+            waitAndResetButtonsToDefaultState();
+        }
+        // Success on save all -> nothing to do, form will be exited
+    });
+
+    watch(() => savePartialResult, (result) => {
+        if (result !== undefined && !result.isSuccess || isNew) {
+            // Error on save partial -> set submit button to error state for a while
+            setSubmitButtonToErrorState();
+            waitAndResetButtonsToDefaultState();
+        }
+        else {
+            // Success on save partial -> set submit button to saved state until next edit but keep delete button enabled
+            setSubmitButtonToSavedState();
+            enableDeleteButton();
+        }
+    });
+
+    watch(() => deleteResult, (result) => {
+        if (result !== undefined && !result.isSuccess) {
+            // Error on delete -> set delete button to error state for a while
+            setDeleteButtonToErrorState();
+            waitAndResetButtonsToDefaultState();
+        }
+        // Success on delete -> nothing to do, form will be exited
+    });
+
+    // #endregion API call results
+
+    // #region Check form
+
+    const isFormValid = (): boolean => {
+        return model.value.name !== undefined && model.value.name.trim().length > 0;
+    };
+
+    // #endregion Check form
 
     // #region Partial update
 
@@ -96,7 +132,7 @@
 
     // #endregion Partial update
 
-    // #region Options
+    // #region Category options
 
     const getCategoryOptions = (): void => {
         if (!isNew) {
@@ -110,7 +146,7 @@
         }
     }
 
-    // #endregion Options
+    // #endregion Category options
 
     // #region Buttons
 
@@ -136,11 +172,29 @@
     }
 
     const disableButtons = (): void => {
-        areButtonsDisabled.value = true;
+        disableSubmitButton();
+        disableDeleteButton();
+    }
+
+    const disableSubmitButton = (): void => {
+        isSubmitButtonDisabled.value = true;
+    }
+
+    const disableDeleteButton = (): void => {
+        isDeleteButtonDisabled.value = true;
     }
 
     const enableButtons = (): void => {
-        areButtonsDisabled.value = false;
+        enableSubmitButton();
+        enableDeleteButton();
+    }
+
+    const enableSubmitButton = (): void => {
+        isSubmitButtonDisabled.value = false;
+    }
+
+    const enableDeleteButton = (): void => {
+        isDeleteButtonDisabled.value = false;
     }
 
     const waitAndResetButtonsToDefaultState = debounce(setButtonsToDefaultState, 5000);
@@ -149,8 +203,8 @@
 
     // #region Emits
 
-    const saveAll = (data: ICategoryRequest) => emit('saveAll', data);
-    const savePartial = (id: number, data: Partial<ICategoryRequest>) => emit('savePartial', id, data);
+    const emitSaveAll = (data: ICategoryRequest) => emit('saveAll', data);
+    const emitSavePartial = (id: number, data: Partial<ICategoryRequest>) => emit('savePartial', id, data);
     const emitDelete = (id: number) => emit('delete', id);
 
     const debounceSavePartial = debounce(() => {
@@ -158,7 +212,9 @@
             return;
         }
 
-        savePartial(model.value.id, partialModel);
+        disableButtons();
+        emitSavePartial(model.value.id, partialModel);
+
         partialModel = {};
     }, 1000);
 
@@ -195,11 +251,11 @@
         </div>
 
         <div class="category-form-foot">
-            <button v-if="!isNew" class="category-form-button btn btn-outline-danger btn-lg" :disabled="areButtonsDisabled" @click="onDelete">
+            <button v-if="!isNew" class="category-form-button btn btn-outline-danger btn-lg" :disabled="isDeleteButtonDisabled" @click="onDelete">
                 <font-awesome-icon icon="fa-solid fa-trash" />
                 <span>{{ deleteLabel }}</span>
             </button>
-            <button type="submit" class="category-form-button btn btn-primary btn-lg" :disabled="areButtonsDisabled || !model.name">
+            <button type="submit" class="category-form-button btn btn-primary btn-lg" :disabled="isSubmitButtonDisabled || !isFormValid()">
                 <font-awesome-icon icon="fa-solid fa-check" />
                 <span>{{ submitLabel }}</span>
             </button>

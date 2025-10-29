@@ -93,10 +93,7 @@ namespace Budget.Server.Api.Transactions
         [HttpPost]
         public async Task<ActionResult> CreateTransaction([FromBody] TransactionCreateRequest request)
         {
-            var parameters = new TransactionCreateParameters(request);
-            parameters.AreCategoriesValid = await _categoryService.DoesCategoriesExist(request.CategoryIds);
-
-            var result = await _transactionService.CreateTransaction(parameters);
+            var result = await _transactionService.CreateTransaction(request);
             if (result == 0)
             {
                 return BadRequest("Transaction creation failed.");
@@ -108,10 +105,7 @@ namespace Budget.Server.Api.Transactions
         [HttpPut("{id:int}")]
         public async Task<ActionResult> UpdateTransaction(int id, [FromBody] TransactionUpdateRequest request)
         {
-            var parameters = new TransactionUpdateParameters(request);
-            parameters.AreCategoriesValid = await _categoryService.DoesCategoriesExist(request.CategoryIds);
-
-            var result = await _transactionService.UpdateTransaction(id, parameters);
+            var result = await _transactionService.UpdateTransaction(id, request);
             if (result == 0)
             {
                 return BadRequest("Transaction update failed.");
@@ -123,14 +117,7 @@ namespace Budget.Server.Api.Transactions
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> PatchTransaction(int id, [FromBody] TransactionPatchRequest request)
         {
-            var parameters = new TransactionPatchParameters(request);
-
-            if (request.CategoryIds?.IsSet == true && request.CategoryIds.Value != null)
-            {
-                parameters.AreCategoriesValid = await _categoryService.DoesCategoriesExist(request.CategoryIds.Value);
-            }
-
-            var result = await _transactionService.PatchTransaction(id, parameters);
+            var result = await _transactionService.PatchTransaction(id, request);
             if (result == 0)
             {
                 return BadRequest("Transaction patch failed.");

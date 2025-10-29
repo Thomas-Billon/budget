@@ -2,9 +2,11 @@ import { onMounted, ref, watch } from 'vue';
 import { apiCall, type ApiCallResult } from '@/utils/ApiCall';
 import { useRoute } from 'vue-router';
 
-interface Props {
+interface Props<TRequest, TResponse> {
     endpoint: string;
-    onGetDetailsSuccess?: <TResponse>(response: TResponse) => void;
+    defaultEntity: TRequest;
+    mapResponseToRequest: (response: TResponse) => TRequest;
+    onGetDetailsSuccess?: (response: TResponse) => void;
     onGetDetailsError?: () => void;
     onFullUpdateSuccess?: () => void;
     onFullUpdateError?: () => void;
@@ -12,10 +14,20 @@ interface Props {
     onPartialUpdateError?: () => void;
 }
 
-const useUpdateEntity = <TRequest extends { id: number }, TResponse>({ endpoint, onGetDetailsSuccess, onGetDetailsError, onFullUpdateSuccess, onFullUpdateError, onPartialUpdateSuccess, onPartialUpdateError }: Props) => {
+const useUpdateEntity = <TRequest extends { id: number }, TResponse>({
+    endpoint,
+    defaultEntity,
+    mapResponseToRequest: mapRequestToResponse,
+    onGetDetailsSuccess,
+    onGetDetailsError,
+    onFullUpdateSuccess,
+    onFullUpdateError,
+    onPartialUpdateSuccess,
+    onPartialUpdateError
+}: Props<TRequest, TResponse>) => {
     const route = useRoute();
 
-    const entity = ref<TRequest>({} as TRequest); // TODO: Fix casting
+    const entity = ref<TRequest>(defaultEntity);
     
     // #region Get details
 
@@ -42,7 +54,7 @@ const useUpdateEntity = <TRequest extends { id: number }, TResponse>({ endpoint,
             .then(response => {
                 onGetDetailsSuccess?.(response);
 
-                entity.value = response;
+                entity.value = mapRequestToResponse(response);
             })
             .catch(() => {
                 onGetDetailsError?.();

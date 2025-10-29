@@ -24,6 +24,6 @@ namespace Budget.Server.Api.Transactions.Models.Requests
         public string Comment { get; init; } = string.Empty;
 
 
-        public List<int> CategoryIds { get; init; } = new();
+        public List<int> CategoryIds { get; init; } = [];
     }
 }

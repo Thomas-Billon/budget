@@ -8,8 +8,6 @@ interface Props {
 }
 
 const useDeleteEntity = <TRequest extends { id: number }, TResponse>({ endpoint, onDeleteSuccess, onDeleteError }: Props) => {
-    const entity = ref<TRequest>({} as TRequest); // TODO: Fix casting
-
     // #region Delete
 
     const deleteResult = ref<ApiCallResult>();
@@ -31,7 +29,7 @@ const useDeleteEntity = <TRequest extends { id: number }, TResponse>({ endpoint,
 
     // #endregion Delete
 
-    return { entity, deleteEntity, deleteResult };
+    return { deleteEntity, deleteResult };
 }
 
 export default useDeleteEntity;

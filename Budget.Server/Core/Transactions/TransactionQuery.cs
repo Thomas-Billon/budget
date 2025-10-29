@@ -11,7 +11,7 @@ namespace Budget.Server.Core.Transactions
         public required TransactionType Type { get; set; }
         public required decimal Amount { get; set; }
         public required string Reason { get; set; }
-        public required DateOnly? Date { get; set; }
+        public required DateOnly Date { get; set; }
         public required PaymentMethod PaymentMethod { get; set; }
         public required string Comment { get; set; }
     }

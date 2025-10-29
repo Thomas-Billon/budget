@@ -2,7 +2,7 @@
 
     import { useRouter } from 'vue-router';
     import { routes } from '@/router.ts';
-    import { type ITransactionRequest } from '@/features/transactions/models/ITransactionRequest';
+    import { type ITransactionRequest, defaultTransactionRequest } from '@/features/transactions/models/ITransactionRequest';
     import { type ITransactionDetailsResponse } from '@/features/transactions/models/ITransactionDetailsResponse';
     import TransactionForm from '@/features/transactions/components/TransactionForm.vue';
     import useCreateEntity from '@/composables/useCreateEntity';
@@ -13,8 +13,8 @@
         router.push({ path: routes.transaction.history });
     };
 
-    const { entity: transaction, createEntity, createResult } = useCreateEntity<ITransactionRequest, ITransactionDetailsResponse>({ endpoint: 'transaction', onCreateSuccess });  
-    
+    const { entity: transaction, createEntity, createResult } = useCreateEntity<ITransactionRequest, ITransactionDetailsResponse>({ endpoint: 'transaction', defaultEntity: defaultTransactionRequest, onCreateSuccess });
+
 </script>
 
 <template>

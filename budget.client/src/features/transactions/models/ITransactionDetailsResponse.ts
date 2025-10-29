@@ -7,7 +7,7 @@ interface ITransactionDetailsResponse {
     type: TransactionType;
     amount: number;
     reason: string;
-    date?: string;
+    date: string;
     paymentMethod: PaymentMethod;
     comment: string;
 

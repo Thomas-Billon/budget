@@ -16,8 +16,8 @@ namespace Budget.Server.Data.Categories
         public int? ParentCategoryId { get; set; }
         public Category? ParentCategory { get; set; }
 
-        public List<Category> SubCategories { get; set; } = new();
+        public List<Category> SubCategories { get; set; } = [];
 
-        public List<Transaction> Transactions { get; set; } = new();
+        public List<Transaction> Transactions { get; set; } = [];
     }
 }

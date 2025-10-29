@@ -6,9 +6,21 @@ interface ITransactionRequest {
     type: TransactionType;
     amount: number;
     reason: string;
-    date?: string;
+    date: string;
     paymentMethod: PaymentMethod;
     comment: string;
+    categoryIds: number[];
 }
 
-export { type ITransactionRequest };
+const defaultTransactionRequest: ITransactionRequest = {
+    id: 0,
+    type: TransactionType.None,
+    amount: 0,
+    reason: '',
+    date: '',
+    paymentMethod: PaymentMethod.None,
+    comment: '',
+    categoryIds: []
+};
+
+export { type ITransactionRequest, defaultTransactionRequest };

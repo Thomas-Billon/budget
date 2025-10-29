@@ -3,15 +3,20 @@
     import './ButtonSwitch.scss';
 
     import { onMounted, ref, watch } from 'vue';
-    import type { IButtonSwitchOption, ButtonSwitchValue } from '@/components/button-switch/IButtonSwitchOption';
+    import type { IButtonSwitchOption, ButtonSwitchValue, IButtonSwitchEvent } from '@/components/button-switch/ButtonSwitchValue';
 
     interface Props {
         options: IButtonSwitchOption[];
         className?: string;
     };
 
+    type Emits = {
+        change: [event: IButtonSwitchEvent];
+    };
+
     const { options, className } = defineProps<Props>();
     const model = defineModel<ButtonSwitchValue | undefined>({ required: true });
+    const emit = defineEmits<Emits>();
     
     const switchIndex = ref<number>(-1);
     const switchCount = ref<number>(0);
@@ -40,12 +45,23 @@
         switchCount.value = options?.length ?? 0;
     };
 
+    const onSwitch = (value: ButtonSwitchValue): void => {
+        model.value = value;
+        emitChange({ type: 'change', value });
+    };
+
+    // #region Emits
+
+    const emitChange = (event: IButtonSwitchEvent) => emit('change', event);
+
+    // #endregion Emits
+
 </script>
 
 <template>
     <div v-if="switchCount > 0" :class="[ 'button-switch', className, switchIndex === -1 ? 'no-active' : 'has-active' ]" :style="{ '--switchIndex': switchIndex, '--switchCount': switchCount }">
         <div class="button-switch-container">
-            <button type="button" v-for="option in options" :key="option.value" class="button-switch-option btn btn-white" @click="model = option.value">
+            <button type="button" v-for="option in options" :key="option.value" class="button-switch-option btn btn-white" @click="onSwitch(option.value)">
                 <font-awesome-icon v-if="option.icon" :icon="`fa-solid fa-${option.icon}`" size="sm" />
                 <span v-if="option.label" >{{ option.label }}</span>
             </button>

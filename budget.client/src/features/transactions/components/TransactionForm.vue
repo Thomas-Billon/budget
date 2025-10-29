@@ -9,8 +9,9 @@
     import ButtonSwitch from '@/components/button-switch/ButtonSwitch.vue';
     import { formatAmount, parseAmount } from '@/features/transactions/TransactionService.ts'
     import { type ITransactionRequest } from '@/features/transactions/models/ITransactionRequest';
-    import { type ButtonSwitchValue, type IButtonSwitchOption } from '@/components/button-switch/IButtonSwitchOption';
-    import { type ApiCallResult } from '@/utils/ApiCall';
+    import { type IButtonSwitchEvent, type IButtonSwitchOption, isButtonSwitchEvent } from '@/components/button-switch/ButtonSwitchValue';
+    import { apiCall, type ApiCallResult } from '@/utils/ApiCall';
+    import { type ICategoryOptionsItemResponse, type ICategoryOptionsResponse } from '@/features/categories/models/ICategoryOptionsResponse';
 
     interface Props {
         isNew: boolean;
@@ -29,73 +30,127 @@
     const model = defineModel<ITransactionRequest>({ required: true });
     const emit = defineEmits<Emits>();
 
+    let partialModel: Partial<ITransactionRequest> = {};
+
+    const submitLabel = ref<string>('');
+    const deleteLabel = ref<string>('');
+    const isSubmitButtonDisabled = ref<boolean>(false);
+    const isDeleteButtonDisabled = ref<boolean>(false);
+
     const typeInput = ref<HTMLInputElement | undefined>();
     const typeOptions: IButtonSwitchOption[] = [{ value: TransactionType.Income, label: 'Income', icon: 'plus' }, { value: TransactionType.Expense, label: 'Expense', icon: 'minus' }];
     
     const amountPlaceholder: string = formatAmount(0, { isFalsyValueAllowed: true });
     const amountDisplayValue = ref<string>('');
+    
+    const categoryOptions = ref<ICategoryOptionsItemResponse[]>([]);
 
-    const submitLabel = ref<string>('');
-    const deleteLabel = ref<string>('');
-    const areButtonsDisabled = ref<boolean>(false);
+    // #region Init
 
-    let partialModel: Partial<ITransactionRequest> = {};
-
-    // Init
     onMounted(() => {
         updateAmountDisplayValue();
+        getCategoryOptions();
         setButtonsToDefaultState();
     });
 
-    // On props change
-    watch(() => [saveAllResult, savePartialResult, deleteResult], ([newSaveAll, newSavePartial, newDelete]) => {
-        if (newSaveAll !== undefined && !newSaveAll.isSuccess) {
-            setSubmitButtonToErrorState();
-            waitAndResetButtonsToDefaultState();
-        }
-        else if (newSavePartial !== undefined && !newSavePartial.isSuccess || isNew) {
-            setButtonsToDefaultState();
-        }
-        else if (newDelete !== undefined && !newDelete.isSuccess) {
-            setDeleteButtonToErrorState();
-            waitAndResetButtonsToDefaultState();
-        }
-        else {
-            setSubmitButtonToSavedState();
-            waitAndResetButtonsToDefaultState();
-        }
-    });
+    // #endregion Init
+
+    // 
+
+    // #region Actions
 
     // On form submit
     const onSubmit = (): void => {
-        emitSaveAll(model.value);
+        if (!isFormValid()) {
+            return;
+        }
+
         disableButtons();
+        emitSaveAll(model.value);
     }
 
     // On delete button click
     const onDelete = (): void => {
-        emitDelete(model.value.id);
         disableButtons();
+        emitDelete(model.value.id);
     }
+
+    // #endregion Actions
+
+    // #region API call results
+
+    watch(() => saveAllResult, (result) => {
+        if (result !== undefined && !result.isSuccess) {
+            // Error on save all -> set submit button to error state for a while
+            setSubmitButtonToErrorState();
+            waitAndResetButtonsToDefaultState();
+        }
+        // Success on save all -> nothing to do, form will be exited
+    });
+
+    watch(() => savePartialResult, (result) => {
+        if (result !== undefined && !result.isSuccess || isNew) {
+            // Error on save partial -> set submit button to error state for a while
+            setSubmitButtonToErrorState();
+            waitAndResetButtonsToDefaultState();
+        }
+        else {
+            // Success on save partial -> set submit button to saved state until next edit but keep delete button enabled
+            setSubmitButtonToSavedState();
+            enableDeleteButton();
+        }
+    });
+
+    watch(() => deleteResult, (result) => {
+        if (result !== undefined && !result.isSuccess) {
+            // Error on delete -> set delete button to error state for a while
+            setDeleteButtonToErrorState();
+            waitAndResetButtonsToDefaultState();
+        }
+        // Success on delete -> nothing to do, form will be exited
+    });
+
+    // #endregion API call results
+
+    // #region Check form
+
+    const isFormValid = (): boolean => {
+        return model.value.type !== undefined && model.value.type !== TransactionType.None
+            && model.value.amount !== undefined && model.value.amount > 0
+            && model.value.reason !== undefined && model.value.reason.trim().length > 0
+            && model.value.date !== undefined;
+    };
+
+    // #endregion Check form
 
     // #region Partial update
 
-    // On type field switch event
-    const onTypeFieldChange = (value: ButtonSwitchValue | undefined): void => {
+    const onFieldChange = <T extends keyof ITransactionRequest>(event: IButtonSwitchEvent | Event | undefined, fieldName: T): void => {
         setButtonsToDefaultState();
-        fillPartialModel('type', value as ITransactionRequest['type']);
-    }
 
-    // On all form fields input event (any text modification)
-    const onFormFieldInput = <T extends keyof ITransactionRequest>(event: Event, fieldName: T): void => {
-        const target = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
-        if (target === null) {
+        if (isButtonSwitchEvent(event)) {
+            fillPartialModel(fieldName, event.value as ITransactionRequest[T]);
             return;
         }
 
-        setButtonsToDefaultState();
-        fillPartialModel(fieldName, target.value as ITransactionRequest[T]);
-    }
+        if (event instanceof Event) {
+            const target = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+            if (!target) {
+                return;
+            }
+
+            if (target instanceof HTMLSelectElement && target.multiple) {
+                const value = Array.from(target.selectedOptions, opt => opt.value);
+                fillPartialModel(fieldName, value as unknown[] as ITransactionRequest[T]);
+                return;
+            }
+            else {
+                fillPartialModel(fieldName, target.value as ITransactionRequest[T]);
+                return;
+            }
+        }
+
+    };
 
     const fillPartialModel = <T extends keyof ITransactionRequest>(fieldName: T, value: ITransactionRequest[T]): void => {
         if (isNew) {
@@ -135,6 +190,20 @@
 
     // #endregion Amount
 
+    // #region Category options
+
+    const getCategoryOptions = (): void => {
+        apiCall<undefined, ICategoryOptionsResponse>(`category/options`, { method: 'GET' })
+        .then(response => {
+            categoryOptions.value = response.items;
+        })
+        .catch(() => {
+            // TODO: Add error
+        });
+    }
+
+    // #endregion Category options
+
     // #region Buttons
 
     const setButtonsToDefaultState = (): void => {
@@ -159,11 +228,29 @@
     }
 
     const disableButtons = (): void => {
-        areButtonsDisabled.value = true;
+        disableSubmitButton();
+        disableDeleteButton();
+    }
+
+    const disableSubmitButton = (): void => {
+        isSubmitButtonDisabled.value = true;
+    }
+
+    const disableDeleteButton = (): void => {
+        isDeleteButtonDisabled.value = true;
     }
 
     const enableButtons = (): void => {
-        areButtonsDisabled.value = false;
+        enableSubmitButton();
+        enableDeleteButton();
+    }
+
+    const enableSubmitButton = (): void => {
+        isSubmitButtonDisabled.value = false;
+    }
+
+    const enableDeleteButton = (): void => {
+        isDeleteButtonDisabled.value = false;
     }
 
     const waitAndResetButtonsToDefaultState = debounce(setButtonsToDefaultState, 5000);
@@ -181,7 +268,9 @@
             return;
         }
 
+        disableButtons();
         emitSavePartial(model.value.id, partialModel);
+
         partialModel = {};
     }, 1000);
 
@@ -196,7 +285,7 @@
 
         <div class="transaction-form-head">
             <input ref="typeInput" type="hidden" id="transaction-type" name="Type" v-model="model.type" required />
-            <ButtonSwitch v-model="model.type" :options="typeOptions" class-name="bg-secondary bg-opacity-50" v-on:update:modelValue="onTypeFieldChange($event)" />
+            <ButtonSwitch v-model="model.type" :options="typeOptions" class-name="bg-secondary bg-opacity-50" @change="onFieldChange($event, 'type')" />
         </div>
 
         <div class="transaction-form-body transition-opacity" :class="[ !model.type && 'hidden' ]">
@@ -210,18 +299,18 @@
                        :placeholder="amountPlaceholder"
                        autocomplete="off"
                        required
-                       @input="onAmountInput($event); onFormFieldInput($event, 'amount');"
+                       @input="onAmountInput($event); onFieldChange($event, 'amount');"
                        @change="onAmountChange($event)" />
                 <span class="input-group-text">
                     €
                 </span>
             </div>
 
-            <input class="form-control form-control-lg" type="text" id="transaction-reason" name="Reason" v-model="model.reason" placeholder="Reason" required @input="onFormFieldInput($event, 'reason');" />
+            <input class="form-control form-control-lg" type="text" id="transaction-reason" name="Reason" v-model="model.reason" placeholder="Reason" required @input="onFieldChange($event, 'reason');" />
 
-            <input class="form-control form-control-lg" type="date" id="transaction-date" name="Date" v-model="model.date" @input="onFormFieldInput($event, 'date');" />
+            <input class="form-control form-control-lg" type="date" id="transaction-date" name="Date" v-model="model.date" required @input="onFieldChange($event, 'date');" />
 
-            <select class="form-select form-select-lg" id="transaction-payment-method" name="PaymentMethod" v-model="model.paymentMethod" @input="onFormFieldInput($event, 'paymentMethod');">
+            <select class="form-select form-select-lg" id="transaction-payment-method" name="PaymentMethod" v-model="model.paymentMethod" @change="onFieldChange($event, 'paymentMethod');">
                 <option v-if="model.paymentMethod === undefined" :value="undefined" disabled selected>Select Payment Method</option>
                 <option v-if="model.paymentMethod !== undefined" :value="PaymentMethod.None" disabled>Select Payment Method</option>
                 <option :value="PaymentMethod.Cash">{{ PaymentMethod[PaymentMethod.Cash] }}</option>
@@ -232,16 +321,20 @@
                 <option :value="PaymentMethod.Other">{{ PaymentMethod[PaymentMethod.Other] }}</option>
             </select>
 
-            <textarea class="form-control form-control-lg" id="transaction-comment" name="Comment" v-model="model.comment" placeholder="Comment" @input="onFormFieldInput($event, 'comment');"></textarea>
+            <textarea class="form-control form-control-lg" id="transaction-comment" name="Comment" v-model="model.comment" placeholder="Comment" @input="onFieldChange($event, 'comment');"></textarea>
+
+            <select class="form-select form-select-lg" id="transaction-category-ids" name="CategoryIds" v-model="model.categoryIds" multiple @change="onFieldChange($event, 'categoryIds');">
+                <option v-for="option in categoryOptions" :key="option.id" :value="option.id">{{ option.name }}</option>
+            </select>
 
         </div>
 
         <div class="transaction-form-foot transition-opacity" :class="[ !model.type && 'hidden' ]">
-            <button v-if="!isNew" class="transaction-form-button btn btn-outline-danger btn-lg" :disabled="areButtonsDisabled" @click="onDelete">
+            <button v-if="!isNew" class="transaction-form-button btn btn-outline-danger btn-lg" :disabled="isDeleteButtonDisabled" @click="onDelete">
                 <font-awesome-icon icon="fa-solid fa-trash" />
                 <span>{{ deleteLabel }}</span>
             </button>
-            <button type="submit" class="transaction-form-button btn btn-primary btn-lg" :disabled="areButtonsDisabled || !model.type || !model.amount || !model.reason">
+            <button type="submit" class="transaction-form-button btn btn-primary btn-lg" :disabled="isSubmitButtonDisabled || !isFormValid()">
                 <font-awesome-icon icon="fa-solid fa-check" />
                 <span>{{ submitLabel }}</span>
             </button>
