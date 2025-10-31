@@ -1,0 +1,13 @@
+@import "@/assets/variables.module";
+
+.form {
+    &-foot {
+        display: flex;
+        flex-direction: column;
+        gap: $spacer-inline;
+    }
+
+    &-button {
+        width: 100%;
+    }
+}

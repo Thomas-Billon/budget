@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
     import { ref, watch } from 'vue';
-    import { useRoute, useRouter } from 'vue-router';
+    import { useRouter } from 'vue-router';
     import { routes } from '@/router.ts';
     import { type ITransactionDetailsResponse } from '@/features/transactions/models/ITransactionDetailsResponse';
     import { type ITransactionRequest, getDefaultTransactionRequest } from '@/features/transactions/models/ITransactionRequest';
@@ -12,7 +12,6 @@
     import useMountedOrRouteParamUpdate from '@/composables/useMountedOrRouteParamUpdate';
     import { getIdFromRoute } from '@/utils/Route';
 
-    const route = useRoute();
     const router = useRouter();
 
     const transaction = ref(getDefaultTransactionRequest());
