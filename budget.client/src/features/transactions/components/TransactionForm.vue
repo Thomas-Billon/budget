@@ -9,7 +9,7 @@
     import { formatAmount, parseAmount } from '@/features/transactions/TransactionService.ts'
     import { type ITransactionRequest } from '@/features/transactions/models/ITransactionRequest';
     import { type IButtonSwitchOption } from '@/components/button-switch/ButtonSwitchValue';
-    import { apiCall, type ApiCallResult } from '@/utils/ApiCall';
+    import { apiCall } from '@/utils/ApiCall';
     import { type ICategoryOptionsItemResponse, type ICategoryOptionsResponse } from '@/features/categories/models/ICategoryOptionsResponse';
     import FormBase from '@/components/form-base/FormBase.vue';
     import { type FormProps, type FormEmits } from '@/utils/Form';
@@ -39,12 +39,12 @@
 
     const getCategoryOptions = (): void => {
         apiCall<undefined, ICategoryOptionsResponse>(`category/options`, { method: 'GET' })
-        .then(response => {
-            categoryOptions.value = response.items;
-        })
-        .catch(() => {
-            // TODO: Add error
-        });
+            .then(response => {
+                categoryOptions.value = response.items;
+            })
+            .catch(() => {
+                // TODO: Add error
+            });
     }
 
     // #endregion Category options
