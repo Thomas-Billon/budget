@@ -11,16 +11,16 @@ a, .btn-link {
 }
 
 .row {
-    --bs-gutter-y: #{$spacer-block};
+    --bs-gutter-y: #{$gutter-y};
 }
 
 .btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: $spacer-text-lg;
+    gap: $spacer-sm;
     --bs-btn-border-width: 0;
-    --bs-btn-border-radius: #{$radius-btn};
+    --bs-btn-border-radius: #{$radius-sm};
     --bs-btn-font-size: #{$font-size-base};
     --bs-btn-disabled-color: #{$black};
     --bs-btn-disabled-bg: #{$disabled};

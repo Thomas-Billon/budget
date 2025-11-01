@@ -65,11 +65,11 @@
         @delete="(id) => emit('delete', id)">
 
         <template #body="{ onChange }">
-            <div class="category-form-body">
+            <div class="form-body">
 
-                <input class="form-control form-control-lg" type="text" id="category-name" name="Name" v-model="model.name" placeholder="Name" required @input="onChange('name', model.name);" />
+                <input class="form-control form-control-lg" type="text" name="Name" v-model="model.name" placeholder="Name" required @input="onChange('name', model.name);" />
 
-                <select class="form-select form-select-lg" id="category-color" name="Color" v-model="model.color" @input="onChange('color', model.color);">
+                <select class="form-select form-select-lg" name="Color" v-model="model.color" @input="onChange('color', model.color);">
                     <option :value="CategoryColor.None" disabled selected>Select Color</option>
                     <option :value="CategoryColor.Blue">{{ CategoryColor[CategoryColor.Blue] }}</option>
                     <option :value="CategoryColor.Green">{{ CategoryColor[CategoryColor.Green] }}</option>
@@ -78,12 +78,12 @@
                     <option :value="CategoryColor.Red">{{ CategoryColor[CategoryColor.Red] }}</option>
                 </select>
 
-                <select v-if="!isNew" class="form-select form-select-lg" id="category-parent-category-id" name="ParentCategoryId" v-model="model.parentCategoryId" @input="onChange('parentCategoryId', model.parentCategoryId);">
+                <select v-if="!isNew" class="form-select form-select-lg" name="ParentCategoryId" v-model="model.parentCategoryId" @input="onChange('parentCategoryId', model.parentCategoryId);">
                     <option :value="null" selected>No parent category</option>
                     <option v-for="option in categoryOptions" :key="option.id" :value="option.id">{{ option.name }}</option>
                 </select>
 
-                <input v-if="isNew" type="hidden" id="category-parent-category-id" name="ParentCategoryId" v-model="model.parentCategoryId" />
+                <input v-if="isNew" type="hidden" name="ParentCategoryId" v-model="model.parentCategoryId" />
 
             </div>
         </template>

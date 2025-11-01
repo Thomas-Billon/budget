@@ -16,8 +16,8 @@ $spacers: (
 
 $gutters: $spacers;
 
-$grid-gutter-width: $spacer-container;
-$container-padding-x: $spacer-container;
+$grid-gutter-width: $gutter-x;
+$container-padding-x: $gutter-x;
 
 $custom-colors: (
     "primary": $primary,
