@@ -1,5 +1,4 @@
-﻿using Budget.Server.Api.Categories.Models.Responses;
-using Budget.Server.Api.Transactions.Models.Requests;
+﻿using Budget.Server.Api.Transactions.Models.Requests;
 using Budget.Server.Api.Transactions.Models.Responses;
 using Budget.Server.Core.Categories;
 using Budget.Server.Core.Helpers;
@@ -28,9 +27,9 @@ namespace Budget.Server.Api.Transactions
         [HttpGet("history")]
         public async Task<ActionResult<TransactionHistoryResponse>> GetTransactionHistory([FromQuery] TransactionHistoryRequest request)
         {
-            var parameters = new TransactionHistoryParameters(request, isPaginationEnabled: true);
+            var options = new TransactionQueryableOptions(request, isPaginationEnabled: true);
 
-            var transactions = await _transactionService.GetTransactionHistory(parameters);
+            var transactions = await _transactionService.GetTransactionHistory(options);
             var paginatedTransactions = transactions.ToPagination(request.Take);
 
             var response = new TransactionHistoryResponse()
@@ -44,7 +43,7 @@ namespace Budget.Server.Api.Transactions
                         Reason = x.Base.Reason,
                         Date = x.Base.Date,
                         Categories = x.Categories
-                            .Select(x => new CategoryDetailsBaseResponse
+                            .Select(x => new TransactionHistoryCategoryItemResponse
                             {
                                 Id = x.Id,
                                 Name = x.Name,
@@ -78,7 +77,7 @@ namespace Budget.Server.Api.Transactions
                 PaymentMethod = transaction.Base.PaymentMethod,
                 Comment = transaction.Base.Comment,
                 Categories = transaction.Categories
-                    .Select(x => new CategoryDetailsBaseResponse
+                    .Select(x => new TransactionDetailsCategoryItemResponse
                     {
                         Id = x.Id,
                         Name = x.Name,

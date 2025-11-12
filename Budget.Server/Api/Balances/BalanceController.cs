@@ -30,18 +30,75 @@ namespace Budget.Server.Api.Balances
         [HttpGet]
         public async Task<ActionResult<BalanceReportResponse>> Report([FromQuery] BalanceReportRequest request)
         {
-            var parameters = new TransactionHistoryParameters(request);
+            var options = new TransactionQueryableOptions(request);
 
-            var transactions = await _transactionService.GetTransactionHistory(parameters);
-            var balance = _balanceService.CalculateBalanceReport(transactions);
+            var transactions = await _transactionService.GetTransactionBalance(options);
+            var categories = await _categoryService.GetCategoryBalance();
+            var balanceReport = _balanceService.CalculateBalanceReport(transactions);
 
             var response = new BalanceReportResponse()
             {
-                TotalIncome = balance.TotalIncome,
-                TotalExpense = balance.TotalExpense,
-                NetBalance = balance.NetBalance,
+                TotalIncome = balanceReport.TotalIncome,
+                TotalExpense = balanceReport.TotalExpense,
+                NetBalance = balanceReport.NetBalance,
+                MostLucrativeTransactions = balanceReport.MostLucrativeTransactions
+                    .Select(ToTransactionItemResponse)
+                    .ToList(),
+                MostExpensiveTransactions = balanceReport.MostExpensiveTransactions
+                    .Select(ToTransactionItemResponse)
+                    .ToList(),
+                Categories = categories
+                    .Select(ToCategoryItemResponse)
+                    .ToList(),
+                IncomeTransactionsByCategory = balanceReport.IncomeTransactionsByCategory
+                    .Select(ToTransactionsByCategoryItemResponse)
+                    .ToList(),
+                ExpenseTransactionsByCategory = balanceReport.ExpenseTransactionsByCategory
+                    .Select(ToTransactionsByCategoryItemResponse)
+                    .ToList(),
             };
             return Ok(response);
         }
+
+        #region Private
+
+        #region Report
+
+        private BalanceReportTransactionItemResponse ToTransactionItemResponse(TransactionQuery_Balance transaction)
+        {
+            return new BalanceReportTransactionItemResponse
+            {
+                Id = transaction.Base.Id,
+                Type = transaction.Base.Type,
+                Amount = transaction.Base.Amount,
+                Reason = transaction.Base.Reason,
+                Date = transaction.Base.Date,
+            };
+        }
+
+        private BalanceReportCategoryItemResponse ToCategoryItemResponse(CategoryQuery_Balance category)
+        {
+            return new BalanceReportCategoryItemResponse
+            {
+                Id = category.Base.Id,
+                Name = category.Base.Name,
+                Color = category.Base.Color,
+                ColorHex = _categoryService.GetCategoryColorHex(category.Base.Color),
+            };
+        }
+
+        private BalanceReportTransactionsByCategoryItemResponse ToTransactionsByCategoryItemResponse(BalanceReportTransactionsByCategoryData transactionsByCategory)
+        {
+            return new BalanceReportTransactionsByCategoryItemResponse
+            {
+                CategoryId = transactionsByCategory.CategoryId,
+                CategoryShare = transactionsByCategory.CategoryShare,
+                Transactions = transactionsByCategory.Transactions.Select(ToTransactionItemResponse).ToList(),
+            };
+        }
+
+        #endregion Report
+
+        #endregion Private
     }
 }

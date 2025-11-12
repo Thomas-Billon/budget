@@ -34,6 +34,13 @@ namespace Budget.Server.Core.Categories
             return BuildCategoryHierarchyFromList(categories);
         }
 
+        public Task<List<CategoryQuery_Balance>> GetCategoryBalance()
+        {
+            return _context.Categories.AsNoTracking()
+                .Select(CategoryQuery_Balance.Select)
+                .ToListAsync();
+        }
+
         public Task<CategoryQuery_Details?> GetCategoryDetails(int id)
         {
             return _context.Categories.AsNoTracking()
@@ -106,7 +113,7 @@ namespace Budget.Server.Core.Categories
         private Task<Category?> GetCategoryById(int id)
         {
             return _context.Categories
-                .Where(t => t.Id == id)
+                .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
         }
 

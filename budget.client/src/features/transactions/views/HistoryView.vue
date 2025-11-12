@@ -58,7 +58,10 @@
                     <span>{{ formatAmount(transaction.amount) }} €</span>
                 </div>
                 <div class="transaction-history-item-categories">
-                    <CategoryTag v-for="category in transaction.categories" :key="category.id" v-bind="category"/>
+                    <CategoryTag v-for="category in transaction.categories"
+                                 :key="category.id"
+                                 :name="category.name"
+                                 :color-hex="category.colorHex" />
                 </div>
             </RouterLink>
         </div>

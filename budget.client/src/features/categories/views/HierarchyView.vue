@@ -32,7 +32,12 @@
     <div class="category-hierarchy section-container container">
         <div class="category-hierarchy-items row">
             <div v-for="category in categories" :key="category.id" class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <CategoryCard v-bind="category" :can-add-sub-categories="true" />
+                <CategoryCard :id="category.id"
+                              :name="category.name"
+                              :color-hex="category.colorHex"
+                              :parent-category-id="category.parentCategoryId"
+                              :sub-categories="category.subCategories"
+                              :can-add-sub-categories="true" />
             </div>
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <CategoryCard :color-hex="StyleVariables.secondary">
