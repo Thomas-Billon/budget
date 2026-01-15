@@ -14,7 +14,7 @@ export default [
             '@stylistic': stylistic
         },
         rules: {
-            '@stylistic/semi': ["error", "always"],
+            '@stylistic/semi': ['error', 'always'],
             '@stylistic/quotes': ['error', 'single', { 'avoidEscape': true }],
             '@stylistic/no-multi-spaces': ['error'],
             '@stylistic/no-multiple-empty-lines': ['error', { 'max': 2 }],
