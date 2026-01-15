@@ -3,7 +3,7 @@
     import './ButtonSwitch.scss';
 
     import { onMounted, ref, watch } from 'vue';
-    import type { IButtonSwitchOption, ButtonSwitchValue, IButtonSwitchEvent } from '@/components/button-switch/ButtonSwitchValue';
+    import type { IButtonSwitchOption, ButtonSwitchValue } from '@/components/button-switch/ButtonSwitch';
 
     interface Props {
         options: IButtonSwitchOption[];
@@ -11,7 +11,7 @@
     };
 
     type Emits = {
-        change: [event: IButtonSwitchEvent];
+        change: [value: ButtonSwitchValue];
     };
 
     const { options, className } = defineProps<Props>();
@@ -47,14 +47,8 @@
 
     const onSwitch = (value: ButtonSwitchValue): void => {
         model.value = value;
-        emitChange({ type: 'change', value });
+        emit('change', value);
     };
-
-    // #region Emits
-
-    const emitChange = (event: IButtonSwitchEvent) => emit('change', event);
-
-    // #endregion Emits
 
 </script>
 

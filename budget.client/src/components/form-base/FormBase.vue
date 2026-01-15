@@ -2,9 +2,9 @@
 
     import './FormBase.scss';
 
-    import { onMounted, ref, watch, type Ref } from 'vue';
+    import { onMounted, ref, watch } from 'vue';
     import { debounce } from '@/utils/Utils';
-    import { type FormProps, type FormEmits } from '@/utils/Form';
+    import { type FormProps, type FormEmits } from '@/components/form-base/FormBase';
 
 
     interface Props<T> extends FormProps {

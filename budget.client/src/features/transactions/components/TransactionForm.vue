@@ -8,11 +8,11 @@
     import ButtonSwitch from '@/components/button-switch/ButtonSwitch.vue';
     import { formatAmount, parseAmount } from '@/features/transactions/TransactionService.ts'
     import { type ITransactionRequest } from '@/features/transactions/models/ITransactionRequest';
-    import { type IButtonSwitchOption } from '@/components/button-switch/ButtonSwitchValue';
-    import { apiCall, type ApiCallResult } from '@/utils/ApiCall';
+    import { type IButtonSwitchOption } from '@/components/button-switch/ButtonSwitch';
+    import { apiCall } from '@/utils/ApiCall';
     import { type ICategoryOptionsItemResponse, type ICategoryOptionsResponse } from '@/features/categories/models/ICategoryOptionsResponse';
     import FormBase from '@/components/form-base/FormBase.vue';
-    import { type FormProps, type FormEmits } from '@/utils/Form';
+    import { type FormProps, type FormEmits } from '@/components/form-base/FormBase';
 
     const { isNew, saveAllResult, savePartialResult, deleteResult } = defineProps<FormProps>();
     const model = defineModel<ITransactionRequest>({ required: true });
@@ -102,14 +102,14 @@
         @delete="(id) => emit('delete', id)">
 
         <template #head="{ onChange }">
-            <div class="transaction-form-head">
+            <div class="form-head">
                 <input ref="typeInput" type="hidden" name="Type" v-model="model.type" required />
                 <ButtonSwitch v-model="model.type" :options="typeOptions" class-name="bg-secondary bg-opacity-50" @change="onChange('type', model.type)" />
             </div>
         </template>
 
         <template #body="{ onChange }">
-            <div class="transaction-form-body transition-opacity" :class="[ !model.type && 'hidden' ]">
+            <div class="form-body transition-opacity" :class="[ !model.type && 'hidden' ]">
 
                 <div class="input-group">
                     <input class="transaction-form-input-amount form-control form-control-lg"
