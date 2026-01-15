@@ -39,12 +39,12 @@
 
     const getCategoryOptions = (): void => {
         apiCall<undefined, ICategoryOptionsResponse>(`category/options`, { method: 'GET' })
-        .then(response => {
-            categoryOptions.value = response.items;
-        })
-        .catch(() => {
-            // TODO: Add error
-        });
+            .then(response => {
+                categoryOptions.value = response.items;
+            })
+            .catch(() => {
+                // TODO: Add error
+            });
     }
 
     // #endregion Category options

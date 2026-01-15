@@ -9,8 +9,6 @@ namespace Budget.Server.Core.Categories
         public required int Id { get; set; }
         public required string Name { get; set; }
         public required CategoryColor Color { get; set; }
-
-        public static Expression<Func<Category, CategoryQuery>> Select => x => x.ToQuery();
     }
 
     public static class CategoryQueryExtension
@@ -48,6 +46,16 @@ namespace Budget.Server.Core.Categories
         {
             Base = c.ToQuery(),
             ParentCategoryId = c.ParentCategoryId,
+        };
+    }
+
+    public class CategoryQuery_Balance
+    {
+        public required CategoryQuery Base { get; set; }
+
+        public static Expression<Func<Category, CategoryQuery_Balance>> Select => c => new()
+        {
+            Base = c.ToQuery(),
         };
     }
 

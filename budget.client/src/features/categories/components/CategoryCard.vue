@@ -29,10 +29,17 @@
 </script>
 
 <template>
-    <RouterLink :to="getCardRouterLink()" class="category-card" v-color="colorHex">
+    <RouterLink :to="getCardRouterLink()" class="category-card card" v-color="colorHex">
         <div v-if="name">{{ name }}</div>
         <slot />
-        <CategoryCard v-for="(child, index) in subCategories" :key="index" v-bind="child" :can-add-sub-categories="true" />
+        <CategoryCard v-for="(child, index) in subCategories"
+                      :key="index"
+                      :id="child.id"
+                      :name="child.name"
+                      :color-hex="child.colorHex"
+                      :parent-category-id="child.parentCategoryId"
+                      :sub-categories="child.subCategories"
+                      :can-add-sub-categories="true" />
         <CategoryCard v-if="canAddSubCategories" :parent-category-id="id">
             <font-awesome-icon icon="fa-solid fa-plus" />
         </CategoryCard>

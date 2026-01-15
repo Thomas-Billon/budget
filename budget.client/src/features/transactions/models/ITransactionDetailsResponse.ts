@@ -1,6 +1,6 @@
+import { CategoryColor } from '@/enums/CategoryColor';
 import { TransactionType } from '@/enums/TransactionType.ts';
 import { PaymentMethod } from '@/enums/PaymentMethod.ts';
-import { type ICategoryDetailsBaseResponse } from '@/features/categories/models/ICategoryDetailsResponse';
 
 interface ITransactionDetailsResponse {
     id: number;
@@ -11,7 +11,14 @@ interface ITransactionDetailsResponse {
     paymentMethod: PaymentMethod;
     comment: string;
 
-    categories: ICategoryDetailsBaseResponse[];
+    categories: ITransactionDetailsCategoryItemResponse[];
 }
 
-export { type ITransactionDetailsResponse };
+interface ITransactionDetailsCategoryItemResponse {
+    id: number;
+    name: string;
+    color: CategoryColor;
+    colorHex: string;
+}
+
+export { type ITransactionDetailsResponse, type ITransactionDetailsCategoryItemResponse };

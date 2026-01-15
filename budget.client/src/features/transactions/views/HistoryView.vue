@@ -7,6 +7,7 @@
     import { apiCall } from '@/utils/ApiCall.ts';
     import { type ITransactionHistoryResponse, type ITransactionHistoryItemResponse } from '@/features/transactions/models/ITransactionHistoryResponse';
     import { formatAmount } from '@/features/transactions/TransactionService.ts';
+    import CategoryTag from '@/features/categories/components/CategoryTag.vue';
 
     const transactions = ref<ITransactionHistoryItemResponse[]>([]);
     const isLastPage = ref<boolean>(false);
@@ -55,6 +56,12 @@
                 <div class="transaction-history-item-details">
                     <span class="transaction-history-item-reason">{{ transaction.reason }}</span>
                     <span>{{ formatAmount(transaction.amount) }} €</span>
+                </div>
+                <div class="transaction-history-item-categories">
+                    <CategoryTag v-for="category in transaction.categories"
+                                 :key="category.id"
+                                 :name="category.name"
+                                 :color-hex="category.colorHex" />
                 </div>
             </RouterLink>
         </div>

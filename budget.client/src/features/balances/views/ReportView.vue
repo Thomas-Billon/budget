@@ -51,10 +51,35 @@
             <option :value="DateRange.AllTime">All time</option>
         </select>
 
-        <div class="balance-summary">
-            <p>Total Income: {{ balanceReport?.totalIncome }}</p>
-            <p>Total Expense: {{ balanceReport?.totalExpense }}</p>
-            <p>Net Balance: {{ balanceReport?.netBalance }}</p>
+        <div v-if="balanceReport" class="balance-summary">
+            <p>Total Income: {{ balanceReport.totalIncome }}</p>
+            <p>Total Expense: {{ balanceReport.totalExpense }}</p>
+            <p>Net Balance: {{ balanceReport.netBalance }}</p>
+            <br />
+            <p>
+                Top 3 Income:
+                <ul>
+                    <li v-for="transaction in balanceReport.mostLucrativeTransactions">
+                        {{ transaction.reason }} - {{ transaction.amount }}
+                    </li>
+                </ul>
+            </p>
+            <p>
+                Top 3 Expense:
+                <ul>
+                    <li v-for="transaction in balanceReport.mostExpensiveTransactions">
+                        {{ transaction.reason }} - {{ transaction.amount }}
+                    </li>
+                </ul>
+            </p>
+            <p>
+                Income by categories:
+                <div v-for="transactionsByCategory in balanceReport.incomeTransactionsByCategory">
+                    {{ balanceReport.categories.find((item) => item.id === transactionsByCategory.categoryId)?.name ?? 'No category' }}
+                    -
+                    {{ parseFloat(transactionsByCategory.categoryShare.toFixed(2)) }}%
+                </div>
+            </p>
         </div>
     </div>
 </template>

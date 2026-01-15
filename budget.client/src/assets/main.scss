@@ -12,7 +12,17 @@ body {
 .section-container {
     display: flex;
     flex-direction: column;
-    gap: $spacer-container;
+    gap: $spacer-xxl;
+}
+
+.card {
+    padding: $spacer-md $spacer-lg;
+    border-radius: $radius-lg;
+}
+
+.tag {
+    padding: $spacer-xs $spacer-sm;
+    border-radius: $radius-sm;
 }
 
 .section-container-grow {

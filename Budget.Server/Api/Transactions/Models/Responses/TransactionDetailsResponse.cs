@@ -1,5 +1,4 @@
-﻿using Budget.Server.Api.Categories.Models.Responses;
-using Budget.Server.Core.Enums;
+﻿using Budget.Server.Core.Enums;
 
 namespace Budget.Server.Api.Transactions.Models.Responses
 {
@@ -13,6 +12,14 @@ namespace Budget.Server.Api.Transactions.Models.Responses
         public required PaymentMethod PaymentMethod { get; set; }
         public required string Comment { get; set; }
 
-        public required List<CategoryDetailsBaseResponse> Categories { get; set; }
+        public required List<TransactionDetailsCategoryItemResponse> Categories { get; set; }
+    }
+
+    public class TransactionDetailsCategoryItemResponse
+    {
+        public required int Id { get; set; }
+        public required string Name { get; set; }
+        public required CategoryColor Color { get; set; }
+        public required string ColorHex { get; set; }
     }
 }

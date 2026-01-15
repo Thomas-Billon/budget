@@ -19,62 +19,23 @@ namespace Budget.Server.Core.Transactions
             _context = context;
         }
 
-        public Task<List<TransactionQuery_History>> GetTransactionHistory(TransactionHistoryParameters parameters)
+        public Task<List<TransactionQuery_History>> GetTransactionHistory(TransactionQueryableOptions options)
         {
-            var query = _context.Transactions.AsNoTracking();
+            return GetTransactions_AsQueryable(options).AsNoTracking()
+                .Select(TransactionQuery_History.Select)
+                .ToListAsync();
+        }
 
-            query = parameters.Filter.Type switch
-            {
-                TransactionType.Income => query.Where_IsIncome(),
-                TransactionType.Expense => query.Where_IsExpense(),
-                _ => query
-            };
-
-            if (parameters.Filter.DateRange != null && parameters.Filter.DateRange.IsCustom)
-            {
-                if (parameters.Filter.DateRange.StartDate != null)
-                {
-                    query = query.Where_IsAfterOrOnDate(parameters.Filter.DateRange.StartDate.Value);
-                }
-                if (parameters.Filter.DateRange.EndDate != null)
-                {
-                    query = query.Where_IsBeforeOrOnDate(parameters.Filter.DateRange.EndDate.Value);
-                }
-            }
-            else
-            {
-                query = parameters.Filter.DateRange?.Preset switch
-                {
-                    DateRangePreset.Last7Days => query.Where_IsInLast7Days(),
-                    DateRangePreset.Last30Days => query.Where_IsInLast30Days(),
-                    DateRangePreset.ThisMonth => query.Where_IsInThisMonth(),
-                    DateRangePreset.LastMonth => query.Where_IsInLastMonth(),
-                    DateRangePreset.ThisYear => query.Where_IsInThisYear(),
-                    DateRangePreset.LastYear => query.Where_IsInLastYear(),
-                    _ => query
-                };
-            }
-
-            foreach (var (key, direction) in parameters.Sort)
-            {
-                query = key switch
-                {
-                    nameof(Transaction.Amount) => query.OrderBy_Amount(direction),
-                    nameof(Transaction.Date) => query.OrderBy_Date(direction),
-                    _ => query,
-                };
-            }
-
-            query = query.SkipTake(parameters.Skip, parameters.Take, parameters.IsPaginationEnabled);
-
-            return query.Select(TransactionQuery_History.Select)
+        public Task<List<TransactionQuery_Balance>> GetTransactionBalance(TransactionQueryableOptions options)
+        {
+            return GetTransactions_AsQueryable(options).AsNoTracking()
+                .Select(TransactionQuery_Balance.Select)
                 .ToListAsync();
         }
 
         public Task<TransactionQuery_Details?> GetTransactionDetails(int id)
         {
-            return _context.Transactions.AsNoTracking()
-                .Where(x => x.Id == id)
+            return GetTransactionById_AsQueryable(id).AsNoTracking()
                 .Select(TransactionQuery_Details.Select)
                 .FirstOrDefaultAsync();
         }
@@ -100,7 +61,9 @@ namespace Budget.Server.Core.Transactions
 
         public async Task<int> UpdateTransaction(int id, TransactionUpdateRequest request)
         {
-            var entity = await GetTransactionById(id);
+            var entity = await GetTransactionById_AsQueryable(id)
+                .FirstOrDefaultAsync();
+
             if (entity == null)
             {
                 return 0;
@@ -121,7 +84,9 @@ namespace Budget.Server.Core.Transactions
 
         public async Task<int> PatchTransaction(int id, TransactionPatchRequest request)
         {
-            var entity = await GetTransactionById(id);
+            var entity = await GetTransactionById_AsQueryable(id)
+                .FirstOrDefaultAsync();
+
             if (entity == null)
             {
                 return 0;
@@ -152,13 +117,64 @@ namespace Budget.Server.Core.Transactions
 
         #region Private
 
-        private Task<Transaction?> GetTransactionById(int id)
+        #region Get data
+
+        private IQueryable<Transaction> GetTransactions_AsQueryable(TransactionQueryableOptions options)
+        {
+            var query = _context.Transactions
+                .Include(x => x.Categories)
+                .Where_HasTypes(options.Filter.Types);
+
+            if (options.Filter.DateRange.IsCustom)
+            {
+                if (options.Filter.DateRange.StartDate != null)
+                {
+                    query = query.Where_IsAfterOrOnDate(options.Filter.DateRange.StartDate.Value);
+                }
+                if (options.Filter.DateRange.EndDate != null)
+                {
+                    query = query.Where_IsBeforeOrOnDate(options.Filter.DateRange.EndDate.Value);
+                }
+            }
+            else
+            {
+                query = options.Filter.DateRange.Preset switch
+                {
+                    DateRangePreset.Last7Days => query.Where_IsInLast7Days(),
+                    DateRangePreset.Last30Days => query.Where_IsInLast30Days(),
+                    DateRangePreset.ThisMonth => query.Where_IsInThisMonth(),
+                    DateRangePreset.LastMonth => query.Where_IsInLastMonth(),
+                    DateRangePreset.ThisYear => query.Where_IsInThisYear(),
+                    DateRangePreset.LastYear => query.Where_IsInLastYear(),
+                    _ => query
+                };
+            }
+
+            foreach (var (key, direction) in options.Sort)
+            {
+                query = key switch
+                {
+                    nameof(Transaction.Amount) => query.OrderBy_Amount(direction),
+                    nameof(Transaction.Date) => query.OrderBy_Date(direction),
+                    _ => query,
+                };
+            }
+
+            query = query.SkipTake(options.Skip, options.Take, options.IsPaginationEnabled);
+
+            return query;
+        }
+
+        private IQueryable<Transaction> GetTransactionById_AsQueryable(int id)
         {
             return _context.Transactions
-                .Include(t => t.Categories)
-                .Where(t => t.Id == id)
-                .FirstOrDefaultAsync();
+                .Include(x => x.Categories)
+                .Where(x => x.Id == id);
         }
+
+        #endregion Get data
+
+        #region Categories
 
         private async Task AddCategoriesToTransaction(Transaction entity, List<int> categoryIds)
         {
@@ -176,6 +192,8 @@ namespace Budget.Server.Core.Transactions
                 }
             }
         }
+
+        #endregion Categories
 
         #endregion Private
     }

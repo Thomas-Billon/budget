@@ -133,6 +133,8 @@ namespace Budget.Server.Api.Categories
             return Ok();
         }
 
+        #region Private
+
         #region Hierarchy
 
         private CategoryHierarchyItemResponse ToCategoryHierarchyItemResponse(CategoryQuery_Hierarchy category)
@@ -157,5 +159,7 @@ namespace Budget.Server.Api.Categories
         }
 
         #endregion Hierarchy
+
+        #endregion Private
     }
 }

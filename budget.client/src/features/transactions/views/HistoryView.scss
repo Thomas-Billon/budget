@@ -11,7 +11,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: $spacer-text-sm;
+            gap: $spacer-xs;
         }
 
         &-icon {
@@ -26,13 +26,13 @@
     &-items {
         display: flex;
         flex-direction: column;
-        gap: $spacer-inline;
+        gap: $spacer-md;
     }
 
     &-item {
         display: flex;
         align-items: center;
-        gap: $spacer-block;
+        gap: $spacer-lg;
 
         &-icon {
             width: 0.5rem;
@@ -46,11 +46,16 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            gap: $spacer-text-sm;
+            gap: $spacer-xs;
         }
 
         &-reason {
             font-weight: 600;
+        }
+
+        &-categories {
+            display: flex;
+            gap: $spacer-sm;
         }
     }
 }

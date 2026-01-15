@@ -27,15 +27,17 @@
     // #region Category options
 
     const getCategoryOptions = (): void => {
-        if (!isNew) {
-            apiCall<undefined, ICategoryOptionsResponse>(`category/options`, { method: 'GET' })
+        if (isNew) {
+            return;
+        }
+
+        apiCall<undefined, ICategoryOptionsResponse>(`category/options`, { method: 'GET' })
             .then(response => {
                 categoryOptions.value = response.items;
             })
             .catch(() => {
                 // TODO: Add error
             });
-        }
     }
 
     // #endregion Category options

@@ -1,8 +1,9 @@
 @import "@/assets/variables.module";
 
-.category-card {
+.category-tag {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     background-color: rgba(var(--color-rgb), 0.2);
     border: $border-sm solid var(--color);
 }
