@@ -56,22 +56,22 @@
             <p>Total Expense: {{ balanceReport.totalExpense }}</p>
             <p>Net Balance: {{ balanceReport.netBalance }}</p>
             <br />
-            <p>
+            <div>
                 Top 3 Income:
                 <ul>
                     <li v-for="transaction in balanceReport.mostLucrativeTransactions">
                         {{ transaction.reason }} - {{ transaction.amount }}
                     </li>
                 </ul>
-            </p>
-            <p>
+            </div>
+            <div>
                 Top 3 Expense:
                 <ul>
                     <li v-for="transaction in balanceReport.mostExpensiveTransactions">
                         {{ transaction.reason }} - {{ transaction.amount }}
                     </li>
                 </ul>
-            </p>
+            </div>
             <p>
                 Income by categories:
                 <div v-for="transactionsByCategory in balanceReport.incomeTransactionsByCategory">

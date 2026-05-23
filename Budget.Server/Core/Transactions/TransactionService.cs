@@ -19,24 +19,24 @@ namespace Budget.Server.Core.Transactions
             _context = context;
         }
 
-        public Task<List<TransactionQuery_History>> GetTransactionHistory(TransactionQueryableOptions options)
+        public Task<List<TransactionQueryHistory>> GetTransactionHistory(TransactionQueryParameters options)
         {
             return GetTransactions_AsQueryable(options).AsNoTracking()
-                .Select(TransactionQuery_History.Select)
+                .Select(TransactionQueryHistory.Select)
                 .ToListAsync();
         }
 
-        public Task<List<TransactionQuery_Balance>> GetTransactionBalance(TransactionQueryableOptions options)
+        public Task<List<TransactionQueryBalance>> GetTransactionBalance(TransactionQueryParameters options)
         {
             return GetTransactions_AsQueryable(options).AsNoTracking()
-                .Select(TransactionQuery_Balance.Select)
+                .Select(TransactionQueryBalance.Select)
                 .ToListAsync();
         }
 
-        public Task<TransactionQuery_Details?> GetTransactionDetails(int id)
+        public Task<TransactionQueryDetails?> GetTransactionDetails(int id)
         {
             return GetTransactionById_AsQueryable(id).AsNoTracking()
-                .Select(TransactionQuery_Details.Select)
+                .Select(TransactionQueryDetails.Select)
                 .FirstOrDefaultAsync();
         }
 
@@ -119,7 +119,7 @@ namespace Budget.Server.Core.Transactions
 
         #region Get data
 
-        private IQueryable<Transaction> GetTransactions_AsQueryable(TransactionQueryableOptions options)
+        private IQueryable<Transaction> GetTransactions_AsQueryable(TransactionQueryParameters options)
         {
             var query = _context.Transactions
                 .Include(x => x.Categories)
@@ -180,7 +180,7 @@ namespace Budget.Server.Core.Transactions
         {
             entity.Categories.Clear();
 
-            if (categoryIds.Any() == true)
+            if (categoryIds.Any())
             {
                 var categories = await _context.Categories
                     .Where(x => categoryIds.Contains(x.Id))

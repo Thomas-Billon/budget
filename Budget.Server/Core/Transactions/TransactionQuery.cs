@@ -33,36 +33,36 @@ namespace Budget.Server.Core.Transactions
         }
     }
 
-    public class TransactionQuery_History
+    public class TransactionQueryHistory
     {
         public required TransactionQuery Base { get; set; }
         public required List<CategoryQuery> Categories { get; set; }
 
-        public static Expression<Func<Transaction, TransactionQuery_History>> Select => t => new()
+        public static Expression<Func<Transaction, TransactionQueryHistory>> Select => t => new()
         {
             Base = t.ToQuery(),
             Categories = t.Categories.Select(c => c.ToQuery()).ToList(),
         };
     }
 
-    public class TransactionQuery_Balance
+    public class TransactionQueryBalance
     {
         public required TransactionQuery Base { get; set; }
         public required List<int> CategoryIds { get; set; }
 
-        public static Expression<Func<Transaction, TransactionQuery_Balance>> Select => t => new()
+        public static Expression<Func<Transaction, TransactionQueryBalance>> Select => t => new()
         {
             Base = t.ToQuery(),
             CategoryIds = t.Categories.Select(c => c.Id).ToList(),
         };
     }
 
-    public class TransactionQuery_Details
+    public class TransactionQueryDetails
     {
         public required TransactionQuery Base { get; set; }
         public required List<CategoryQuery> Categories { get; set; }
 
-        public static Expression<Func<Transaction, TransactionQuery_Details>> Select => t => new()
+        public static Expression<Func<Transaction, TransactionQueryDetails>> Select => t => new()
         {
             Base = t.ToQuery(),
             Categories = t.Categories.Select(c => c.ToQuery()).ToList(),

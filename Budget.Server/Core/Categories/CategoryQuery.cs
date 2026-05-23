@@ -24,48 +24,48 @@ namespace Budget.Server.Core.Categories
         }
     }
 
-    public class CategoryQuery_Options
+    public class CategoryQueryOptions
     {
         public required CategoryQuery Base { get; set; }
 
-        public static Expression<Func<Category, CategoryQuery_Options>> Select => c => new()
+        public static Expression<Func<Category, CategoryQueryOptions>> Select => c => new()
         {
             Base = c.ToQuery(),
         };
     }
 
-    public class CategoryQuery_Hierarchy
+    public class CategoryQueryHierarchy
     {
         public required CategoryQuery Base { get; set; }
         public required int? ParentCategoryId { get; set; }
 
         // Needs to be set manually after querying, as EF Core does not support recursive queries.
-        public List<CategoryQuery_Hierarchy> SubCategories { get; set; } = [];
+        public List<CategoryQueryHierarchy> SubCategories { get; set; } = [];
 
-        public static Expression<Func<Category, CategoryQuery_Hierarchy>> Select => c => new()
+        public static Expression<Func<Category, CategoryQueryHierarchy>> Select => c => new()
         {
             Base = c.ToQuery(),
             ParentCategoryId = c.ParentCategoryId,
         };
     }
 
-    public class CategoryQuery_Balance
+    public class CategoryQueryBalance
     {
         public required CategoryQuery Base { get; set; }
 
-        public static Expression<Func<Category, CategoryQuery_Balance>> Select => c => new()
+        public static Expression<Func<Category, CategoryQueryBalance>> Select => c => new()
         {
             Base = c.ToQuery(),
         };
     }
 
-    public class CategoryQuery_Details
+    public class CategoryQueryDetails
     {
         public required CategoryQuery Base { get; set; }
         public required int? ParentCategoryId { get; set; }
         public required List<CategoryQuery> SubCategories { get; set; }
 
-        public static Expression<Func<Category, CategoryQuery_Details>> Select => c => new()
+        public static Expression<Func<Category, CategoryQueryDetails>> Select => c => new()
         {
             Base = c.ToQuery(),
             ParentCategoryId = c.ParentCategoryId,

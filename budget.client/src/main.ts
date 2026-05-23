@@ -5,7 +5,7 @@ import { createApp } from 'vue';
 import { createWebHistory, createRouter } from 'vue-router';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faPlus, faMinus, faCheck, faTrash, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faMinus, faFloppyDisk, faTrash, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { routerConfig } from '@/router.ts';
 import vColor from '@/directives/Color';
 
@@ -14,7 +14,7 @@ const router = createRouter({
     routes: routerConfig
 });
 
-library.add([faPlus, faMinus, faCheck, faTrash, faArrowLeft]);
+library.add([faPlus, faMinus, faFloppyDisk, faTrash, faArrowLeft]);
 
 createApp(App)
     .use(router)

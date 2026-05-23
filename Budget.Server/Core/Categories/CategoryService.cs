@@ -18,34 +18,34 @@ namespace Budget.Server.Core.Categories
             _context = context;
         }
 
-        public Task<List<CategoryQuery_Options>> GetCategoryOptions()
+        public Task<List<CategoryQueryOptions>> GetCategoryOptions()
         {
             return _context.Categories.AsNoTracking()
-                .Select(CategoryQuery_Options.Select)
+                .Select(CategoryQueryOptions.Select)
                 .ToListAsync();
         }
 
-        public async Task<List<CategoryQuery_Hierarchy>> GetCategoryHierarchy()
+        public async Task<List<CategoryQueryHierarchy>> GetCategoryHierarchy()
         {
             var categories = await _context.Categories.AsNoTracking()
-                .Select(CategoryQuery_Hierarchy.Select)
+                .Select(CategoryQueryHierarchy.Select)
                 .ToListAsync();
 
             return BuildCategoryHierarchyFromList(categories);
         }
 
-        public Task<List<CategoryQuery_Balance>> GetCategoryBalance()
+        public Task<List<CategoryQueryBalance>> GetCategoryBalance()
         {
             return _context.Categories.AsNoTracking()
-                .Select(CategoryQuery_Balance.Select)
+                .Select(CategoryQueryBalance.Select)
                 .ToListAsync();
         }
 
-        public Task<CategoryQuery_Details?> GetCategoryDetails(int id)
+        public Task<CategoryQueryDetails?> GetCategoryDetails(int id)
         {
             return _context.Categories.AsNoTracking()
                 .Where(x => x.Id == id)
-                .Select(CategoryQuery_Details.Select)
+                .Select(CategoryQueryDetails.Select)
                 .FirstOrDefaultAsync();
         }
 
@@ -141,7 +141,7 @@ namespace Budget.Server.Core.Categories
 
         #region Hierarchy
 
-        private List<CategoryQuery_Hierarchy> BuildCategoryHierarchyFromList(List<CategoryQuery_Hierarchy> categories)
+        private List<CategoryQueryHierarchy> BuildCategoryHierarchyFromList(List<CategoryQueryHierarchy> categories)
         {
             var lookup = categories.ToLookup(x => x.ParentCategoryId);
 
@@ -154,23 +154,6 @@ namespace Budget.Server.Core.Categories
         }
 
         #endregion Hierarchy
-
-        #region Colors
-
-        public string GetCategoryColorHex(CategoryColor color)
-        {
-            return color switch
-            {
-                CategoryColor.Blue => "#0000FF",
-                CategoryColor.Green => "#00FF00",
-                CategoryColor.Yellow => "#FFFF00",
-                CategoryColor.Orange => "#FFA500",
-                CategoryColor.Red => "#FF0000",
-                _ => "#AAAAAA"
-            };
-        }
-
-        #endregion Colors
 
         #endregion Private
     }

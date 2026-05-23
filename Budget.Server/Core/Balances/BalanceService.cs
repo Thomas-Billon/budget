@@ -19,7 +19,7 @@ namespace Budget.Server.Core.Balances
             _context = context;
         }
 
-        public BalanceReportData CalculateBalanceReport(List<TransactionQuery_Balance> transactions)
+        public BalanceReportData CalculateBalanceReport(List<TransactionQueryBalance> transactions)
         {
             var totalIncome = CalculateTotalIncome(transactions);
             var totalExpense = CalculateTotalExpense(transactions);
@@ -43,24 +43,24 @@ namespace Budget.Server.Core.Balances
             };
         }
 
-        public decimal CalculateTotalIncome(List<TransactionQuery_Balance> transactions)
+        public decimal CalculateTotalIncome(List<TransactionQueryBalance> transactions)
         {
             return CalculateTotalTransactionType(transactions, TransactionType.Income);
         }
 
-        public decimal CalculateTotalExpense(List<TransactionQuery_Balance> transactions)
+        public decimal CalculateTotalExpense(List<TransactionQueryBalance> transactions)
         {
             return CalculateTotalTransactionType(transactions, TransactionType.Expense);
         }
 
-        public decimal CalculateTotalTransactionType(List<TransactionQuery_Balance> transactions, TransactionType type)
+        public decimal CalculateTotalTransactionType(List<TransactionQueryBalance> transactions, TransactionType type)
         {
             return transactions
                 .Where(x => x.Base.Type == type)
                 .Sum(x => x.Base.Amount);
         }
 
-        public decimal CalculateNetBalance(List<TransactionQuery_Balance> transactions)
+        public decimal CalculateNetBalance(List<TransactionQueryBalance> transactions)
         {
             var totalIncome = CalculateTotalIncome(transactions);
             var totalExpense = CalculateTotalExpense(transactions);
@@ -73,17 +73,17 @@ namespace Budget.Server.Core.Balances
             return totalIncome - totalExpense;
         }
 
-        public List<TransactionQuery_Balance> GetMostLucrativeTransactions(List<TransactionQuery_Balance> transactions, int take)
+        public List<TransactionQueryBalance> GetMostLucrativeTransactions(List<TransactionQueryBalance> transactions, int take)
         {
             return GetTransactionsWithHighestAmount(transactions, TransactionType.Income, take);
         }
 
-        public List<TransactionQuery_Balance> GetMostExpensiveTransactions(List<TransactionQuery_Balance> transactions, int take)
+        public List<TransactionQueryBalance> GetMostExpensiveTransactions(List<TransactionQueryBalance> transactions, int take)
         {
             return GetTransactionsWithHighestAmount(transactions, TransactionType.Expense, take);
         }
 
-        public List<TransactionQuery_Balance> GetTransactionsWithHighestAmount(List<TransactionQuery_Balance> transactions, TransactionType type, int take)
+        public List<TransactionQueryBalance> GetTransactionsWithHighestAmount(List<TransactionQueryBalance> transactions, TransactionType type, int take)
         {
             return transactions
                 .Where(x => x.Base.Type == type)
@@ -92,17 +92,17 @@ namespace Budget.Server.Core.Balances
                 .ToList();
         }
 
-        public List<BalanceReportTransactionsByCategoryData> CategorizeIncomeTransactions(List<TransactionQuery_Balance> transactions)
+        public List<BalanceReportTransactionsByCategoryData> CategorizeIncomeTransactions(List<TransactionQueryBalance> transactions)
         {
             return CategorizeTransactions(transactions, TransactionType.Income);
         }
 
-        public List<BalanceReportTransactionsByCategoryData> CategorizeExpenseTransactions(List<TransactionQuery_Balance> transactions)
+        public List<BalanceReportTransactionsByCategoryData> CategorizeExpenseTransactions(List<TransactionQueryBalance> transactions)
         {
             return CategorizeTransactions(transactions, TransactionType.Expense);
         }
 
-        public List<BalanceReportTransactionsByCategoryData> CategorizeTransactions(List<TransactionQuery_Balance> transactions, TransactionType type)
+        public List<BalanceReportTransactionsByCategoryData> CategorizeTransactions(List<TransactionQueryBalance> transactions, TransactionType type)
         {
             var uncategorizedKey = -1;
 
@@ -134,7 +134,7 @@ namespace Budget.Server.Core.Balances
             return transactionsByCategories;
         }
 
-        private decimal GetCategoryShare(decimal transactionSum, List<TransactionQuery_Balance> categoryTransactions)
+        private decimal GetCategoryShare(decimal transactionSum, List<TransactionQueryBalance> categoryTransactions)
         {
             // Divide amount in case transaction is split between multiple categories
             var categorySum = categoryTransactions.Sum(x => x.Base.Amount / Math.Max(x.CategoryIds.Count, 1));

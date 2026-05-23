@@ -4,7 +4,7 @@ interface ApiCallOptions<TRequest> {
 }
 
 interface ApiCallResult {
-    isSuccess?: boolean;
+    isSuccess: boolean;
     timestamp: number;
 }
 
@@ -28,8 +28,8 @@ const apiCall = async <TRequest, TResponse>(
 
     const response = await fetch(urlTarget, fetchOptions)
         .then(async response => {
-            if (response.ok === false || response.status !== 200) {
-                throw new Error();
+            if (response.ok === false) {
+                throw new Error(`Error: HTTP ${response.status}`);
             }
 
             return await response.json()
@@ -40,8 +40,9 @@ const apiCall = async <TRequest, TResponse>(
                     return undefined;
                 });
         })
-        .catch(() => {
-            throw new Error();
+        .catch((error: unknown) => {
+            const message = error instanceof Error ? error.message : 'Error: Network failure';
+            throw new Error(message);
         });
 
     return (response as TResponse);

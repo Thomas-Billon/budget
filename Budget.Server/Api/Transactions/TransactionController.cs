@@ -1,6 +1,6 @@
 ﻿using Budget.Server.Api.Transactions.Models.Requests;
 using Budget.Server.Api.Transactions.Models.Responses;
-using Budget.Server.Core.Categories;
+using Budget.Server.Core.Enums;
 using Budget.Server.Core.Helpers;
 using Budget.Server.Core.Transactions;
 using Microsoft.AspNetCore.Mvc;
@@ -12,22 +12,19 @@ namespace Budget.Server.Api.Transactions
 	public class TransactionController : ControllerBase
     {
 		private readonly TransactionService _transactionService;
-        private readonly CategoryService _categoryService;
 
         public TransactionController
         (
-            TransactionService transactionService,
-            CategoryService categoryService
+            TransactionService transactionService
         )
         {
 			_transactionService = transactionService;
-            _categoryService = categoryService;
         }
 
         [HttpGet("history")]
         public async Task<ActionResult<TransactionHistoryResponse>> GetTransactionHistory([FromQuery] TransactionHistoryRequest request)
         {
-            var options = new TransactionQueryableOptions(request, isPaginationEnabled: true);
+            var options = TransactionQueryParametersMapper.FromHistoryRequest(request, isPaginationEnabled: true);
 
             var transactions = await _transactionService.GetTransactionHistory(options);
             var paginatedTransactions = transactions.ToPagination(request.Take);
@@ -48,7 +45,7 @@ namespace Budget.Server.Api.Transactions
                                 Id = x.Id,
                                 Name = x.Name,
                                 Color = x.Color,
-                                ColorHex = _categoryService.GetCategoryColorHex(x.Color),
+                                ColorHex = x.Color.ToHex(),
                             })
                             .ToList(),
                     })
@@ -82,7 +79,7 @@ namespace Budget.Server.Api.Transactions
                         Id = x.Id,
                         Name = x.Name,
                         Color = x.Color,
-                        ColorHex = _categoryService.GetCategoryColorHex(x.Color),
+                        ColorHex = x.Color.ToHex(),
                     })
                     .ToList(),
             };

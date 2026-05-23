@@ -8,7 +8,7 @@
 
 
     interface Props<T> extends FormProps {
-        isFormValid: (model: T) => boolean
+        isFormValid: () => boolean
     }
 
     interface FormHeadProps {
@@ -20,7 +20,7 @@
     }
 
     interface FormFootProps {
-        isFormValid: (model: T) => boolean;
+        isFormValid: () => boolean;
         onSubmit: () => void;
         onDelete: () => void;
         isNew: boolean;
@@ -58,8 +58,8 @@
     // #region Buttons
 
     const setButtonsToDefaultState = (): void => {
-        submitButtonLabel.value = isNew ? 'Add transaction' : 'Edit transaction';
-        deleteButtonLabel.value = 'Delete transaction';
+        submitButtonLabel.value = isNew ? 'Add' : 'Edit';
+        deleteButtonLabel.value = 'Delete';
         enableButtons();
     }
 
@@ -123,7 +123,7 @@
     };
 
     const debounceSavePartial = debounce(() => {
-        if (!isFormValid(model.value) || Object.keys(partialModel).length === 0) {
+        if (!isFormValid() || Object.keys(partialModel).length === 0) {
             return;
         }
 
@@ -134,7 +134,7 @@
     }, 1000);
 
     const onSubmit = (): void => {
-        if (!isFormValid(model.value)) {
+        if (!isFormValid()) {
             return;
         }
 
@@ -162,12 +162,12 @@
     });
 
     watch(() => savePartialResult, (result) => {
-        if (result && !result.isSuccess || isNew) {
+        if (result && !result.isSuccess) {
             // Error on save partial -> set submit button to error state for a while
             setSubmitButtonToErrorState();
             waitAndResetButtonsToDefaultState();
         }
-        else {
+        else if (result && result.isSuccess) {
             // Success on save partial -> set submit button to saved state until next edit but keep delete button enabled
             setSubmitButtonToSavedState();
             enableDeleteButton();
@@ -210,8 +210,8 @@
                     <font-awesome-icon icon="fa-solid fa-trash" />
                     <span>{{ deleteButtonLabel }}</span>
                 </button>
-                <button type="submit" class="form-button btn btn-primary btn-lg" :disabled="isSubmitButtonDisabled || !isFormValid(model)">
-                    <font-awesome-icon icon="fa-solid fa-check" />
+                <button type="submit" class="form-button btn btn-primary btn-lg" :disabled="isSubmitButtonDisabled || !isFormValid()">
+                    <font-awesome-icon icon="fa-solid fa-floppy-disk" />
                     <span>{{ submitButtonLabel }}</span>
                 </button>
             </div>

@@ -1,4 +1,4 @@
-﻿using Budget.Server.Api.Balances.Models.Requests;
+using Budget.Server.Api.Balances.Models.Requests;
 using Budget.Server.Api.Transactions.Models.Requests;
 using Budget.Server.Core.Enums;
 using Budget.Server.Core.Helpers;
@@ -6,57 +6,45 @@ using Budget.Server.Data.Transactions;
 
 namespace Budget.Server.Core.Transactions
 {
-    public class TransactionQueryableOptions
+    public static class TransactionQueryParametersMapper
     {
-        public int Skip { get; init; } = 0;
-        public int Take { get; init; } = 0;
-        public bool IsPaginationEnabled { get; init; } = false;
-
-        public FilterOptions Filter { get; init; } = new();
-
-        public sealed class FilterOptions
+        public static TransactionQueryParameters FromHistoryRequest(TransactionHistoryRequest request, bool isPaginationEnabled)
         {
-            public HashSet<TransactionType> Types { get; init; } = [];
-            public DateOnlyRange DateRange { get; init; } = new(DateRangePreset.None);
-        }
-
-        public Dictionary<string, SortDirection> Sort { get; init; } = [];
-
-
-        public TransactionQueryableOptions() { }
-
-        public TransactionQueryableOptions(TransactionHistoryRequest request, bool isPaginationEnabled)
-        {
-            Skip = request.Skip;
-            Take = request.Take;
-            IsPaginationEnabled = isPaginationEnabled;
-
-            Filter = new()
+            return new TransactionQueryParameters
             {
-                Types = request.Filters
-                    .Select(GetTransactionTypeFromOption)
-                    .Where(x => x != TransactionType.None)
-                    .ToHashSet(),
-                DateRange = request.Filters
-                    .Select(GetDateOnlyRangeFromOption)
-                    .FirstOrDefault()
-                    ?? new(DateRangePreset.None),
-            };
-
-            Sort = request.Sort
-                .Select(GetSortDataFromOption)
-                .Where(x => x.Key != string.Empty)
-                .ToDictionary();
-        }
-
-        public TransactionQueryableOptions(BalanceReportRequest request)
-        {
-            Filter = new()
-            {
-                DateRange = new DateOnlyRange(request.startDate, request.endDate),
+                Skip = request.Skip,
+                Take = request.Take,
+                IsPaginationEnabled = isPaginationEnabled,
+                Filter = new()
+                {
+                    Types = request.Filters
+                        .Select(GetTransactionTypeFromOption)
+                        .Where(x => x != TransactionType.None)
+                        .ToHashSet(),
+                    DateRange = request.Filters
+                        .Select(GetDateOnlyRangeFromOption)
+                        .FirstOrDefault()
+                        ?? new(DateRangePreset.None),
+                },
+                Sort = request.Sort
+                    .Select(GetSortDataFromOption)
+                    .Where(x => x.Key != string.Empty)
+                    .ToDictionary(),
             };
         }
 
+        public static TransactionQueryParameters FromBalanceRequest(BalanceReportRequest request)
+        {
+            return new TransactionQueryParameters
+            {
+                Filter = new()
+                {
+                    DateRange = new DateOnlyRange(request.startDate, request.endDate),
+                },
+            };
+        }
+
+        // TODO: Move this to extension method on TransactionFilterOption and TransactionSortOption
         private static TransactionType GetTransactionTypeFromOption(TransactionFilterOption filterOption)
         {
             return filterOption switch

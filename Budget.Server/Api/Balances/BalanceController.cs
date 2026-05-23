@@ -2,6 +2,7 @@
 using Budget.Server.Api.Balances.Models.Responses;
 using Budget.Server.Core.Balances;
 using Budget.Server.Core.Categories;
+using Budget.Server.Core.Enums;
 using Budget.Server.Core.Transactions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,7 +31,7 @@ namespace Budget.Server.Api.Balances
         [HttpGet]
         public async Task<ActionResult<BalanceReportResponse>> Report([FromQuery] BalanceReportRequest request)
         {
-            var options = new TransactionQueryableOptions(request);
+            var options = TransactionQueryParametersMapper.FromBalanceRequest(request);
 
             var transactions = await _transactionService.GetTransactionBalance(options);
             var categories = await _categoryService.GetCategoryBalance();
@@ -64,7 +65,7 @@ namespace Budget.Server.Api.Balances
 
         #region Report
 
-        private BalanceReportTransactionItemResponse ToTransactionItemResponse(TransactionQuery_Balance transaction)
+        private BalanceReportTransactionItemResponse ToTransactionItemResponse(TransactionQueryBalance transaction)
         {
             return new BalanceReportTransactionItemResponse
             {
@@ -76,14 +77,14 @@ namespace Budget.Server.Api.Balances
             };
         }
 
-        private BalanceReportCategoryItemResponse ToCategoryItemResponse(CategoryQuery_Balance category)
+        private BalanceReportCategoryItemResponse ToCategoryItemResponse(CategoryQueryBalance category)
         {
             return new BalanceReportCategoryItemResponse
             {
                 Id = category.Base.Id,
                 Name = category.Base.Name,
                 Color = category.Base.Color,
-                ColorHex = _categoryService.GetCategoryColorHex(category.Base.Color),
+                ColorHex = category.Base.Color.ToHex(),
             };
         }
 

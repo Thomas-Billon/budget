@@ -1,6 +1,7 @@
 ﻿using Budget.Server.Api.Categories.Models.Requests;
 using Budget.Server.Api.Categories.Models.Responses;
 using Budget.Server.Core.Categories;
+using Budget.Server.Core.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Budget.Server.Api.Categories
@@ -31,7 +32,7 @@ namespace Budget.Server.Api.Categories
                     Id = x.Base.Id,
                     Name = x.Base.Name,
                     Color = x.Base.Color,
-                    ColorHex = _categoryService.GetCategoryColorHex(x.Base.Color),
+                    ColorHex = x.Base.Color.ToHex(),
                 }).ToList(),
             };
 
@@ -70,7 +71,7 @@ namespace Budget.Server.Api.Categories
                 Id = category.Base.Id,
                 Name = category.Base.Name,
                 Color = category.Base.Color,
-                ColorHex = _categoryService.GetCategoryColorHex(category.Base.Color),
+                ColorHex = category.Base.Color.ToHex(),
                 ParentCategoryId = category.ParentCategoryId,
                 SubCategories = category.SubCategories
                     .Select(x => new CategoryDetailsBaseResponse
@@ -78,7 +79,7 @@ namespace Budget.Server.Api.Categories
                         Id = x.Id,
                         Name = x.Name,
                         Color = x.Color,
-                        ColorHex = _categoryService.GetCategoryColorHex(x.Color),
+                        ColorHex = x.Color.ToHex(),
                     })
                     .ToList(),
             };
@@ -137,14 +138,14 @@ namespace Budget.Server.Api.Categories
 
         #region Hierarchy
 
-        private CategoryHierarchyItemResponse ToCategoryHierarchyItemResponse(CategoryQuery_Hierarchy category)
+        private CategoryHierarchyItemResponse ToCategoryHierarchyItemResponse(CategoryQueryHierarchy category)
         {
             var result = new CategoryHierarchyItemResponse
             {
                 Id = category.Base.Id,
                 Name = category.Base.Name,
                 Color = category.Base.Color,
-                ColorHex = _categoryService.GetCategoryColorHex(category.Base.Color),
+                ColorHex = category.Base.Color.ToHex(),
                 ParentCategoryId = category.ParentCategoryId,
                 SubCategories = [],
             };
