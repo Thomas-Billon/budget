@@ -42,6 +42,16 @@
 
     // #endregion Category options
 
+    // #region Events
+
+    const formEvents = {
+        onSaveAll: (data: ICategoryRequest) => emit('saveAll', data),
+        onSavePartial: (id: number, data: Partial<ICategoryRequest>) => emit('savePartial', id, data),
+        onDelete: (id: number) => emit('delete', id),
+    };
+
+    // #endregion Events
+
     // #region Form validation
 
     const isFormValid = (): boolean => {
@@ -60,9 +70,7 @@
         :delete-result="deleteResult"
         :is-form-valid="isFormValid"
         v-model="model"
-        @save-all="(data) => emit('saveAll', data)"
-        @save-partial="(id, data) => emit('savePartial', id, data)"
-        @delete="(id) => emit('delete', id)">
+        v-bind="formEvents">
 
         <template #body="{ onChange }">
             <div class="form-body">

@@ -76,6 +76,16 @@
 
     // #endregion Amount
 
+    // #region Events
+
+    const formEvents = {
+        onSaveAll: (data: ITransactionRequest) => emit('saveAll', data),
+        onSavePartial: (id: number, data: Partial<ITransactionRequest>) => emit('savePartial', id, data),
+        onDelete: (id: number) => emit('delete', id),
+    };
+
+    // #endregion Events
+
     // #region Form validation
 
     const isFormValid = (): boolean => {
@@ -97,9 +107,7 @@
         :delete-result="deleteResult"
         :is-form-valid="isFormValid"
         v-model="model"
-        @save-all="(data) => emit('saveAll', data)"
-        @save-partial="(id, data) => emit('savePartial', id, data)"
-        @delete="(id) => emit('delete', id)">
+        v-bind="formEvents">
 
         <template #head="{ onChange }">
             <div class="form-head">
