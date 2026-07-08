@@ -13,6 +13,12 @@ namespace Budget.Server.Data.Transactions
             entity
                 .HasMany(t => t.Categories)
                 .WithMany(c => c.Transactions);
+
+            entity
+                .HasOne(c => c.User)
+                .WithMany()
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

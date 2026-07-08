@@ -19,28 +19,28 @@ namespace Budget.Server.Core.Transactions
             _context = context;
         }
 
-        public Task<List<TransactionQueryHistory>> GetTransactionHistory(TransactionQueryParameters parameters)
+        public Task<List<TransactionQueryHistory>> GetTransactionHistory(TransactionQueryParameters parameters, string userId)
         {
-            return GetTransactions_AsQueryable(parameters).AsNoTracking()
+            return GetTransactions_AsQueryable(parameters, userId).AsNoTracking()
                 .Select(TransactionQueryHistory.Select)
                 .ToListAsync();
         }
 
-        public Task<List<TransactionQueryBalance>> GetTransactionBalance(TransactionQueryParameters parameters)
+        public Task<List<TransactionQueryBalance>> GetTransactionBalance(TransactionQueryParameters parameters, string userId)
         {
-            return GetTransactions_AsQueryable(parameters).AsNoTracking()
+            return GetTransactions_AsQueryable(parameters, userId).AsNoTracking()
                 .Select(TransactionQueryBalance.Select)
                 .ToListAsync();
         }
 
-        public Task<TransactionQueryDetails?> GetTransactionDetails(int id)
+        public Task<TransactionQueryDetails?> GetTransactionDetails(int id, string userId)
         {
-            return GetTransactionById_AsQueryable(id).AsNoTracking()
+            return GetTransactionById_AsQueryable(id, userId).AsNoTracking()
                 .Select(TransactionQueryDetails.Select)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<int> CreateTransaction(TransactionCreateRequest request)
+        public async Task<int> CreateTransaction(TransactionCreateRequest request, string userId)
         {
             var entity = new Transaction
             {
@@ -50,6 +50,7 @@ namespace Budget.Server.Core.Transactions
                 Date = request.Date,
                 PaymentMethod = request.PaymentMethod,
                 Comment = request.Comment,
+                UserId = userId,
             };
 
             // Categories
@@ -59,9 +60,9 @@ namespace Budget.Server.Core.Transactions
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> UpdateTransaction(int id, TransactionUpdateRequest request)
+        public async Task<int> UpdateTransaction(int id, TransactionUpdateRequest request, string userId)
         {
-            var entity = await GetTransactionById_AsQueryable(id)
+            var entity = await GetTransactionById_AsQueryable(id, userId)
                 .FirstOrDefaultAsync();
 
             if (entity == null)
@@ -82,9 +83,9 @@ namespace Budget.Server.Core.Transactions
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> PatchTransaction(int id, TransactionPatchRequest request)
+        public async Task<int> PatchTransaction(int id, TransactionPatchRequest request, string userId)
         {
-            var entity = await GetTransactionById_AsQueryable(id)
+            var entity = await GetTransactionById_AsQueryable(id, userId)
                 .FirstOrDefaultAsync();
 
             if (entity == null)
@@ -108,9 +109,9 @@ namespace Budget.Server.Core.Transactions
             return await _context.SaveChangesAsync();
         }
 
-        public Task<int> DeleteTransaction(int id)
+        public Task<int> DeleteTransaction(int id, string userId)
         {
-            return GetTransactionById_AsQueryable(id)
+            return GetTransactionById_AsQueryable(id, userId)
                 .ExecuteDeleteAsync();
         }
 
@@ -118,10 +119,11 @@ namespace Budget.Server.Core.Transactions
 
         #region Get data
 
-        private IQueryable<Transaction> GetTransactions_AsQueryable(TransactionQueryParameters parameters)
+        private IQueryable<Transaction> GetTransactions_AsQueryable(TransactionQueryParameters parameters, string userId)
         {
             var query = _context.Transactions
                 .Include(x => x.Categories)
+                .Where(x => x.UserId == userId)
                 .Where_HasTypes(parameters.Filter.Types)
                 .Where_IsInDateRange(parameters.Filter.DateRange);
 
@@ -141,11 +143,12 @@ namespace Budget.Server.Core.Transactions
             return query;
         }
 
-        private IQueryable<Transaction> GetTransactionById_AsQueryable(int id)
+        private IQueryable<Transaction> GetTransactionById_AsQueryable(int id, string userId)
         {
             return _context.Transactions
                 .Include(x => x.Categories)
-                .Where(x => x.Id == id);
+                .Where(x => x.Id == id)
+                .Where(x => x.UserId == userId);
         }
 
         #endregion Get data
@@ -160,6 +163,7 @@ namespace Budget.Server.Core.Transactions
             {
                 var categories = await _context.Categories
                     .Where(x => categoryIds.Contains(x.Id))
+                    .Where(x => x.UserId == entity.UserId)
                     .ToListAsync();
 
                 foreach (var category in categories)

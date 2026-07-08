@@ -1,5 +1,6 @@
 ﻿using Budget.Server.Core.Transactions.Enums;
 using Budget.Server.Data.Categories;
+using Budget.Server.Data.Users;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -32,5 +33,13 @@ namespace Budget.Server.Data.Transactions
         public List<Category> Categories { get; set; } = new List<Category>();
 
         #endregion Categories
+
+        #region User
+
+        public string UserId { get; set; } = string.Empty;
+
+        public ApplicationUser? User { get; set; }
+
+        #endregion User
     }
 }

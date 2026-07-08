@@ -1,16 +1,19 @@
-﻿using Budget.Server.Api.Balances.Models.Requests;
+using Budget.Server.Api.Balances.Models.Requests;
 using Budget.Server.Api.Balances.Models.Responses;
 using Budget.Server.Core.Balances;
+using Budget.Server.Core.Balances.Models;
 using Budget.Server.Core.Categories;
 using Budget.Server.Core.Categories.Enums;
 using Budget.Server.Core.Categories.Models;
 using Budget.Server.Core.Transactions;
 using Budget.Server.Core.Transactions.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Budget.Server.Api.Balances
 {
-	[Route("[controller]")]
+    [Authorize]
+    [Route("[controller]")]
     public class BalanceController : ApiControllerBase
     {
         private readonly BalanceService _balanceService;
@@ -32,10 +35,12 @@ namespace Budget.Server.Api.Balances
         [HttpGet]
         public async Task<ActionResult<BalanceReportResponse>> Report([FromQuery] BalanceReportRequest request)
         {
+            var userId = GetUserId();
+
             var parameters = TransactionQueryParametersMapper.FromBalanceRequest(request);
 
-            var transactions = await _transactionService.GetTransactionBalance(parameters);
-            var categories = await _categoryService.GetCategoryBalance();
+            var transactions = await _transactionService.GetTransactionBalance(parameters, userId);
+            var categories = await _categoryService.GetCategoryBalance(userId);
             var balanceReport = _balanceService.CalculateBalanceReport(transactions);
 
             var response = new BalanceReportResponse()
