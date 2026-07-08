@@ -14,6 +14,7 @@ namespace Budget.Server.Data
 
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
+        public virtual DbSet<TransactionCategory> TransactionsCategories { get; set; }
         public virtual DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

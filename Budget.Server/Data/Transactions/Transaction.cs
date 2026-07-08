@@ -30,7 +30,7 @@ namespace Budget.Server.Data.Transactions
 
         #region Categories
 
-        public List<Category> Categories { get; set; } = new List<Category>();
+        public List<Category> Categories { get; set; } = [];
 
         #endregion Categories
 
