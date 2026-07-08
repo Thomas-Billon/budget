@@ -1,4 +1,4 @@
-﻿namespace Budget.Server.Core.Enums
+﻿namespace Budget.Server.Core.Categories.Enums
 {
     public enum CategoryColor
     {

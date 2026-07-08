@@ -15,18 +15,18 @@ const useGetEntity = <TResponse>({ endpoint, onGetSuccess, onGetError }: Props<T
             return Promise.reject('Error: Cannot get entity without id.');
         }
 
-        return apiCall<void, TResponse>(`${endpoint}/${id}`, { method: 'GET' })
-            .then(response => {
-                onGetSuccess?.(response);
+        const result = await apiCall<void, TResponse>(`${endpoint}/${id}`, { method: 'GET' });
 
-                entity.value = response;
-            })
-            .catch(() => {
-                onGetError?.();
-            });
+        if (result.isSuccess) {
+            entity.value = result.data;
+            onGetSuccess?.(result.data);
+        }
+        else {
+            onGetError?.();
+        }
     };
 
     return { entity, getEntity };
-}
+};
 
 export default useGetEntity;

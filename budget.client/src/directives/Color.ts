@@ -1,20 +1,20 @@
 import type { ObjectDirective, DirectiveBinding } from 'vue';
 
 const hexToRgb = (hex: string): string => {
-    hex = hex.replace('#', '');
+    let hexValue = hex.replace('#', '');
 
     // FFF -> FFFFFF
-    if (hex.length === 3) {
-        hex = hex.split('').map(c => c + c).join('');
+    if (hexValue.length === 3) {
+        hexValue = hexValue.split('').map(c => c + c).join('');
     }
 
-    const num = parseInt(hex, 16);
+    const num = parseInt(hexValue, 16);
     const r = (num >> 16) & 255;
     const g = (num >> 8) & 255;
     const b = num & 255;
 
     return [r, g, b].join(',');
-}
+};
 
 const setStyle = (el: HTMLElement, hex?: string) => {
     if (hex === undefined) {
@@ -26,9 +26,9 @@ const setStyle = (el: HTMLElement, hex?: string) => {
         return;
     }
 
-    el.style.setProperty("--color", hex);
-    el.style.setProperty("--color-rgb", hexToRgb(hex));
-}
+    el.style.setProperty('--color', hex);
+    el.style.setProperty('--color-rgb', hexToRgb(hex));
+};
 
 const vColor: ObjectDirective<HTMLElement, string | undefined> = {
     mounted(el: HTMLElement, binding: DirectiveBinding<string | undefined>) {
@@ -40,7 +40,7 @@ const vColor: ObjectDirective<HTMLElement, string | undefined> = {
         }
 
         setStyle(el, binding.value);
-    },
+    }
 };
 
 export default vColor;

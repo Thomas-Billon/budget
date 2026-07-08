@@ -1,12 +1,12 @@
 import '@/assets/main.scss';
 
+import { createRouter, createWebHistory } from 'vue-router';
+import { faArrowLeft, faFloppyDisk, faMinus, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { routerConfig } from '@/router.ts';
 import App from '@/App.vue';
 import { createApp } from 'vue';
-import { createWebHistory, createRouter } from 'vue-router';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faPlus, faMinus, faFloppyDisk, faTrash, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import { routerConfig } from '@/router.ts';
 import vColor from '@/directives/Color';
 
 const router = createRouter({
@@ -16,8 +16,9 @@ const router = createRouter({
 
 library.add([faPlus, faMinus, faFloppyDisk, faTrash, faArrowLeft]);
 
-createApp(App)
+const app = createApp(App)
     .use(router)
     .directive('color', vColor)
-    .component('font-awesome-icon', FontAwesomeIcon)
-    .mount('#app');
+    .component('font-awesome-icon', FontAwesomeIcon);
+
+app.mount('#app');

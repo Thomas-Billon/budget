@@ -57,12 +57,14 @@
 </script>
 
 <template>
-    <CategoryForm :is-new="false"
-                  :save-all-result="fullUpdateResult"
-                  :save-partial-result="partialUpdateResult"
-                  :delete-result="deleteResult"
-                  v-model="category"
-                  @save-all="fullUpdateEntity"
-                  @save-partial="partialUpdateEntity"
-                  @delete="deleteEntity" />
+    <CategoryForm
+        v-model="category"
+        :is-new="false"
+        :save-all-result="fullUpdateResult"
+        :save-partial-result="partialUpdateResult"
+        :delete-result="deleteResult"
+        @save-all="fullUpdateEntity"
+        @save-partial="partialUpdateEntity"
+        @delete="deleteEntity"
+    />
 </template>

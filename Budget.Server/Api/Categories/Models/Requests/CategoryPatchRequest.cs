@@ -1,5 +1,5 @@
-﻿using Budget.Server.Core.Enums;
-using Budget.Server.Core.Helpers;
+﻿using Budget.Server.Core.Categories.Enums;
+using Budget.Server.Core.Shared;
 
 namespace Budget.Server.Api.Categories.Models.Requests
 {

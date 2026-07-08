@@ -2,15 +2,16 @@
 using Budget.Server.Api.Balances.Models.Responses;
 using Budget.Server.Core.Balances;
 using Budget.Server.Core.Categories;
-using Budget.Server.Core.Enums;
+using Budget.Server.Core.Categories.Enums;
+using Budget.Server.Core.Categories.Models;
 using Budget.Server.Core.Transactions;
+using Budget.Server.Core.Transactions.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Budget.Server.Api.Balances
 {
-    [ApiController]
 	[Route("[controller]")]
-	public class BalanceController : ControllerBase
+    public class BalanceController : ApiControllerBase
     {
         private readonly BalanceService _balanceService;
         private readonly TransactionService _transactionService;
@@ -31,9 +32,9 @@ namespace Budget.Server.Api.Balances
         [HttpGet]
         public async Task<ActionResult<BalanceReportResponse>> Report([FromQuery] BalanceReportRequest request)
         {
-            var options = TransactionQueryParametersMapper.FromBalanceRequest(request);
+            var parameters = TransactionQueryParametersMapper.FromBalanceRequest(request);
 
-            var transactions = await _transactionService.GetTransactionBalance(options);
+            var transactions = await _transactionService.GetTransactionBalance(parameters);
             var categories = await _categoryService.GetCategoryBalance();
             var balanceReport = _balanceService.CalculateBalanceReport(transactions);
 
@@ -58,6 +59,7 @@ namespace Budget.Server.Api.Balances
                     .Select(ToTransactionsByCategoryItemResponse)
                     .ToList(),
             };
+
             return Ok(response);
         }
 

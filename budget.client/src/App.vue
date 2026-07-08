@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
     import './App.scss';
 
     import { ref, watch } from 'vue';
@@ -10,10 +9,9 @@
     const backLink = ref<string | undefined>();
 
     // On route change
-    watch(() => route.path, (_) => {
+    watch(() => route.path, () => {
         backLink.value = route.meta.back as string | undefined;
     });
-
 </script>
 
 <template>

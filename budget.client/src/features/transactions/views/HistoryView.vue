@@ -14,6 +14,20 @@
 
     const itemNumberPerPage = 5;
 
+    const getTransactionHistory = (skip: number, take: number) => {
+        apiCall<undefined, ITransactionHistoryResponse>(`transaction/history?skip=${skip}&take=${take}`, { method: 'GET' })
+            .then(response => {
+                if (response.isSuccess) {
+                    transactions.value.push(...response.data.page);
+                    isLastPage.value = response.data.isLastPage;
+
+                    const ids = new Set(); // temp variable to keep track of duplicates
+                    transactions.value = transactions.value.filter(({ id }) => !ids.has(id) && ids.add(id));
+                }
+                // TODO: Handle error in else case
+            });
+    };
+
     // Init
     onMounted(() => {
         getTransactionHistory(0, itemNumberPerPage);
@@ -21,20 +35,6 @@
 
     const onSeeMoreClick = () => {
         getTransactionHistory(transactions?.value.length, itemNumberPerPage);
-    };
-
-    const getTransactionHistory = async (skip: number, take: number) => {
-        apiCall<undefined, ITransactionHistoryResponse>(`transaction/history?skip=${skip}&take=${take}`, { method: 'GET' })
-            .then(response => {
-                transactions.value.push(...response.page);
-                isLastPage.value = response.isLastPage;
-
-                const ids = new Set(); // temp variable to keep track of duplicates
-                transactions.value = transactions.value.filter(({ id }) => !ids.has(id) && ids.add(id));
-            })
-            .catch(() => {
-                // TODO: Add error
-            });
     };
 
 </script>
@@ -58,10 +58,12 @@
                     <span>{{ formatAmount(transaction.amount) }} €</span>
                 </div>
                 <div class="transaction-history-item-categories">
-                    <CategoryTag v-for="category in transaction.categories"
-                                 :key="category.id"
-                                 :name="category.name"
-                                 :color-hex="category.colorHex" />
+                    <CategoryTag
+                        v-for="category in transaction.categories"
+                        :key="category.id"
+                        :name="category.name"
+                        :color-hex="category.colorHex"
+                    />
                 </div>
             </RouterLink>
         </div>

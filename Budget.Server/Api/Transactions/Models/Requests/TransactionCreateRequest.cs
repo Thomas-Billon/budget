@@ -1,4 +1,4 @@
-﻿using Budget.Server.Core.Enums;
+﻿using Budget.Server.Core.Transactions.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace Budget.Server.Api.Transactions.Models.Requests

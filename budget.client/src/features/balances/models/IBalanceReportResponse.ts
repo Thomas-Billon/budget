@@ -1,5 +1,5 @@
-import { CategoryColor } from '@/enums/CategoryColor';
-import { TransactionType } from '@/enums/TransactionType.ts';
+import { type CategoryColor } from '@/enums/CategoryColor';
+import { type TransactionType } from '@/enums/TransactionType.ts';
 
 interface IBalanceReportResponse {
     totalIncome: number;

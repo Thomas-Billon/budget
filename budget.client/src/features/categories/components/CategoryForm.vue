@@ -31,14 +31,14 @@
             return;
         }
 
-        apiCall<undefined, ICategoryOptionsResponse>(`category/options`, { method: 'GET' })
+        apiCall<undefined, ICategoryOptionsResponse>('category/options', { method: 'GET' })
             .then(response => {
-                categoryOptions.value = response.items;
-            })
-            .catch(() => {
-                // TODO: Add error
+                if (response.isSuccess) {
+                    categoryOptions.value = response.data.items;
+                }
+                // TODO: Handle error in else case
             });
-    }
+    };
 
     // #endregion Category options
 
@@ -47,7 +47,7 @@
     const formEvents = {
         onSaveAll: (data: ICategoryRequest) => emit('saveAll', data),
         onSavePartial: (id: number, data: Partial<ICategoryRequest>) => emit('savePartial', id, data),
-        onDelete: (id: number) => emit('delete', id),
+        onDelete: (id: number) => emit('delete', id)
     };
 
     // #endregion Events
@@ -64,20 +64,21 @@
 
 <template>
     <FormBase
+        v-model="model"
         :is-new="isNew"
         :save-all-result="saveAllResult"
         :save-partial-result="savePartialResult"
         :delete-result="deleteResult"
         :is-form-valid="isFormValid"
-        v-model="model"
-        v-bind="formEvents">
+        v-bind="formEvents"
+    >
 
         <template #body="{ onChange }">
             <div class="form-body">
 
-                <input class="form-control form-control-lg" type="text" id="category-name" name="Name" v-model="model.name" placeholder="Name" required @input="onChange('name', model.name);" />
+                <input v-model="model.name" name="Name" type="text" class="form-control form-control-lg" placeholder="Name" required @input="onChange('name', model.name);" />
 
-                <select class="form-select form-select-lg" id="category-color" name="Color" v-model="model.color" @input="onChange('color', model.color);">
+                <select v-model="model.color" name="Color" class="form-select form-select-lg" @input="onChange('color', model.color);">
                     <option :value="CategoryColor.None" disabled selected>Select Color</option>
                     <option :value="CategoryColor.Blue">{{ CategoryColor[CategoryColor.Blue] }}</option>
                     <option :value="CategoryColor.Green">{{ CategoryColor[CategoryColor.Green] }}</option>
@@ -86,12 +87,12 @@
                     <option :value="CategoryColor.Red">{{ CategoryColor[CategoryColor.Red] }}</option>
                 </select>
 
-                <select v-if="!isNew" class="form-select form-select-lg" id="category-parent-category-id" name="ParentCategoryId" v-model="model.parentCategoryId" @input="onChange('parentCategoryId', model.parentCategoryId);">
+                <select v-if="!isNew" v-model="model.parentCategoryId" name="ParentCategoryId" class="form-select form-select-lg" @input="onChange('parentCategoryId', model.parentCategoryId);">
                     <option :value="null" selected>No parent category</option>
                     <option v-for="option in categoryOptions" :key="option.id" :value="option.id">{{ option.name }}</option>
                 </select>
 
-                <input v-if="isNew" type="hidden" id="category-parent-category-id" name="ParentCategoryId" v-model="model.parentCategoryId" />
+                <input v-if="isNew" v-model="model.parentCategoryId" name="ParentCategoryId" type="hidden" />
 
             </div>
         </template>

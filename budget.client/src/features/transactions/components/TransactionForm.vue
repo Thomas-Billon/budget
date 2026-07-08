@@ -6,7 +6,7 @@
     import { TransactionType } from '@/enums/TransactionType.ts';
     import { PaymentMethod } from '@/enums/PaymentMethod.ts';
     import ButtonSwitch from '@/components/button-switch/ButtonSwitch.vue';
-    import { formatAmount, parseAmount } from '@/features/transactions/TransactionService.ts'
+    import { formatAmount, parseAmount } from '@/features/transactions/TransactionService.ts';
     import { type ITransactionRequest } from '@/features/transactions/models/ITransactionRequest';
     import { type IButtonSwitchOption } from '@/components/button-switch/ButtonSwitch';
     import { apiCall } from '@/utils/ApiCall';
@@ -38,14 +38,14 @@
     // #region Category options
 
     const getCategoryOptions = (): void => {
-        apiCall<undefined, ICategoryOptionsResponse>(`category/options`, { method: 'GET' })
+        apiCall<undefined, ICategoryOptionsResponse>('category/options', { method: 'GET' })
             .then(response => {
-                categoryOptions.value = response.items;
-            })
-            .catch(() => {
-                // TODO: Add error
+                if (response.isSuccess) {
+                    categoryOptions.value = response.data.items;
+                }
+                // TODO: Handle error in else case
             });
-    }
+    };
 
     // #endregion Category options
 
@@ -57,14 +57,14 @@
     });
 
     // On amount field input event (any text modification)
-    const onAmountInput = (event: Event): void => {
+    const onAmountInput = (): void => {
         updateAmountRealValue(amountDisplayValue.value);
-    }
+    };
 
     // On amount field change event (basically after blur)
-    const onAmountChange = (event: Event): void => {
+    const onAmountChange = (): void => {
         updateAmountDisplayValue();
-    }
+    };
 
     const updateAmountDisplayValue = (): void => {
         amountDisplayValue.value = formatAmount(model.value.amount);
@@ -72,7 +72,7 @@
 
     const updateAmountRealValue = (value: string): void => {
         model.value.amount = parseAmount(value);
-    }
+    };
 
     // #endregion Amount
 
@@ -81,7 +81,7 @@
     const formEvents = {
         onSaveAll: (data: ITransactionRequest) => emit('saveAll', data),
         onSavePartial: (id: number, data: Partial<ITransactionRequest>) => emit('savePartial', id, data),
-        onDelete: (id: number) => emit('delete', id),
+        onDelete: (id: number) => emit('delete', id)
     };
 
     // #endregion Events
@@ -101,17 +101,18 @@
 
 <template>
     <FormBase
+        v-model="model"
         :is-new="isNew"
         :save-all-result="saveAllResult"
         :save-partial-result="savePartialResult"
         :delete-result="deleteResult"
         :is-form-valid="isFormValid"
-        v-model="model"
-        v-bind="formEvents">
+        v-bind="formEvents"
+    >
 
         <template #head="{ onChange }">
             <div class="form-head">
-                <input ref="typeInput" type="hidden" name="Type" v-model="model.type" required />
+                <input ref="typeInput" v-model="model.type" name="Type" type="hidden" required />
                 <ButtonSwitch v-model="model.type" :options="typeOptions" class-name="bg-secondary bg-opacity-50" @change="onChange('type', model.type)" />
             </div>
         </template>
@@ -120,25 +121,27 @@
             <div class="form-body transition-opacity" :class="[ !model.type && 'hidden' ]">
 
                 <div class="input-group">
-                    <input class="transaction-form-input-amount form-control form-control-lg"
-                        type="text"
-                        name="Amount"
+                    <input
                         v-model="amountDisplayValue"
+                        name="Amount"
+                        type="text"
+                        class="transaction-form-input-amount form-control form-control-lg"
                         :placeholder="amountPlaceholder"
                         autocomplete="off"
                         required
-                        @input="onAmountInput($event); onChange('amount', model.amount);"
-                        @change="onAmountChange($event)" />
+                        @input="onAmountInput(); onChange('amount', model.amount);"
+                        @change="onAmountChange()"
+                    />
                     <span class="input-group-text">
                         €
                     </span>
                 </div>
 
-                <input class="form-control form-control-lg" type="text" name="Reason" v-model="model.reason" placeholder="Reason" required @input="onChange('reason', model.reason);" />
+                <input v-model="model.reason" name="Reason" type="text" class="form-control form-control-lg" placeholder="Reason" required @input="onChange('reason', model.reason);" />
 
-                <input class="form-control form-control-lg" type="date" name="Date" v-model="model.date" required @input="onChange('date', model.date);" />
+                <input v-model="model.date" name="Date" type="date" class="form-control form-control-lg" required @input="onChange('date', model.date);" />
 
-                <select class="form-select form-select-lg" name="PaymentMethod" v-model="model.paymentMethod" @change="onChange('paymentMethod', model.paymentMethod);">
+                <select v-model="model.paymentMethod" name="PaymentMethod" class="form-select form-select-lg" @change="onChange('paymentMethod', model.paymentMethod);">
                     <option :value="PaymentMethod.None" disabled selected>Select Payment Method</option>
                     <option :value="PaymentMethod.Cash">{{ PaymentMethod[PaymentMethod.Cash] }}</option>
                     <option :value="PaymentMethod.CreditCard">{{ PaymentMethod[PaymentMethod.CreditCard] }}</option>
@@ -148,9 +151,9 @@
                     <option :value="PaymentMethod.Other">{{ PaymentMethod[PaymentMethod.Other] }}</option>
                 </select>
 
-                <textarea class="form-control form-control-lg" name="Comment" v-model="model.comment" placeholder="Comment" @input="onChange('comment', model.comment);"></textarea>
+                <textarea v-model="model.comment" name="Comment" class="form-control form-control-lg" placeholder="Comment" @input="onChange('comment', model.comment);"></textarea>
 
-                <select class="form-select form-select-lg" name="CategoryIds" v-model="model.categoryIds" multiple @change="onChange('categoryIds', model.categoryIds);">
+                <select v-model="model.categoryIds" name="CategoryIds" class="form-select form-select-lg" multiple @change="onChange('categoryIds', model.categoryIds);">
                     <option v-for="option in categoryOptions" :key="option.id" :value="option.id">{{ option.name }}</option>
                 </select>
 

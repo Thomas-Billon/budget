@@ -1,6 +1,6 @@
-import { DateRange } from "@/enums/DateRange";
-import { Month } from "@/enums/Month";
-import { getIsoDay } from "@/utils/Utils";
+import { DateRange } from '@/enums/DateRange';
+import { Month } from '@/enums/Month';
+import { getIsoDay } from '@/utils/Utils';
 
 const lastDayOfPreviousMonth: number = 0;
 
@@ -57,7 +57,7 @@ const getLocalDatesFromDateRange = (dateRange: DateRange): { startDate: Date, en
             break;
 
         default:
-            throw new Error("Error: Invalid date range.");
+            throw new Error('Error: Invalid date range.');
     }
 
     return { startDate, endDate };

@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+using Budget.Server.Core.Errors;
+using Microsoft.AspNetCore.Diagnostics;
 
-namespace Budget.Server.Middleware.Error
+namespace Budget.Server.Middleware.Exceptions
 {
     public class NotImplementedExceptionHandler : GlobalExceptionHandler, IExceptionHandler
     {
@@ -11,7 +12,8 @@ namespace Budget.Server.Middleware.Error
                 return false;
             }
 
-            return await HandleAsync(StatusCodes.Status501NotImplemented, httpContext, exception, cancellationToken);
+            await HandleAsync(StatusCodes.Status501NotImplemented, ErrorCodes.Server.NotImplemented, httpContext, cancellationToken);
+            return true;
         }
     }
 }

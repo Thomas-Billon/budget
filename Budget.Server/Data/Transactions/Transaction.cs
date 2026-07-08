@@ -1,4 +1,4 @@
-﻿using Budget.Server.Core.Enums;
+﻿using Budget.Server.Core.Transactions.Enums;
 using Budget.Server.Data.Categories;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -27,6 +27,10 @@ namespace Budget.Server.Data.Transactions
 
         // Merchant -> string or entity ?
 
+        #region Categories
+
         public List<Category> Categories { get; set; } = new List<Category>();
+
+        #endregion Categories
     }
 }

@@ -1,6 +1,6 @@
-import { CategoryColor } from '@/enums/CategoryColor';
-import { TransactionType } from '@/enums/TransactionType.ts';
-import { PaymentMethod } from '@/enums/PaymentMethod.ts';
+import { type CategoryColor } from '@/enums/CategoryColor';
+import { type TransactionType } from '@/enums/TransactionType.ts';
+import { type PaymentMethod } from '@/enums/PaymentMethod.ts';
 
 interface ITransactionDetailsResponse {
     id: number;

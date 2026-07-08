@@ -1,5 +1,6 @@
-﻿using Budget.Server.Core.Enums;
-using Budget.Server.Core.Helpers;
+﻿using Budget.Server.Core.Categories.Enums;
+using Budget.Server.Core.Shared;
+using Budget.Server.Core.Transactions.Enums;
 
 namespace Budget.Server.Api.Transactions.Models.Responses
 {

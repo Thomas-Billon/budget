@@ -1,7 +1,6 @@
-﻿using Budget.Server.Core.Enums;
 using System.Linq.Expressions;
 
-namespace Budget.Server.Data.Extensions
+namespace Budget.Server.Core.Shared
 {
     public static class QueryExtension
     {
@@ -45,7 +44,7 @@ namespace Budget.Server.Data.Extensions
                     }
 
                 default:
-                    throw new ArgumentException("Invalid sort direction", nameof(direction));
+                    throw new ArgumentException("Error: Invalid sort direction", nameof(direction));
             }
         }
 

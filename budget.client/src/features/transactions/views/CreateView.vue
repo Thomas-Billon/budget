@@ -20,8 +20,10 @@
 </script>
 
 <template>
-    <TransactionForm :is-new="true"
-                     :save-all-result="createResult"
-                     v-model="transaction"
-                     @save-all="createEntity" />
+    <TransactionForm
+        v-model="transaction"
+        :is-new="true"
+        :save-all-result="createResult"
+        @save-all="createEntity"
+    />
 </template>

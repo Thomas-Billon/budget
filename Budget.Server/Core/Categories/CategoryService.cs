@@ -1,5 +1,5 @@
-﻿using Budget.Server.Api.Categories.Models.Requests;
-using Budget.Server.Core.Enums;
+using Budget.Server.Api.Categories.Models.Requests;
+using Budget.Server.Core.Categories.Models;
 using Budget.Server.Data;
 using Budget.Server.Data.Categories;
 using Microsoft.EntityFrameworkCore;
@@ -20,14 +20,14 @@ namespace Budget.Server.Core.Categories
 
         public Task<List<CategoryQueryOptions>> GetCategoryOptions()
         {
-            return _context.Categories.AsNoTracking()
+            return GetCategories_AsQueryable().AsNoTracking()
                 .Select(CategoryQueryOptions.Select)
                 .ToListAsync();
         }
 
         public async Task<List<CategoryQueryHierarchy>> GetCategoryHierarchy()
         {
-            var categories = await _context.Categories.AsNoTracking()
+            var categories = await GetCategories_AsQueryable().AsNoTracking()
                 .Select(CategoryQueryHierarchy.Select)
                 .ToListAsync();
 
@@ -36,20 +36,19 @@ namespace Budget.Server.Core.Categories
 
         public Task<List<CategoryQueryBalance>> GetCategoryBalance()
         {
-            return _context.Categories.AsNoTracking()
+            return GetCategories_AsQueryable().AsNoTracking()
                 .Select(CategoryQueryBalance.Select)
                 .ToListAsync();
         }
 
         public Task<CategoryQueryDetails?> GetCategoryDetails(int id)
         {
-            return _context.Categories.AsNoTracking()
-                .Where(x => x.Id == id)
+            return GetCategoryById_AsQueryable(id).AsNoTracking()
                 .Select(CategoryQueryDetails.Select)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<int> CreateCategory(CategoryCreateRequest request)
+        public async Task<int> CreateCategory(CategoryCreateRequest request
         {
             var entity = new Category
             {
@@ -66,7 +65,9 @@ namespace Budget.Server.Core.Categories
 
         public async Task<int> UpdateCategory(int id, CategoryUpdateRequest request)
         {
-            var entity = await GetCategoryById(id);
+            var entity = await GetCategoryById_AsQueryable(id)
+                .FirstOrDefaultAsync();
+
             if (entity == null)
             {
                 return 0;
@@ -83,7 +84,9 @@ namespace Budget.Server.Core.Categories
 
         public async Task<int> PatchCategory(int id, CategoryPatchRequest request)
         {
-            var entity = await GetCategoryById(id);
+            var entity = await GetCategoryById_AsQueryable(id)
+                .FirstOrDefaultAsync();
+
             if (entity == null)
             {
                 return 0;
@@ -103,19 +106,26 @@ namespace Budget.Server.Core.Categories
 
         public Task<int> DeleteCategory(int id)
         {
-            return _context.Categories
-                .Where(x => x.Id == id)
+            return GetCategoryById_AsQueryable(id)
                 .ExecuteDeleteAsync();
         }
 
         #region Private
 
-        private Task<Category?> GetCategoryById(int id)
+        #region Get data
+
+        private IQueryable<Category> GetCategories_AsQueryable()
+        {
+            return _context.Categories.AsQueryable();
+        }
+
+        private IQueryable<Category> GetCategoryById_AsQueryable(int id)
         {
             return _context.Categories
-                .Where(x => x.Id == id)
-                .FirstOrDefaultAsync();
+                .Where(x => x.Id == id);
         }
+
+        #endregion Get data
 
         #region Parent category
 

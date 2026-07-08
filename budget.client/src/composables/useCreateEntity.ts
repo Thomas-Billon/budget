@@ -8,30 +8,23 @@ interface Props {
 }
 
 const useCreateEntity = <TRequest extends { id: number }>({ endpoint, onCreateSuccess, onCreateError }: Props) => {
-    
-    const createEntity = async (data: Partial<TRequest>): Promise<void> => {
-        return apiCall<Partial<TRequest>, void>(endpoint, { method: 'POST', body: data })
-            .then(() => {
-                onCreateSuccess?.();
-
-                createResult.value = {
-                    isSuccess: true,
-                    timestamp: Date.now(),
-                };
-            })
-            .catch(() => {
-                onCreateError?.();
-                
-                createResult.value = {
-                    isSuccess: false,
-                    timestamp: Date.now(),
-                };
-            });
-    }
 
     const createResult = ref<ApiCallResult>();
 
+    const createEntity = async (data: Partial<TRequest>): Promise<void> => {
+        const result = await apiCall<Partial<TRequest>, void>(endpoint, { method: 'POST', body: data });
+
+        createResult.value = result;
+
+        if (result.isSuccess) {
+            onCreateSuccess?.();
+        }
+        else {
+            onCreateError?.();
+        }
+    };
+
     return { createEntity, createResult };
-}
+};
 
 export default useCreateEntity;

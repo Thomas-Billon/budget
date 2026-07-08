@@ -1,4 +1,5 @@
-﻿using Budget.Server.Core.Enums;
+﻿using Budget.Server.Core.Categories.Enums;
+using Budget.Server.Core.Transactions.Enums;
 
 namespace Budget.Server.Api.Transactions.Models.Responses
 {

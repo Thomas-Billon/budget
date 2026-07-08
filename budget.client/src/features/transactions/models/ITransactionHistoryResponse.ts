@@ -1,5 +1,5 @@
-import { CategoryColor } from '@/enums/CategoryColor';
-import { TransactionType } from '@/enums/TransactionType.ts';
+import { type CategoryColor } from '@/enums/CategoryColor';
+import { type TransactionType } from '@/enums/TransactionType.ts';
 import { type IPagination } from '@/utils/IPagination';
 
 interface ITransactionHistoryResponse extends IPagination<ITransactionHistoryItemResponse> {}

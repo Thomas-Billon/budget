@@ -32,8 +32,10 @@
 </script>
 
 <template>
-    <CategoryForm :is-new="true"
-                  :save-all-result="createResult"
-                  v-model="category"
-                  @save-all="createEntity" />
+    <CategoryForm
+        v-model="category"
+        :is-new="true"
+        :save-all-result="createResult"
+        @save-all="createEntity"
+    />
 </template>

@@ -1,4 +1,4 @@
-﻿namespace Budget.Server.Core.Helpers
+namespace Budget.Server.Core.Shared
 {
     public class Pagination<T>
         where T : class

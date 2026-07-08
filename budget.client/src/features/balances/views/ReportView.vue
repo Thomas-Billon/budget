@@ -11,6 +11,19 @@
     const dateRange = ref<DateRange>(DateRange.CurrentMonth);
     const balanceReport = ref<IBalanceReportResponse | undefined>();
 
+    const getBalanceReport = (startDate: Date, endDate: Date) => {
+        const startDateStr = startDate.toISOString().split('T')[0];
+        const endDateStr = endDate.toISOString().split('T')[0];
+
+        apiCall<undefined, IBalanceReportResponse>(`balance?startDate=${startDateStr}&endDate=${endDateStr}`, { method: 'GET' })
+            .then(response => {
+                if (response.isSuccess) {
+                    balanceReport.value = response.data;
+                }
+                // TODO: Handle error in else case
+            });
+    };
+
     // Init
     onMounted(() => {
         const { startDate, endDate } = getUtcDatesFromDateRange(DateRange.CurrentMonth);
@@ -22,24 +35,11 @@
         getBalanceReport(startDate, endDate);
     });
 
-    const getBalanceReport = async (startDate: Date, endDate: Date) => {
-        const startDateStr = startDate.toISOString().split("T")[0];
-        const endDateStr = endDate.toISOString().split("T")[0];
-
-        apiCall<undefined, IBalanceReportResponse>(`balance?startDate=${startDateStr}&endDate=${endDateStr}`, { method: 'GET' })
-            .then(response => {
-                balanceReport.value = response;
-            })
-            .catch(() => {
-                // TODO: Add error
-            });
-    };
-
 </script>
 
 <template>
     <div class="balance-report section-container container">
-        <select class="form-select form-select-lg" id="balance-date-range" name="DateRange" v-model="dateRange">
+        <select v-model="dateRange" name="DateRange" class="form-select form-select-lg">
             <option :value="DateRange.Today">Today</option>
             <option :value="DateRange.Yesterday">Yesterday</option>
             <option :value="DateRange.CurrentWeek">Current week</option>
@@ -59,7 +59,7 @@
             <div>
                 Top 3 Income:
                 <ul>
-                    <li v-for="transaction in balanceReport.mostLucrativeTransactions">
+                    <li v-for="(transaction, index) in balanceReport.mostLucrativeTransactions" :key="index">
                         {{ transaction.reason }} - {{ transaction.amount }}
                     </li>
                 </ul>
@@ -67,19 +67,21 @@
             <div>
                 Top 3 Expense:
                 <ul>
-                    <li v-for="transaction in balanceReport.mostExpensiveTransactions">
+                    <li v-for="(transaction, index) in balanceReport.mostExpensiveTransactions" :key="index">
                         {{ transaction.reason }} - {{ transaction.amount }}
                     </li>
                 </ul>
             </div>
-            <p>
+            <div>
                 Income by categories:
-                <div v-for="transactionsByCategory in balanceReport.incomeTransactionsByCategory">
-                    {{ balanceReport.categories.find((item) => item.id === transactionsByCategory.categoryId)?.name ?? 'No category' }}
-                    -
-                    {{ parseFloat(transactionsByCategory.categoryShare.toFixed(2)) }}%
-                </div>
-            </p>
+                <ul>
+                    <li v-for="(transactionsByCategory, index) in balanceReport.incomeTransactionsByCategory" :key="index">
+                        {{ balanceReport.categories.find((item) => item.id === transactionsByCategory.categoryId)?.name ?? 'No category' }}
+                        -
+                        {{ parseFloat(transactionsByCategory.categoryShare.toFixed(2)) }}%
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </template>

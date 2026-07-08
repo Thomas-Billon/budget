@@ -1,11 +1,14 @@
+using Budget.Server.Core.Auth;
+using Budget.Server.Core.Auth.Validation;
 using Budget.Server.Core.Balances;
 using Budget.Server.Core.Categories;
-using Budget.Server.Core.Helpers;
+using Budget.Server.Core.Shared;
 using Budget.Server.Core.Transactions;
 using Budget.Server.Data;
 using Budget.Server.Middleware.Converters;
-using Budget.Server.Middleware.Error;
+using Budget.Server.Middleware.Exceptions;
 using Budget.Server.Middleware.Startup;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Scalar.AspNetCore;
@@ -14,11 +17,7 @@ using System.ComponentModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.ConfigureBuilder()
-    .ConfigureCors()
-    .ConfigureDbContext()
-    .ConfigureExceptionHandlers()
-    .ConfigureServices();
+builder.ConfigureBuilder();
 
 var app = builder.Build();
 
@@ -32,8 +31,23 @@ public static class ProgramExtensions
 {
     public static WebApplicationBuilder ConfigureBuilder(this WebApplicationBuilder builder)
     {
+        return builder.ConfigureMiddleware()
+            .ConfigureApi()
+            .ConfigureCors()
+            .ConfigureDbContext()
+            .ConfigureExceptionHandlers()
+            .ConfigureServices();
+    }
+
+    public static WebApplicationBuilder ConfigureMiddleware(this WebApplicationBuilder builder)
+    {
         TypeDescriptor.AddAttributes(typeof(DateOnly), new TypeConverterAttribute(typeof(DateOnlyTypeConverter)));
 
+        return builder;
+    }
+
+    public static WebApplicationBuilder ConfigureApi(this WebApplicationBuilder builder)
+    {
         builder.Services.AddControllers().AddNewtonsoftJson(options =>
         {
             options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
@@ -41,6 +55,21 @@ public static class ProgramExtensions
         });
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApi();
+
+        builder.Services.Configure<ApiBehaviorOptions>(options =>
+        {
+            options.InvalidModelStateResponseFactory = context =>
+            {
+                var errors = context.ModelState
+                    .Where(e => e.Value?.Errors.Count > 0)
+                    .ToDictionary(
+                        e => e.Key.ToCamelCase(),
+                        e => e.Value!.Errors.Select(x => x.ErrorMessage).ToArray()
+                    );
+
+                return new UnprocessableEntityObjectResult(new ValidationProblemDetails(errors));
+            };
+        });
 
         return builder;
     }
@@ -73,6 +102,7 @@ public static class ProgramExtensions
     public static WebApplicationBuilder ConfigureExceptionHandlers(this WebApplicationBuilder builder)
     {
         builder.Services.AddExceptionHandler<NotImplementedExceptionHandler>();
+        builder.Services.AddExceptionHandler<TooManyRequestsExceptionHandler>();
         builder.Services.AddExceptionHandler<DefaultExceptionHandler>();
         builder.Services.AddExceptionHandler(options =>
         {
@@ -86,7 +116,7 @@ public static class ProgramExtensions
     public static WebApplicationBuilder ConfigureServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddSingleton<IDbInitializerService, DbInitializerService>();
-
+        
         builder.Services.AddScoped<BalanceService>();
         builder.Services.AddScoped<TransactionService>();
         builder.Services.AddScoped<CategoryService>();

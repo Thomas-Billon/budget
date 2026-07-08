@@ -4,7 +4,7 @@ enum CategoryColor {
     Green = 2,
     Yellow = 3,
     Orange = 4,
-    Red = 5,
+    Red = 5
 }
 
 export { CategoryColor };

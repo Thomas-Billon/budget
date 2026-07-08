@@ -1,7 +1,7 @@
-using Budget.Server.Core.Enums;
-using Budget.Server.Core.Helpers;
+using Budget.Server.Core.Shared;
+using Budget.Server.Core.Transactions.Enums;
 
-namespace Budget.Server.Core.Transactions
+namespace Budget.Server.Core.Transactions.Models
 {
     public class TransactionQueryParameters
     {
@@ -9,12 +9,12 @@ namespace Budget.Server.Core.Transactions
         public int Take { get; init; } = 0;
         public bool IsPaginationEnabled { get; init; } = false;
 
-        public FilterOptions Filter { get; init; } = new();
+        public FilterParameters Filter { get; init; } = new();
 
-        public sealed class FilterOptions
+        public sealed class FilterParameters
         {
             public HashSet<TransactionType> Types { get; init; } = [];
-            public DateOnlyRange DateRange { get; init; } = new(DateRangePreset.None);
+            public DateOnlyRange DateRange { get; init; } = new DateOnlyRange(startDate: null, endDate: null);
         }
 
         public Dictionary<string, SortDirection> Sort { get; init; } = [];

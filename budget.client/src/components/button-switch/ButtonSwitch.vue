@@ -55,9 +55,9 @@
 <template>
     <div v-if="switchCount > 0" :class="[ 'button-switch', className, switchIndex === -1 ? 'no-active' : 'has-active' ]" :style="{ '--switchIndex': switchIndex, '--switchCount': switchCount }">
         <div class="button-switch-container">
-            <button type="button" v-for="option in options" :key="option.value" class="button-switch-option btn btn-white" @click="onSwitch(option.value)">
+            <button v-for="option in options" :key="option.value" type="button" class="button-switch-option btn btn-white" @click="onSwitch(option.value)">
                 <font-awesome-icon v-if="option.icon" :icon="`fa-solid fa-${option.icon}`" size="sm" />
-                <span v-if="option.label" >{{ option.label }}</span>
+                <span v-if="option.label">{{ option.label }}</span>
             </button>
             <div class="button-switch-highlight btn btn-white"></div>
         </div>

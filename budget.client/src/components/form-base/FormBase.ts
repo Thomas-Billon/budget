@@ -1,4 +1,4 @@
-import { type ApiCallResult } from "@/utils/ApiCall";
+import { type ApiCallResult } from '@/utils/ApiCall';
 
 interface FormProps {
     isNew: boolean;

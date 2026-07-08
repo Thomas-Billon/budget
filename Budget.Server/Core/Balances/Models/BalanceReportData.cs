@@ -1,6 +1,6 @@
-﻿using Budget.Server.Core.Transactions;
+﻿using Budget.Server.Core.Transactions.Models;
 
-namespace Budget.Server.Core.Balances
+namespace Budget.Server.Core.Balances.Models
 {
     public class BalanceReportData
     {

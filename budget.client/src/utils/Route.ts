@@ -1,4 +1,4 @@
-import type { RouteParamsGeneric } from "vue-router";
+import type { RouteParamsGeneric } from 'vue-router';
 
 const getIdFromRoute = (param?: RouteParamsGeneric[keyof RouteParamsGeneric]): number | undefined => {
     if (param === undefined || typeof param !== 'string') {

@@ -1,9 +1,9 @@
-﻿using Budget.Server.Api.Transactions.Models.Requests;
-using Budget.Server.Core.Enums;
+using Budget.Server.Api.Transactions.Models.Requests;
+using Budget.Server.Core.Transactions.Models;
 using Budget.Server.Data;
-using Budget.Server.Data.Extensions;
 using Budget.Server.Data.Transactions;
 using Microsoft.EntityFrameworkCore;
+using Budget.Server.Core.Shared;
 
 namespace Budget.Server.Core.Transactions
 {
@@ -19,16 +19,16 @@ namespace Budget.Server.Core.Transactions
             _context = context;
         }
 
-        public Task<List<TransactionQueryHistory>> GetTransactionHistory(TransactionQueryParameters options)
+        public Task<List<TransactionQueryHistory>> GetTransactionHistory(TransactionQueryParameters parameters)
         {
-            return GetTransactions_AsQueryable(options).AsNoTracking()
+            return GetTransactions_AsQueryable(parameters).AsNoTracking()
                 .Select(TransactionQueryHistory.Select)
                 .ToListAsync();
         }
 
-        public Task<List<TransactionQueryBalance>> GetTransactionBalance(TransactionQueryParameters options)
+        public Task<List<TransactionQueryBalance>> GetTransactionBalance(TransactionQueryParameters parameters)
         {
-            return GetTransactions_AsQueryable(options).AsNoTracking()
+            return GetTransactions_AsQueryable(parameters).AsNoTracking()
                 .Select(TransactionQueryBalance.Select)
                 .ToListAsync();
         }
@@ -110,8 +110,7 @@ namespace Budget.Server.Core.Transactions
 
         public Task<int> DeleteTransaction(int id)
         {
-            return _context.Transactions
-                .Where(x => x.Id == id)
+            return GetTransactionById_AsQueryable(id)
                 .ExecuteDeleteAsync();
         }
 
@@ -119,38 +118,15 @@ namespace Budget.Server.Core.Transactions
 
         #region Get data
 
-        private IQueryable<Transaction> GetTransactions_AsQueryable(TransactionQueryParameters options)
+        private IQueryable<Transaction> GetTransactions_AsQueryable(TransactionQueryParameters parameters)
         {
             var query = _context.Transactions
                 .Include(x => x.Categories)
-                .Where_HasTypes(options.Filter.Types);
+                .Where_HasTypes(parameters.Filter.Types)
+                .Where_IsInDateRange(parameters.Filter.DateRange);
 
-            if (options.Filter.DateRange.IsCustom)
-            {
-                if (options.Filter.DateRange.StartDate != null)
-                {
-                    query = query.Where_IsAfterOrOnDate(options.Filter.DateRange.StartDate.Value);
-                }
-                if (options.Filter.DateRange.EndDate != null)
-                {
-                    query = query.Where_IsBeforeOrOnDate(options.Filter.DateRange.EndDate.Value);
-                }
-            }
-            else
-            {
-                query = options.Filter.DateRange.Preset switch
-                {
-                    DateRangePreset.Last7Days => query.Where_IsInLast7Days(),
-                    DateRangePreset.Last30Days => query.Where_IsInLast30Days(),
-                    DateRangePreset.ThisMonth => query.Where_IsInThisMonth(),
-                    DateRangePreset.LastMonth => query.Where_IsInLastMonth(),
-                    DateRangePreset.ThisYear => query.Where_IsInThisYear(),
-                    DateRangePreset.LastYear => query.Where_IsInLastYear(),
-                    _ => query
-                };
-            }
-
-            foreach (var (key, direction) in options.Sort)
+            // TODO: Refactorize this bit in one line
+            foreach (var (key, direction) in parameters.Sort)
             {
                 query = key switch
                 {
@@ -160,7 +136,7 @@ namespace Budget.Server.Core.Transactions
                 };
             }
 
-            query = query.SkipTake(options.Skip, options.Take, options.IsPaginationEnabled);
+            query = query.SkipTake(parameters.Skip, parameters.Take, parameters.IsPaginationEnabled);
 
             return query;
         }

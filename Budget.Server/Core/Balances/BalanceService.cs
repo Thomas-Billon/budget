@@ -1,5 +1,6 @@
-﻿using Budget.Server.Core.Enums;
-using Budget.Server.Core.Transactions;
+﻿using Budget.Server.Core.Balances.Models;
+using Budget.Server.Core.Transactions.Enums;
+using Budget.Server.Core.Transactions.Models;
 using Budget.Server.Data;
 
 namespace Budget.Server.Core.Balances

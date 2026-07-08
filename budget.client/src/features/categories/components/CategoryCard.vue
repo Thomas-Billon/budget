@@ -2,7 +2,6 @@
 
     import './CategoryCard.scss';
 
-    import type { RouteLocationAsRelativeGeneric, RouteLocationAsPathGeneric } from 'vue-router';
     import { routes } from '@/router';
 
     interface Props {
@@ -17,29 +16,31 @@
 
     const { id, name, colorHex, parentCategoryId, subCategories, canAddSubCategories } = defineProps<Props>();
 
-    const getCardRouterLink = (): string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric => {
-        if (id !== undefined) {
-            return routes.category.update(id);
+    const getCardRouterLink = (): string => {
+        if (id === undefined) {
+            return routes.category.create(parentCategoryId);
         }
         else {
-            return { path: routes.category.create(parentCategoryId) };
+            return routes.category.update(id);
         }
     };
 
 </script>
 
 <template>
-    <RouterLink :to="getCardRouterLink()" class="category-card card" v-color="colorHex">
+    <RouterLink v-color="colorHex" :to="getCardRouterLink()" class="category-card card">
         <div v-if="name">{{ name }}</div>
-        <slot />
-        <CategoryCard v-for="(child, index) in subCategories"
-                      :key="index"
-                      :id="child.id"
-                      :name="child.name"
-                      :color-hex="child.colorHex"
-                      :parent-category-id="child.parentCategoryId"
-                      :sub-categories="child.subCategories"
-                      :can-add-sub-categories="true" />
+        <slot></slot>
+        <CategoryCard
+            v-for="(child, index) in subCategories"
+            :id="child.id"
+            :key="index"
+            :name="child.name"
+            :color-hex="child.colorHex"
+            :parent-category-id="child.parentCategoryId"
+            :sub-categories="child.subCategories"
+            :can-add-sub-categories="true"
+        />
         <CategoryCard v-if="canAddSubCategories" :parent-category-id="id">
             <font-awesome-icon icon="fa-solid fa-plus" />
         </CategoryCard>

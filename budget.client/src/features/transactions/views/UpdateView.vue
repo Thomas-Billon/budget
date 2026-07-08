@@ -53,7 +53,7 @@
                 date: result.date,
                 paymentMethod: result.paymentMethod,
                 comment: result.comment,
-                categoryIds: result.categories.map(c => c.id),
+                categoryIds: result.categories.map(c => c.id)
             };
         }
     });
@@ -61,12 +61,14 @@
 </script>
 
 <template>
-    <TransactionForm :is-new="false"
-                     :save-all-result="fullUpdateResult"
-                     :save-partial-result="partialUpdateResult"
-                     :delete-result="deleteResult"
-                     v-model="transaction"
-                     @save-all="fullUpdateEntity"
-                     @save-partial="partialUpdateEntity"
-                     @delete="deleteEntity" />
+    <TransactionForm
+        v-model="transaction"
+        :is-new="false"
+        :save-all-result="fullUpdateResult"
+        :save-partial-result="partialUpdateResult"
+        :delete-result="deleteResult"
+        @save-all="fullUpdateEntity"
+        @save-partial="partialUpdateEntity"
+        @delete="deleteEntity"
+    />
 </template>

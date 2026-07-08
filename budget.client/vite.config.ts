@@ -25,7 +25,7 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
     const dotnetCommand = childProcess.spawnSync('dotnet', ['dev-certs', 'https', '--export-path', certFilePath, '--format', 'Pem', '--no-password'], { stdio: 'inherit' });
 
     if (dotnetCommand.status !== 0) {
-        throw new Error('Could not create certificate.');
+        throw new Error('Error: Could not create certificate');
     }
 }
 

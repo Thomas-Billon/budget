@@ -1,4 +1,4 @@
-﻿namespace Budget.Server.Core.Enums
+﻿namespace Budget.Server.Core.Transactions.Enums
 {
     public enum Currency
     {

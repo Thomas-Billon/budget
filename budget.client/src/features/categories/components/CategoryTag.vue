@@ -12,7 +12,7 @@
 </script>
 
 <template>
-    <div class="category-tag tag" v-color="colorHex">
+    <div v-color="colorHex" class="category-tag tag">
         <span>{{ name }}</span>
     </div>
 </template>

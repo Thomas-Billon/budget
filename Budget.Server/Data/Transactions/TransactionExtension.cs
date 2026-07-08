@@ -1,5 +1,5 @@
-﻿using Budget.Server.Core.Enums;
-using Budget.Server.Data.Extensions;
+﻿using Budget.Server.Core.Transactions.Enums;
+using Budget.Server.Core.Shared;
 
 namespace Budget.Server.Data.Transactions
 {
@@ -27,54 +27,18 @@ namespace Budget.Server.Data.Transactions
             return query.Where(t => types.Contains(t.Type));
         }
 
-        public static IQueryable<Transaction> Where_IsInLast7Days(this IQueryable<Transaction> query)
+        public static IQueryable<Transaction> Where_IsInDateRange(this IQueryable<Transaction> query, DateOnlyRange dateRange)
         {
-            var now = DateTimeOffset.UtcNow;
-            var last7Days = DateOnly.FromDateTime(now.AddDays(-7).DateTime);
+            if (dateRange.StartDate != null)
+            {
+                query = query.Where_IsAfterOrOnDate(dateRange.StartDate.Value);
+            }
+            if (dateRange.EndDate != null)
+            {
+                query = query.Where_IsBeforeOrOnDate(dateRange.EndDate.Value);
+            }
 
-            return query.Where(x => x.Date >= last7Days);
-        }
-
-        public static IQueryable<Transaction> Where_IsInLast30Days(this IQueryable<Transaction> query)
-        {
-            var now = DateTimeOffset.UtcNow;
-            var last30Days = DateOnly.FromDateTime(now.AddDays(-30).DateTime);
-
-            return query.Where(x => x.Date >= last30Days);
-        }
-
-        public static IQueryable<Transaction> Where_IsInThisMonth(this IQueryable<Transaction> query)
-        {
-            var now = DateTimeOffset.UtcNow;
-            var firstDayOfThisMonth = new DateOnly(now.Year, now.Month, 1);
-
-            return query.Where(x => x.Date >= firstDayOfThisMonth);
-        }
-
-        public static IQueryable<Transaction> Where_IsInLastMonth(this IQueryable<Transaction> query)
-        {
-            var now = DateTimeOffset.UtcNow;
-            var firstDayOfLastMonth = now.Month == 1 ? new DateOnly(now.Year - 1, 12, 1) : new DateOnly(now.Year, now.Month - 1, 1);
-            var firstDayOfThisMonth = new DateOnly(now.Year, now.Month, 1);
-
-            return query.Where(x => x.Date >= firstDayOfLastMonth && x.Date < firstDayOfThisMonth);
-        }
-
-        public static IQueryable<Transaction> Where_IsInThisYear(this IQueryable<Transaction> query)
-        {
-            var now = DateTimeOffset.UtcNow;
-            var firstDayOfThisYear = new DateOnly(now.Year, 1, 1);
-
-            return query.Where(x => x.Date >= firstDayOfThisYear);
-        }
-
-        public static IQueryable<Transaction> Where_IsInLastYear(this IQueryable<Transaction> query)
-        {
-            var now = DateTimeOffset.UtcNow;
-            var firstDayOfLastYear = new DateOnly(now.Year - 1, 1, 1);
-            var firstDayOfThisYear = new DateOnly(now.Year, 1, 1);
-
-            return query.Where(x => x.Date >= firstDayOfLastYear && x.Date < firstDayOfThisYear);
+            return query;
         }
 
         public static IQueryable<Transaction> Where_IsBeforeOrOnDate(this IQueryable<Transaction> query, DateOnly date)

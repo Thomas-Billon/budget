@@ -1,4 +1,4 @@
-import { CategoryColor } from "@/enums/CategoryColor";
+import { type CategoryColor } from '@/enums/CategoryColor';
 
 interface ICategoryDetailsBaseResponse {
     id: number;

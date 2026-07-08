@@ -7,7 +7,7 @@
     import { type FormProps, type FormEmits } from '@/components/form-base/FormBase';
 
 
-    interface Props<T> extends FormProps {
+    interface Props extends FormProps {
         isFormValid: () => boolean
     }
 
@@ -30,14 +30,14 @@
         isDeleteButtonDisabled: boolean;
     }
 
-    const { isNew, saveAllResult, savePartialResult, deleteResult, isFormValid } = defineProps<Props<T>>();
+    const { isNew, saveAllResult, savePartialResult, deleteResult, isFormValid } = defineProps<Props>();
     const model = defineModel<T>({ required: true });
     const emit = defineEmits<FormEmits<T>>();
 
-    const slots = defineSlots<{
-        head?(props: FormHeadProps): any;
-        body(props: FormBodyProps): any;
-        foot?(props: FormFootProps): any;
+    const _slots = defineSlots<{
+        head?(props: FormHeadProps): void;
+        body(props: FormBodyProps): void;
+        foot?(props: FormFootProps): void;
     }>();
 
     let partialModel: Partial<T> = {};
@@ -61,48 +61,48 @@
         submitButtonLabel.value = isNew ? 'Add' : 'Edit';
         deleteButtonLabel.value = 'Delete';
         enableButtons();
-    }
+    };
 
     const setSubmitButtonToSavedState = (): void => {
         submitButtonLabel.value = 'Saved';
         disableButtons();
-    }
+    };
 
     const setSubmitButtonToErrorState = (): void => {
         submitButtonLabel.value = 'Error';
         enableButtons();
-    }
+    };
 
     const setDeleteButtonToErrorState = (): void => {
         deleteButtonLabel.value = 'Error';
         enableButtons();
-    }
+    };
 
     const disableButtons = (): void => {
         disableSubmitButton();
         disableDeleteButton();
-    }
+    };
 
     const disableSubmitButton = (): void => {
         isSubmitButtonDisabled.value = true;
-    }
+    };
 
     const disableDeleteButton = (): void => {
         isDeleteButtonDisabled.value = true;
-    }
+    };
 
     const enableButtons = (): void => {
         enableSubmitButton();
         enableDeleteButton();
-    }
+    };
 
     const enableSubmitButton = (): void => {
         isSubmitButtonDisabled.value = false;
-    }
+    };
 
     const enableDeleteButton = (): void => {
         isDeleteButtonDisabled.value = false;
-    }
+    };
 
     const waitAndResetButtonsToDefaultState = debounce(setButtonsToDefaultState, 5000);
 
@@ -140,13 +140,13 @@
 
         disableButtons();
         emit('saveAll', model.value);
-    }
+    };
 
     // On delete button click
     const onDelete = (): void => {
         disableButtons();
         emit('delete', model.value.id);
-    }
+    };
 
     // #endregion Actions
 
@@ -188,23 +188,25 @@
 </script>
 
 <template>
-    <form class="form section-container-grow container" @submit.prevent="onSubmit">
+    <form novalidate class="form section-container-grow container" @submit.prevent="onSubmit">
 
-        <input type="hidden" name="Id" v-model="model.id" />
+        <input v-model="model.id" type="hidden" name="Id" />
         
-        <slot name="head" :onChange="onChange"></slot>
+        <slot name="head" :on-change="onChange"></slot>
 
-        <slot name="body" :onChange="onChange"></slot>
+        <slot name="body" :on-change="onChange"></slot>
 
-        <slot name="foot"
-            :isFormValid="isFormValid"
-            :onSubmit="onSubmit"
-            :onDelete="onDelete"
-            :isNew="isNew"
-            :deleteButtonLabel="deleteButtonLabel"
-            :submitButtonLabel="submitButtonLabel"
-            :isSubmitButtonDisabled="isSubmitButtonDisabled"
-            :isDeleteButtonDisabled="isDeleteButtonDisabled">
+        <slot
+            name="foot"
+            :is-form-valid="isFormValid"
+            :on-submit="onSubmit"
+            :on-delete="onDelete"
+            :is-new="isNew"
+            :delete-button-label="deleteButtonLabel"
+            :submit-button-label="submitButtonLabel"
+            :is-submit-button-disabled="isSubmitButtonDisabled"
+            :is-delete-button-disabled="isDeleteButtonDisabled"
+        >
             <div class="form-foot">
                 <button v-if="!isNew" type="button" class="form-button btn btn-outline-danger btn-lg" :disabled="isDeleteButtonDisabled" @click="onDelete">
                     <font-awesome-icon icon="fa-solid fa-trash" />

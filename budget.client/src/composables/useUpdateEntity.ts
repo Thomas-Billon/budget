@@ -13,65 +13,51 @@ const useUpdateEntity = <TRequest extends { id: number }>({ endpoint, onFullUpda
 
     // #region Full update
 
+    const fullUpdateResult = ref<ApiCallResult>();
+
     const fullUpdateEntity = async (data: TRequest): Promise<void> => {
         if (!data.id) {
             return Promise.reject('Error: Cannot update entity without id.');
         }
 
-        return apiCall<TRequest, void>(`${endpoint}/${data.id}`, { method: 'PUT', body: data })
-            .then(() => {
-                onFullUpdateSuccess?.();
+        const result = await apiCall<TRequest, void>(`${endpoint}/${data.id}`, { method: 'PUT', body: data });
 
-                fullUpdateResult.value = {
-                    isSuccess: true,
-                    timestamp: Date.now(),
-                };
-            })
-            .catch(() => {
-                onFullUpdateError?.();
+        fullUpdateResult.value = result;
 
-                fullUpdateResult.value = {
-                    isSuccess: false,
-                    timestamp: Date.now(),
-                };
-            });
-    }
+        if (result.isSuccess) {
+            onFullUpdateSuccess?.();
+        }
+        else {
+            onFullUpdateError?.();
+        }
+    };
 
-    const fullUpdateResult = ref<ApiCallResult>();
-    
     // #endregion Full update
 
     // #region Partial update
+
+    const partialUpdateResult = ref<ApiCallResult>();
 
     const partialUpdateEntity = async (id: number, data: Partial<TRequest>): Promise<void> => {
         if (!id) {
             return Promise.reject('Error: Cannot update entity without id.');
         }
 
-        return apiCall<Partial<TRequest>, void>(`${endpoint}/${id}`, { method: 'PATCH', body: data })
-            .then(_ => {
-                onPartialUpdateSuccess?.();
+        const result = await apiCall<Partial<TRequest>, void>(`${endpoint}/${id}`, { method: 'PATCH', body: data });
 
-                partialUpdateResult.value = {
-                    isSuccess: true,
-                    timestamp: Date.now()
-                };
-            })
-            .catch(() => {
-                onPartialUpdateError?.();
-                    
-                partialUpdateResult.value = {
-                    isSuccess: false,
-                    timestamp: Date.now()
-                };
-            });
+        partialUpdateResult.value = result;
+
+        if (result.isSuccess) {
+            onPartialUpdateSuccess?.();
+        }
+        else {
+            onPartialUpdateError?.();
+        }
     };
-
-    const partialUpdateResult = ref<ApiCallResult>();
 
     // #endregion Partial update
 
     return { fullUpdateEntity, fullUpdateResult, partialUpdateEntity, partialUpdateResult };
-}
+};
 
 export default useUpdateEntity;

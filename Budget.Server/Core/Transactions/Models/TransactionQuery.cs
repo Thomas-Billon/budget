@@ -1,9 +1,10 @@
-﻿using Budget.Server.Core.Categories;
-using Budget.Server.Core.Enums;
+﻿using Budget.Server.Core.Categories.Models;
+using Budget.Server.Core.Transactions.Enums;
+using Budget.Server.Core.Transactions.Models;
 using Budget.Server.Data.Transactions;
 using System.Linq.Expressions;
 
-namespace Budget.Server.Core.Transactions
+namespace Budget.Server.Core.Transactions.Models
 {
     public class TransactionQuery
     {

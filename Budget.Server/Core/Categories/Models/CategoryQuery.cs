@@ -1,8 +1,8 @@
-﻿using Budget.Server.Core.Enums;
+﻿using Budget.Server.Core.Categories.Enums;
 using Budget.Server.Data.Categories;
 using System.Linq.Expressions;
 
-namespace Budget.Server.Core.Categories
+namespace Budget.Server.Core.Categories.Models
 {
     public class CategoryQuery
     {

@@ -9,33 +9,26 @@ interface Props {
 
 const useDeleteEntity = ({ endpoint, onDeleteSuccess, onDeleteError }: Props) => {
 
+    const deleteResult = ref<ApiCallResult>();
+
     const deleteEntity = async (id: number): Promise<void> => {
         if (!id) {
             return Promise.reject('Error: Cannot delete entity without id.');
         }
 
-        apiCall<void, void>(`${endpoint}/${id}`, { method: 'DELETE' })
-            .then(() => {
-                onDeleteSuccess?.();
+        const result = await apiCall<void, void>(`${endpoint}/${id}`, { method: 'DELETE' });
 
-                deleteResult.value = {
-                    isSuccess: true,
-                    timestamp: Date.now(),
-                };
-            })
-            .catch(() => {
-                onDeleteError?.();
+        deleteResult.value = result;
 
-                deleteResult.value = {
-                    isSuccess: false,
-                    timestamp: Date.now(),
-                };
-            });
+        if (result.isSuccess) {
+            onDeleteSuccess?.();
+        }
+        else {
+            onDeleteError?.();
+        }
     };
 
-    const deleteResult = ref<ApiCallResult>();
-
     return { deleteEntity, deleteResult };
-}
+};
 
 export default useDeleteEntity;

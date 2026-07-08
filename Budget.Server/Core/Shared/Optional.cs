@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
-namespace Budget.Server.Core.Helpers
+namespace Budget.Server.Core.Shared
 {
     public class Optional<T>
     {

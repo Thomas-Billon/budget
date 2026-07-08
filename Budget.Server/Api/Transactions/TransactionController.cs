@@ -1,32 +1,34 @@
-﻿using Budget.Server.Api.Transactions.Models.Requests;
+using Budget.Server.Api.Transactions.Models.Requests;
 using Budget.Server.Api.Transactions.Models.Responses;
-using Budget.Server.Core.Enums;
-using Budget.Server.Core.Helpers;
+using Budget.Server.Core.Categories.Enums;
+using Budget.Server.Core.Errors;
+using Budget.Server.Core.Shared;
 using Budget.Server.Core.Transactions;
+using Budget.Server.Core.Transactions.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace Budget.Server.Api.Transactions
 {
-    [ApiController]
-	[Route("[controller]")]
-	public class TransactionController : ControllerBase
+    [Route("[controller]")]
+    public class TransactionController : ApiControllerBase
     {
-		private readonly TransactionService _transactionService;
+        private readonly TransactionService _transactionService;
 
         public TransactionController
         (
             TransactionService transactionService
         )
         {
-			_transactionService = transactionService;
+            _transactionService = transactionService;
         }
 
         [HttpGet("history")]
         public async Task<ActionResult<TransactionHistoryResponse>> GetTransactionHistory([FromQuery] TransactionHistoryRequest request)
         {
-            var options = TransactionQueryParametersMapper.FromHistoryRequest(request, isPaginationEnabled: true);
+            var parameters = TransactionQueryParametersMapper.FromHistoryRequest(request, isPaginationEnabled: true);
 
-            var transactions = await _transactionService.GetTransactionHistory(options);
+            var transactions = await _transactionService.GetTransactionHistory(parameters);
             var paginatedTransactions = transactions.ToPagination(request.Take);
 
             var response = new TransactionHistoryResponse()
@@ -52,16 +54,17 @@ namespace Budget.Server.Api.Transactions
                     .ToList(),
                 IsLastPage = paginatedTransactions.IsLastPage,
             };
+
             return Ok(response);
         }
 
-		[HttpGet("{id:int}")]
-		public async Task<ActionResult<TransactionDetailsResponse?>> GetTransactionDetails(int id)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<TransactionDetailsResponse?>> GetTransactionDetails(int id)
         {
             var transaction = await _transactionService.GetTransactionDetails(id);
             if (transaction == null)
             {
-                return NotFound();
+                return Failure(HttpStatusCode.NotFound, ErrorCodes.Transaction.NotFound);
             }
 
             var response = new TransactionDetailsResponse
@@ -83,28 +86,29 @@ namespace Budget.Server.Api.Transactions
                     })
                     .ToList(),
             };
+
             return Ok(response);
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateTransaction([FromBody] TransactionCreateRequest request)
+        public async Task<IActionResult> CreateTransaction([FromBody] TransactionCreateRequest request)
         {
             var result = await _transactionService.CreateTransaction(request);
             if (result == 0)
             {
-                return BadRequest("Transaction creation failed.");
+                return Failure(HttpStatusCode.BadRequest, ErrorCodes.Transaction.CannotCreate);
             }
 
             return Ok();
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> UpdateTransaction(int id, [FromBody] TransactionUpdateRequest request)
+        public async Task<IActionResult> UpdateTransaction(int id, [FromBody] TransactionUpdateRequest request)
         {
             var result = await _transactionService.UpdateTransaction(id, request);
             if (result == 0)
             {
-                return BadRequest("Transaction update failed.");
+                return Failure(HttpStatusCode.NotFound, ErrorCodes.Transaction.CannotUpdate);
             }
 
             return Ok();
@@ -116,19 +120,19 @@ namespace Budget.Server.Api.Transactions
             var result = await _transactionService.PatchTransaction(id, request);
             if (result == 0)
             {
-                return BadRequest("Transaction patch failed.");
+                return Failure(HttpStatusCode.NotFound, ErrorCodes.Transaction.CannotPatch);
             }
 
             return Ok();
         }
 
         [HttpDelete("{id:int}")]
-		public async Task<ActionResult> DeleteTransaction(int id)
+        public async Task<IActionResult> DeleteTransaction(int id)
         {
             var result = await _transactionService.DeleteTransaction(id);
             if (result == 0)
             {
-                return BadRequest("Transaction deletion failed.");
+                return Failure(HttpStatusCode.NotFound, ErrorCodes.Transaction.CannotDelete);
             }
 
             return Ok();
