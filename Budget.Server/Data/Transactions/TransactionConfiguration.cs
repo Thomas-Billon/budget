@@ -17,7 +17,8 @@ namespace Budget.Server.Data.Transactions
                     right => right
                         .HasOne(tc => tc.Category)
                         .WithMany()
-                        .HasForeignKey(tc => tc.CategoryId),
+                        .HasForeignKey(tc => tc.CategoryId)
+                        .OnDelete(DeleteBehavior.ClientNoAction), // INFO: Prevents double cascade cycle from deleting User
                     left => left
                         .HasOne(tc => tc.Transaction)
                         .WithMany()

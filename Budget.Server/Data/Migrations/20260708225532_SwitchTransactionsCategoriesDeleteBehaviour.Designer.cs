@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Budget.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260708142423_AddUsers")]
-    partial class AddUsers
+    [Migration("20260708225532_SwitchTransactionsCategoriesDeleteBehaviour")]
+    partial class SwitchTransactionsCategoriesDeleteBehaviour
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -93,6 +93,21 @@ namespace Budget.Server.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Transactions", (string)null);
+                });
+
+            modelBuilder.Entity("Budget.Server.Data.Transactions.TransactionCategory", b =>
+                {
+                    b.Property<int>("TransactionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("TransactionId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("TransactionsCategories", (string)null);
                 });
 
             modelBuilder.Entity("Budget.Server.Data.Users.ApplicationUser", b =>
@@ -196,21 +211,6 @@ namespace Budget.Server.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserRefreshTokens", (string)null);
-                });
-
-            modelBuilder.Entity("CategoryTransaction", b =>
-                {
-                    b.Property<int>("CategoriesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TransactionsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CategoriesId", "TransactionsId");
-
-                    b.HasIndex("TransactionsId");
-
-                    b.ToTable("CategoryTransaction");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -374,6 +374,25 @@ namespace Budget.Server.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Budget.Server.Data.Transactions.TransactionCategory", b =>
+                {
+                    b.HasOne("Budget.Server.Data.Categories.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.ClientNoAction)
+                        .IsRequired();
+
+                    b.HasOne("Budget.Server.Data.Transactions.Transaction", "Transaction")
+                        .WithMany()
+                        .HasForeignKey("TransactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Transaction");
+                });
+
             modelBuilder.Entity("Budget.Server.Data.Users.UserRefreshToken", b =>
                 {
                     b.HasOne("Budget.Server.Data.Users.ApplicationUser", "User")
@@ -383,21 +402,6 @@ namespace Budget.Server.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CategoryTransaction", b =>
-                {
-                    b.HasOne("Budget.Server.Data.Categories.Category", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Budget.Server.Data.Transactions.Transaction", null)
-                        .WithMany()
-                        .HasForeignKey("TransactionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
