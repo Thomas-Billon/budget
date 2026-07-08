@@ -21,11 +21,11 @@
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^5.1.0",
-    "@tailwindcss/postcss": "^4.1.11",
     "@tsconfig/node22": "^22.0.2",
     "@types/node": "^24.0.10",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "@vitejs/plugin-vue": "^6.0.0",
-    "@vue/eslint-config-typescript": "^14.5.1",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.29.0",

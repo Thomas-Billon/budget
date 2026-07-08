@@ -2,9 +2,10 @@ import { fileURLToPath, URL } from 'node:url';
 
 import { defineConfig } from 'vite';
 import plugin from '@vitejs/plugin-vue';
+import vueDevTools from 'vite-plugin-vue-devtools';
 import fs from 'fs';
 import path from 'path';
-import child_process from 'child_process';
+import childProcess from 'child_process';
 import { env } from 'process';
 
 const baseFolder =
@@ -21,7 +22,7 @@ if (!fs.existsSync(baseFolder)) {
 }
 
 if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
-    const dotnetCommand = child_process.spawnSync('dotnet', ['dev-certs', 'https', '--export-path', certFilePath, '--format', 'Pem', '--no-password'], { stdio: 'inherit' });
+    const dotnetCommand = childProcess.spawnSync('dotnet', ['dev-certs', 'https', '--export-path', certFilePath, '--format', 'Pem', '--no-password'], { stdio: 'inherit' });
 
     if (dotnetCommand.status !== 0) {
         throw new Error('Could not create certificate.');
@@ -30,7 +31,8 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
 
 export default defineConfig({
     plugins: [
-        plugin()
+        plugin(),
+        vueDevTools()
     ],
     resolve: {
         alias: {
@@ -42,6 +44,12 @@ export default defineConfig({
         https: {
             key: fs.readFileSync(keyFilePath),
             cert: fs.readFileSync(certFilePath)
+        },
+        proxy: {
+            '/api': {
+                target: 'https://localhost:7177',
+                secure: false
+            }
         }
     }
 });
