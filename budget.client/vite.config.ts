@@ -32,7 +32,9 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
 export default defineConfig({
     plugins: [
         plugin(),
-        vueDevTools()
+        vueDevTools({
+            launchEditor: 'code' // 'visualstudio' is only supported on macOS right now, ew.
+        })
     ],
     resolve: {
         alias: {

@@ -132,9 +132,6 @@
                         {{ errorMessages[error] }}
                     </div>
                 </div>
-                <div class="form-text">
-                    Min. {{ passwordMinLength }} characters, with uppercase, lowercase, digit, and special character.
-                </div>
             </div>
 
             <div class="mb-3">
