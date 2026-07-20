@@ -2,7 +2,6 @@ using Budget.Server.Api.Categories.Models.Requests;
 using Budget.Server.Api.Categories.Models.Responses;
 using Budget.Server.Core.Categories;
 using Budget.Server.Core.Categories.Enums;
-using Budget.Server.Core.Categories.Models;
 using Budget.Server.Core.Errors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,11 +24,11 @@ namespace Budget.Server.Api.Categories
         }
 
         [HttpGet("options")]
-        public async Task<ActionResult<CategoryOptionsResponse>> GetCategoryOptions()
+        public async Task<ActionResult<CategoryOptionsResponse>> GetCategoryFieldOptions()
         {
             var userId = GetUserId();
 
-            var categories = await _categoryService.GetCategoryOptions(userId);
+            var categories = await _categoryService.GetCategoryFieldOptions(userId);
 
             var response = new CategoryOptionsResponse
             {
@@ -45,22 +44,23 @@ namespace Budget.Server.Api.Categories
             return Ok(response);
         }
 
-        [HttpGet("hierarchy")]
-        public async Task<ActionResult<CategoryHierarchyResponse>> GetCategoryHierarchy()
+        [HttpGet("list")]
+        public async Task<ActionResult<CategoryListResponse>> GetCategoryList()
         {
             var userId = GetUserId();
 
-            var categories = await _categoryService.GetCategoryHierarchy(userId);
+            var categories = await _categoryService.GetCategoryList(userId);
 
-            var response = new CategoryHierarchyResponse
+            var response = new CategoryListResponse
             {
-                Items = [],
+                Items = categories.Select(x => new CategoryListItemResponse
+                {
+                    Id = x.Base.Id,
+                    Name = x.Base.Name,
+                    Color = x.Base.Color,
+                    ColorHex = x.Base.Color.ToHex(),
+                }).ToList(),
             };
-
-            foreach (var category in categories)
-            {
-                response.Items.Add(ToCategoryHierarchyItemResponse(category));
-            }
 
             return Ok(response);
         }
@@ -82,16 +82,6 @@ namespace Budget.Server.Api.Categories
                 Name = category.Base.Name,
                 Color = category.Base.Color,
                 ColorHex = category.Base.Color.ToHex(),
-                ParentCategoryId = category.ParentCategoryId,
-                SubCategories = category.SubCategories
-                    .Select(x => new CategoryDetailsBaseResponse
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Color = x.Color,
-                        ColorHex = x.Color.ToHex(),
-                    })
-                    .ToList(),
             };
 
             return Ok(response);
@@ -153,33 +143,5 @@ namespace Budget.Server.Api.Categories
             return Ok();
         }
 
-        #region Private
-
-        #region Hierarchy
-
-        private CategoryHierarchyItemResponse ToCategoryHierarchyItemResponse(CategoryQueryHierarchy category)
-        {
-            var result = new CategoryHierarchyItemResponse
-            {
-                Id = category.Base.Id,
-                Name = category.Base.Name,
-                Color = category.Base.Color,
-                ColorHex = category.Base.Color.ToHex(),
-                ParentCategoryId = category.ParentCategoryId,
-                SubCategories = [],
-            };
-
-            // Avoids recursion inside select
-            foreach (var subCategory in category.SubCategories)
-            {
-                result.SubCategories.Add(ToCategoryHierarchyItemResponse(subCategory));
-            }
-
-            return result;
-        }
-
-        #endregion Hierarchy
-
-        #endregion Private
     }
 }

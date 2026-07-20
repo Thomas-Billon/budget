@@ -46,18 +46,6 @@ namespace Budget.Server.Core.Transactions.Models
         };
     }
 
-    public class TransactionQueryBalance
-    {
-        public required TransactionQuery Base { get; set; }
-        public required List<int> CategoryIds { get; set; }
-
-        public static Expression<Func<Transaction, TransactionQueryBalance>> Select => t => new()
-        {
-            Base = t.ToQuery(),
-            CategoryIds = t.Categories.Select(c => c.Id).ToList(),
-        };
-    }
-
     public class TransactionQueryDetails
     {
         public required TransactionQuery Base { get; set; }
@@ -67,6 +55,18 @@ namespace Budget.Server.Core.Transactions.Models
         {
             Base = t.ToQuery(),
             Categories = t.Categories.Select(c => c.ToQuery()).ToList(),
+        };
+    }
+
+    public class TransactionQueryBalance
+    {
+        public required TransactionQuery Base { get; set; }
+        public required List<int> CategoryIds { get; set; }
+
+        public static Expression<Func<Transaction, TransactionQueryBalance>> Select => t => new()
+        {
+            Base = t.ToQuery(),
+            CategoryIds = t.Categories.Select(c => c.Id).ToList(),
         };
     }
 }

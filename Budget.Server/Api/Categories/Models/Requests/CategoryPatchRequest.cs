@@ -8,7 +8,5 @@ namespace Budget.Server.Api.Categories.Models.Requests
         public Optional<string>? Name { get; init; }
 
         public Optional<CategoryColor>? Color { get; init; }
-
-        public Optional<int?>? ParentCategoryId { get; init; }
     }
 }

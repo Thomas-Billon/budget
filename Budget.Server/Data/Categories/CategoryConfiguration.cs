@@ -11,12 +11,6 @@ namespace Budget.Server.Data.Categories
             entity.ToTable(nameof(ApplicationDbContext.Categories));
 
             entity
-                .HasMany(c => c.SubCategories)
-                .WithOne(c => c.ParentCategory)
-                .HasForeignKey(c => c.ParentCategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
-
-            entity
                 .HasOne(c => c.User)
                 .WithMany()
                 .HasForeignKey(c => c.UserId)

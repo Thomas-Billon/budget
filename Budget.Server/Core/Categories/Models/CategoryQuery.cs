@@ -1,4 +1,5 @@
 ﻿using Budget.Server.Core.Categories.Enums;
+using Budget.Server.Core.Transactions.Models;
 using Budget.Server.Data.Categories;
 using System.Linq.Expressions;
 
@@ -9,6 +10,8 @@ namespace Budget.Server.Core.Categories.Models
         public required int Id { get; set; }
         public required string Name { get; set; }
         public required CategoryColor Color { get; set; }
+
+        public static Expression<Func<Category, CategoryQuery>> Select => c => c.ToQuery();
     }
 
     public static class CategoryQueryExtension
@@ -24,28 +27,27 @@ namespace Budget.Server.Core.Categories.Models
         }
     }
 
-    public class CategoryQueryOptions
+    public class CategoryQueryList
     {
         public required CategoryQuery Base { get; set; }
+        public required int TransactionCount { get; set; }
 
-        public static Expression<Func<Category, CategoryQueryOptions>> Select => c => new()
+        public static Expression<Func<Category, CategoryQueryList>> Select => c => new()
         {
             Base = c.ToQuery(),
+            TransactionCount = c.Transactions.Count,
         };
     }
 
-    public class CategoryQueryHierarchy
+    public class CategoryQueryDetails
     {
         public required CategoryQuery Base { get; set; }
-        public required int? ParentCategoryId { get; set; }
+        public required List<TransactionQuery> Transactions { get; set; }
 
-        // Needs to be set manually after querying, as EF Core does not support recursive queries.
-        public List<CategoryQueryHierarchy> SubCategories { get; set; } = [];
-
-        public static Expression<Func<Category, CategoryQueryHierarchy>> Select => c => new()
+        public static Expression<Func<Category, CategoryQueryDetails>> Select => c => new()
         {
             Base = c.ToQuery(),
-            ParentCategoryId = c.ParentCategoryId,
+            Transactions = c.Transactions.Select(t => t.ToQuery()).ToList(),
         };
     }
 
@@ -59,17 +61,13 @@ namespace Budget.Server.Core.Categories.Models
         };
     }
 
-    public class CategoryQueryDetails
+    public class CategoryQueryFieldOptions
     {
         public required CategoryQuery Base { get; set; }
-        public required int? ParentCategoryId { get; set; }
-        public required List<CategoryQuery> SubCategories { get; set; }
 
-        public static Expression<Func<Category, CategoryQueryDetails>> Select => c => new()
+        public static Expression<Func<Category, CategoryQueryFieldOptions>> Select => c => new()
         {
             Base = c.ToQuery(),
-            ParentCategoryId = c.ParentCategoryId,
-            SubCategories = c.SubCategories.Select(sc => sc.ToQuery()).ToList(),
         };
     }
 }

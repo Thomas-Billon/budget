@@ -18,20 +18,18 @@ namespace Budget.Server.Core.Categories
             _context = context;
         }
 
-        public Task<List<CategoryQueryOptions>> GetCategoryOptions(string userId)
+        public Task<List<CategoryQueryFieldOptions>> GetCategoryFieldOptions(string userId)
         {
             return GetCategories_AsQueryable(userId).AsNoTracking()
-                .Select(CategoryQueryOptions.Select)
+                .Select(CategoryQueryFieldOptions.Select)
                 .ToListAsync();
         }
 
-        public async Task<List<CategoryQueryHierarchy>> GetCategoryHierarchy(string userId)
+        public Task<List<CategoryQueryList>> GetCategoryList(string userId)
         {
-            var categories = await GetCategories_AsQueryable(userId).AsNoTracking()
-                .Select(CategoryQueryHierarchy.Select)
+            return GetCategories_AsQueryable(userId).AsNoTracking()
+                .Select(CategoryQueryList.Select)
                 .ToListAsync();
-
-            return BuildCategoryHierarchyFromList(categories);
         }
 
         public Task<List<CategoryQueryBalance>> GetCategoryBalance(string userId)
@@ -48,7 +46,7 @@ namespace Budget.Server.Core.Categories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<int> CreateCategory(CategoryCreateRequest request, string userId)
+        public Task<int> CreateCategory(CategoryCreateRequest request, string userId)
         {
             var entity = new Category
             {
@@ -57,11 +55,9 @@ namespace Budget.Server.Core.Categories
                 UserId = userId,
             };
 
-            // Parent category
-            await SetParentCategory(entity, request.ParentCategoryId, userId);
-
             _context.Categories.Add(entity);
-            return await _context.SaveChangesAsync();
+
+            return _context.SaveChangesAsync();
         }
 
         public async Task<int> UpdateCategory(int id, CategoryUpdateRequest request, string userId)
@@ -76,9 +72,6 @@ namespace Budget.Server.Core.Categories
 
             entity.Name = request.Name;
             entity.Color = request.Color;
-
-            // Parent category
-            await SetParentCategory(entity, request.ParentCategoryId, userId);
 
             return await _context.SaveChangesAsync();
         }
@@ -95,12 +88,6 @@ namespace Budget.Server.Core.Categories
 
             if (request.Name?.IsSet == true) entity.Name = request.Name.Value ?? string.Empty;
             if (request.Color?.IsSet == true) entity.Color = request.Color.Value;
-
-            // Parent category
-            if (request.ParentCategoryId?.IsSet == true)
-            {
-                await SetParentCategory(entity, request.ParentCategoryId.Value, userId);
-            }
 
             return await _context.SaveChangesAsync();
         }
@@ -129,45 +116,6 @@ namespace Budget.Server.Core.Categories
         }
 
         #endregion Get data
-
-        #region Parent category
-
-        private async Task SetParentCategory(Category entity, int? parentCategoryId, string userId)
-        {
-            if (parentCategoryId == null)
-            {
-                entity.ParentCategoryId = null;
-                return;
-            }
-
-            var parentCategory = await _context.Categories
-                .Where(x => x.Id == parentCategoryId)
-                .Where(x => x.UserId == userId)
-                .FirstOrDefaultAsync();
-
-            if (parentCategory != null)
-            {
-                entity.ParentCategory = parentCategory;
-            }
-        }
-
-        #endregion Parent category
-
-        #region Hierarchy
-
-        private List<CategoryQueryHierarchy> BuildCategoryHierarchyFromList(List<CategoryQueryHierarchy> categories)
-        {
-            var lookup = categories.ToLookup(x => x.ParentCategoryId);
-
-            foreach (var category in categories)
-            {
-                category.SubCategories = lookup[category.Base.Id].ToList();
-            }
-
-            return lookup[null].ToList();
-        }
-
-        #endregion Hierarchy
 
         #endregion Private
     }
