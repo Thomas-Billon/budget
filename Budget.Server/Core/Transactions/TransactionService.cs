@@ -19,28 +19,32 @@ namespace Budget.Server.Core.Transactions
             _context = context;
         }
 
-        public Task<List<TransactionQueryHistory>> GetTransactionHistory(TransactionQueryParameters parameters, string userId)
+        public Task<List<TransactionQueryStats>> GetStats(TransactionQueryParameters parameters, string userId)
         {
-            return GetTransactions_AsQueryable(parameters, userId).AsNoTracking()
+            return GetByParams_AsQueryable(parameters, userId).AsNoTracking()
+                .Select(TransactionQueryStats.Select)
+                .ToListAsync();
+        }
+
+        public async Task<Pagination<TransactionQueryHistory>> GetHistory(TransactionQueryParameters parameters, string userId)
+        {
+            var transactions = await GetByParams_AsQueryable(parameters, userId).AsNoTracking()
                 .Select(TransactionQueryHistory.Select)
                 .ToListAsync();
+
+            return transactions.ToPagination(parameters.Take);
         }
 
-        public Task<List<TransactionQueryBalance>> GetTransactionBalance(TransactionQueryParameters parameters, string userId)
-        {
-            return GetTransactions_AsQueryable(parameters, userId).AsNoTracking()
-                .Select(TransactionQueryBalance.Select)
-                .ToListAsync();
-        }
+        #region CRUD
 
-        public Task<TransactionQueryDetails?> GetTransactionDetails(int id, string userId)
+        public Task<TransactionQueryDetails?> GetDetails(int id, string userId)
         {
-            return GetTransactionById_AsQueryable(id, userId).AsNoTracking()
+            return GetById_AsQueryable(id, userId).AsNoTracking()
                 .Select(TransactionQueryDetails.Select)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<int> CreateTransaction(TransactionCreateRequest request, string userId)
+        public async Task<int> Create(TransactionCreateRequest request, string userId)
         {
             var entity = new Transaction
             {
@@ -60,9 +64,9 @@ namespace Budget.Server.Core.Transactions
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> UpdateTransaction(int id, TransactionUpdateRequest request, string userId)
+        public async Task<int> Update(int id, TransactionUpdateRequest request, string userId)
         {
-            var entity = await GetTransactionById_AsQueryable(id, userId)
+            var entity = await GetById_AsQueryable(id, userId)
                 .FirstOrDefaultAsync();
 
             if (entity == null)
@@ -83,9 +87,9 @@ namespace Budget.Server.Core.Transactions
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> PatchTransaction(int id, TransactionPatchRequest request, string userId)
+        public async Task<int> Patch(int id, TransactionPatchRequest request, string userId)
         {
-            var entity = await GetTransactionById_AsQueryable(id, userId)
+            var entity = await GetById_AsQueryable(id, userId)
                 .FirstOrDefaultAsync();
 
             if (entity == null)
@@ -109,17 +113,17 @@ namespace Budget.Server.Core.Transactions
             return await _context.SaveChangesAsync();
         }
 
-        public Task<int> DeleteTransaction(int id, string userId)
+        public Task<int> Delete(int id, string userId)
         {
-            return GetTransactionById_AsQueryable(id, userId)
+            return GetById_AsQueryable(id, userId)
                 .ExecuteDeleteAsync();
         }
 
-        #region Private
+        #endregion CRUD
 
-        #region Get data
+        #region Queryable
 
-        private IQueryable<Transaction> GetTransactions_AsQueryable(TransactionQueryParameters parameters, string userId)
+        private IQueryable<Transaction> GetByParams_AsQueryable(TransactionQueryParameters parameters, string userId)
         {
             var query = _context.Transactions
                 .Include(x => x.Categories)
@@ -143,7 +147,7 @@ namespace Budget.Server.Core.Transactions
             return query;
         }
 
-        private IQueryable<Transaction> GetTransactionById_AsQueryable(int id, string userId)
+        private IQueryable<Transaction> GetById_AsQueryable(int id, string userId)
         {
             return _context.Transactions
                 .Include(x => x.Categories)
@@ -151,7 +155,7 @@ namespace Budget.Server.Core.Transactions
                 .Where(x => x.UserId == userId);
         }
 
-        #endregion Get data
+        #endregion Queryable
 
         #region Categories
 
@@ -174,7 +178,5 @@ namespace Budget.Server.Core.Transactions
         }
 
         #endregion Categories
-
-        #endregion Private
     }
 }

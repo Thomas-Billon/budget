@@ -1,4 +1,5 @@
 ﻿using Budget.Server.Core.Balances.Models;
+using Budget.Server.Core.Categories.Models;
 using Budget.Server.Core.Transactions.Enums;
 using Budget.Server.Core.Transactions.Models;
 using Budget.Server.Data;
@@ -20,7 +21,7 @@ namespace Budget.Server.Core.Balances
             _context = context;
         }
 
-        public BalanceReportData CalculateBalanceReport(List<TransactionQueryBalance> transactions)
+        public BalanceReportData CalculateReport(List<TransactionQueryStats> transactions)
         {
             var totalIncome = CalculateTotalIncome(transactions);
             var totalExpense = CalculateTotalExpense(transactions);
@@ -44,24 +45,26 @@ namespace Budget.Server.Core.Balances
             };
         }
 
-        public decimal CalculateTotalIncome(List<TransactionQueryBalance> transactions)
+        #region Total
+
+        private decimal CalculateTotalIncome(List<TransactionQueryStats> transactions)
         {
-            return CalculateTotalTransactionType(transactions, TransactionType.Income);
+            return CalculateTotalByTransactionType(transactions, TransactionType.Income);
         }
 
-        public decimal CalculateTotalExpense(List<TransactionQueryBalance> transactions)
+        private decimal CalculateTotalExpense(List<TransactionQueryStats> transactions)
         {
-            return CalculateTotalTransactionType(transactions, TransactionType.Expense);
+            return CalculateTotalByTransactionType(transactions, TransactionType.Expense);
         }
 
-        public decimal CalculateTotalTransactionType(List<TransactionQueryBalance> transactions, TransactionType type)
+        private decimal CalculateTotalByTransactionType(List<TransactionQueryStats> transactions, TransactionType type)
         {
             return transactions
                 .Where(x => x.Base.Type == type)
                 .Sum(x => x.Base.Amount);
         }
 
-        public decimal CalculateNetBalance(List<TransactionQueryBalance> transactions)
+        private decimal CalculateNetBalance(List<TransactionQueryStats> transactions)
         {
             var totalIncome = CalculateTotalIncome(transactions);
             var totalExpense = CalculateTotalExpense(transactions);
@@ -69,22 +72,26 @@ namespace Budget.Server.Core.Balances
             return CalculateNetBalance(totalIncome, totalExpense);
         }
 
-        public decimal CalculateNetBalance(decimal totalIncome, decimal totalExpense)
+        private decimal CalculateNetBalance(decimal totalIncome, decimal totalExpense)
         {
             return totalIncome - totalExpense;
         }
 
-        public List<TransactionQueryBalance> GetMostLucrativeTransactions(List<TransactionQueryBalance> transactions, int take)
+        #endregion Total
+
+        #region Top N
+
+        private List<TransactionQueryStats> GetMostLucrativeTransactions(List<TransactionQueryStats> transactions, int take)
         {
             return GetTransactionsWithHighestAmount(transactions, TransactionType.Income, take);
         }
 
-        public List<TransactionQueryBalance> GetMostExpensiveTransactions(List<TransactionQueryBalance> transactions, int take)
+        private List<TransactionQueryStats> GetMostExpensiveTransactions(List<TransactionQueryStats> transactions, int take)
         {
             return GetTransactionsWithHighestAmount(transactions, TransactionType.Expense, take);
         }
 
-        public List<TransactionQueryBalance> GetTransactionsWithHighestAmount(List<TransactionQueryBalance> transactions, TransactionType type, int take)
+        private List<TransactionQueryStats> GetTransactionsWithHighestAmount(List<TransactionQueryStats> transactions, TransactionType type, int take)
         {
             return transactions
                 .Where(x => x.Base.Type == type)
@@ -93,54 +100,60 @@ namespace Budget.Server.Core.Balances
                 .ToList();
         }
 
-        public List<BalanceReportTransactionsByCategoryData> CategorizeIncomeTransactions(List<TransactionQueryBalance> transactions)
+        #endregion Top N
+
+        #region Categorization
+
+        private List<BalanceReportTransactionsByCategoryData> CategorizeIncomeTransactions(List<TransactionQueryStats> transactions)
         {
             return CategorizeTransactions(transactions, TransactionType.Income);
         }
 
-        public List<BalanceReportTransactionsByCategoryData> CategorizeExpenseTransactions(List<TransactionQueryBalance> transactions)
+        private List<BalanceReportTransactionsByCategoryData> CategorizeExpenseTransactions(List<TransactionQueryStats> transactions)
         {
             return CategorizeTransactions(transactions, TransactionType.Expense);
         }
 
-        public List<BalanceReportTransactionsByCategoryData> CategorizeTransactions(List<TransactionQueryBalance> transactions, TransactionType type)
+        private List<BalanceReportTransactionsByCategoryData> CategorizeTransactions(List<TransactionQueryStats> transactions, TransactionType type)
         {
-            var uncategorizedKey = -1;
+            var transactionSum = CalculateTotalByTransactionType(transactions, type);
 
-            var transactionFilteredByType = transactions.Where(t => t.Base.Type == type);
-            var transactionSum = transactionFilteredByType.Sum(t => t.Base.Amount);
+            var transactionsWithCategory = transactions
+                .Where(t => t.Base.Type == type)
+                .Where(t => t.Categories.Any())
+                .SelectMany(t => t.Categories.Select(c => new { Category = (CategoryQuery?)c, Transaction = t }));
 
-            var transactionsWithCategory = transactionFilteredByType
-                .Where(t => t.CategoryIds.Any())
-                .SelectMany(t => t.CategoryIds.Select(c => new { CategoryId = c, Transaction = t }));
-
-            var transactionsWithoutCategory = transactionFilteredByType
-                .Where(t => !t.CategoryIds.Any())
-                .Select(t => new { CategoryId = uncategorizedKey, Transaction = t });
+            var transactionsWithoutCategory = transactions
+                .Where(t => t.Base.Type == type)
+                .Where(t => !t.Categories.Any())
+                .Select(t => new { Category = (CategoryQuery?)null, Transaction = t });
 
             var transactionsByCategories = transactionsWithCategory.Concat(transactionsWithoutCategory)
-                .GroupBy(x => x.CategoryId)
+                .GroupBy(x => x.Category)
                 .Select(g => new BalanceReportTransactionsByCategoryData
                 {
-                    CategoryId = g.Key,
+                    Category = g.Key,
                     Transactions = g.Select(x => x.Transaction).ToList(),
                 })
                 .ToList();
 
             foreach (var transactionsByCategory in transactionsByCategories)
             {
-                transactionsByCategory.CategoryShare = GetCategoryShare(transactionSum, transactionsByCategory.Transactions);
+                transactionsByCategory.CategoryShare = CalculateCategoryShare(transactionSum, transactionsByCategory.Transactions);
             }
 
             return transactionsByCategories;
         }
 
-        private decimal GetCategoryShare(decimal transactionSum, List<TransactionQueryBalance> categoryTransactions)
+        private decimal CalculateCategoryShare(decimal transactionSum, List<TransactionQueryStats> categoryTransactions)
         {
-            // Divide amount in case transaction is split between multiple categories
-            var categorySum = categoryTransactions.Sum(x => x.Base.Amount / Math.Max(x.CategoryIds.Count, 1));
+            var categorySum = categoryTransactions.Sum(x => {
+                return x.Base.Amount / Math.Max(x.Categories.Count, 1); // INFO: Divide amount in case transaction is split between multiple categories
+            });
 
             return categorySum / transactionSum * 100;
         }
+
+        #endregion Categorization
     }
 }

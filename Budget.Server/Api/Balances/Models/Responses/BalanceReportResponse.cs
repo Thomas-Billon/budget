@@ -10,7 +10,6 @@ namespace Budget.Server.Api.Balances.Models.Responses
         public required decimal NetBalance { get; set; }
         public required List<BalanceReportTransactionItemResponse> MostLucrativeTransactions { get; set; }
         public required List<BalanceReportTransactionItemResponse> MostExpensiveTransactions { get; set; }
-        public required List<BalanceReportCategoryItemResponse> Categories { get; set; }
         public required List<BalanceReportTransactionsByCategoryItemResponse> IncomeTransactionsByCategory { get; set; }
         public required List<BalanceReportTransactionsByCategoryItemResponse> ExpenseTransactionsByCategory { get; set; }
     }
@@ -34,8 +33,8 @@ namespace Budget.Server.Api.Balances.Models.Responses
 
     public class BalanceReportTransactionsByCategoryItemResponse
     {
-        public required int CategoryId { get; set; }
-        public required decimal CategoryShare { get; set; }
+        public required BalanceReportCategoryItemResponse? Category { get; set; }
         public required List<BalanceReportTransactionItemResponse> Transactions { get; set; }
+        public required decimal CategoryShare { get; set; }
     }
 }

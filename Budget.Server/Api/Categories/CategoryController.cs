@@ -24,32 +24,34 @@ namespace Budget.Server.Api.Categories
         }
 
         [HttpGet("options")]
-        public async Task<ActionResult<CategoryOptionsResponse>> GetCategoryFieldOptions()
+        public async Task<ActionResult<CategoryOptionsResponse>> GetOptionsForSelectField()
         {
             var userId = GetUserId();
 
-            var categories = await _categoryService.GetCategoryFieldOptions(userId);
+            var categories = await _categoryService.GetOptionsForSelectField(userId);
 
             var response = new CategoryOptionsResponse
             {
                 Items = categories.Select(x => new CategoryOptionsItemResponse
                 {
-                    Id = x.Base.Id,
-                    Name = x.Base.Name,
-                    Color = x.Base.Color,
-                    ColorHex = x.Base.Color.ToHex(),
+                    Id = x.Id,
+                    Name = x.Name,
+                    Color = x.Color,
+                    ColorHex = x.Color.ToHex(),
                 }).ToList(),
             };
 
             return Ok(response);
         }
 
+        #region CRUD
+
         [HttpGet("list")]
-        public async Task<ActionResult<CategoryListResponse>> GetCategoryList()
+        public async Task<ActionResult<CategoryListResponse>> GetList()
         {
             var userId = GetUserId();
 
-            var categories = await _categoryService.GetCategoryList(userId);
+            var categories = await _categoryService.GetList(userId);
 
             var response = new CategoryListResponse
             {
@@ -66,11 +68,11 @@ namespace Budget.Server.Api.Categories
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<CategoryDetailsResponse?>> Details(int id)
+        public async Task<ActionResult<CategoryDetailsResponse?>> GetDetails(int id)
         {
             var userId = GetUserId();
 
-            var category = await _categoryService.GetCategoryDetails(id, userId);
+            var category = await _categoryService.GetDetails(id, userId);
             if (category == null)
             {
                 return Failure(HttpStatusCode.NotFound, ErrorCodes.Category.NotFound);
@@ -88,11 +90,11 @@ namespace Budget.Server.Api.Categories
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateRequest request)
+        public async Task<IActionResult> Create([FromBody] CategoryCreateRequest request)
         {
             var userId = GetUserId();
 
-            var result = await _categoryService.CreateCategory(request, userId);
+            var result = await _categoryService.Create(request, userId);
             if (result == 0)
             {
                 return Failure(HttpStatusCode.BadRequest, ErrorCodes.Category.CannotCreate);
@@ -102,11 +104,11 @@ namespace Budget.Server.Api.Categories
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryUpdateRequest request)
+        public async Task<IActionResult> Update(int id, [FromBody] CategoryUpdateRequest request)
         {
             var userId = GetUserId();
 
-            var result = await _categoryService.UpdateCategory(id, request, userId);
+            var result = await _categoryService.Update(id, request, userId);
             if (result == 0)
             {
                 return Failure(HttpStatusCode.NotFound, ErrorCodes.Category.CannotUpdate);
@@ -116,11 +118,11 @@ namespace Budget.Server.Api.Categories
         }
 
         [HttpPatch("{id:int}")]
-        public async Task<IActionResult> PatchCategory(int id, [FromBody] CategoryPatchRequest request)
+        public async Task<IActionResult> Patch(int id, [FromBody] CategoryPatchRequest request)
         {
             var userId = GetUserId();
 
-            var result = await _categoryService.PatchCategory(id, request, userId);
+            var result = await _categoryService.Patch(id, request, userId);
             if (result == 0)
             {
                 return Failure(HttpStatusCode.NotFound, ErrorCodes.Category.CannotPatch);
@@ -130,11 +132,11 @@ namespace Budget.Server.Api.Categories
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var userId = GetUserId();
 
-            var result = await _categoryService.DeleteCategory(id, userId);
+            var result = await _categoryService.Delete(id, userId);
             if (result == 0)
             {
                 return Failure(HttpStatusCode.NotFound, ErrorCodes.Category.CannotDelete);
@@ -143,5 +145,6 @@ namespace Budget.Server.Api.Categories
             return Ok();
         }
 
+        #endregion CRUD
     }
 }

@@ -18,35 +18,30 @@ namespace Budget.Server.Core.Categories
             _context = context;
         }
 
-        public Task<List<CategoryQueryFieldOptions>> GetCategoryFieldOptions(string userId)
+        public Task<List<CategoryQuery>> GetOptionsForSelectField(string userId)
         {
-            return GetCategories_AsQueryable(userId).AsNoTracking()
-                .Select(CategoryQueryFieldOptions.Select)
+            return GetAll_AsQueryable(userId).AsNoTracking()
+                .Select(CategoryQuery.Select)
                 .ToListAsync();
         }
 
-        public Task<List<CategoryQueryList>> GetCategoryList(string userId)
+        #region CRUD
+
+        public Task<List<CategoryQueryList>> GetList(string userId)
         {
-            return GetCategories_AsQueryable(userId).AsNoTracking()
+            return GetAll_AsQueryable(userId).AsNoTracking()
                 .Select(CategoryQueryList.Select)
                 .ToListAsync();
         }
 
-        public Task<List<CategoryQueryBalance>> GetCategoryBalance(string userId)
+        public Task<CategoryQueryDetails?> GetDetails(int id, string userId)
         {
-            return GetCategories_AsQueryable(userId).AsNoTracking()
-                .Select(CategoryQueryBalance.Select)
-                .ToListAsync();
-        }
-
-        public Task<CategoryQueryDetails?> GetCategoryDetails(int id, string userId)
-        {
-            return GetCategoryById_AsQueryable(id, userId).AsNoTracking()
+            return GetById_AsQueryable(id, userId).AsNoTracking()
                 .Select(CategoryQueryDetails.Select)
                 .FirstOrDefaultAsync();
         }
 
-        public Task<int> CreateCategory(CategoryCreateRequest request, string userId)
+        public Task<int> Create(CategoryCreateRequest request, string userId)
         {
             var entity = new Category
             {
@@ -60,9 +55,9 @@ namespace Budget.Server.Core.Categories
             return _context.SaveChangesAsync();
         }
 
-        public async Task<int> UpdateCategory(int id, CategoryUpdateRequest request, string userId)
+        public async Task<int> Update(int id, CategoryUpdateRequest request, string userId)
         {
-            var entity = await GetCategoryById_AsQueryable(id, userId)
+            var entity = await GetById_AsQueryable(id, userId)
                 .FirstOrDefaultAsync();
 
             if (entity == null)
@@ -76,9 +71,9 @@ namespace Budget.Server.Core.Categories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> PatchCategory(int id, CategoryPatchRequest request, string userId)
+        public async Task<int> Patch(int id, CategoryPatchRequest request, string userId)
         {
-            var entity = await GetCategoryById_AsQueryable(id, userId)
+            var entity = await GetById_AsQueryable(id, userId)
                 .FirstOrDefaultAsync();
 
             if (entity == null)
@@ -92,31 +87,29 @@ namespace Budget.Server.Core.Categories
             return await _context.SaveChangesAsync();
         }
 
-        public Task<int> DeleteCategory(int id, string userId)
+        public Task<int> Delete(int id, string userId)
         {
-            return GetCategoryById_AsQueryable(id, userId)
+            return GetById_AsQueryable(id, userId)
                 .ExecuteDeleteAsync();
         }
 
-        #region Private
+        #endregion CRUD
 
-        #region Get data
+        #region Queryable
 
-        private IQueryable<Category> GetCategories_AsQueryable(string userId)
+        private IQueryable<Category> GetAll_AsQueryable(string userId)
         {
             return _context.Categories
                 .Where(x => x.UserId == userId);
         }
 
-        private IQueryable<Category> GetCategoryById_AsQueryable(int id, string userId)
+        private IQueryable<Category> GetById_AsQueryable(int id, string userId)
         {
             return _context.Categories
                 .Where(x => x.Id == id)
                 .Where(x => x.UserId == userId);
         }
 
-        #endregion Get data
-
-        #endregion Private
+        #endregion Queryable
     }
 }

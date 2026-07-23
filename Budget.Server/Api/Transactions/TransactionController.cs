@@ -2,7 +2,6 @@ using Budget.Server.Api.Transactions.Models.Requests;
 using Budget.Server.Api.Transactions.Models.Responses;
 using Budget.Server.Core.Categories.Enums;
 using Budget.Server.Core.Errors;
-using Budget.Server.Core.Shared;
 using Budget.Server.Core.Transactions;
 using Budget.Server.Core.Transactions.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -26,18 +25,17 @@ namespace Budget.Server.Api.Transactions
         }
 
         [HttpGet("history")]
-        public async Task<ActionResult<TransactionHistoryResponse>> GetTransactionHistory([FromQuery] TransactionHistoryRequest request)
+        public async Task<ActionResult<TransactionHistoryResponse>> GetHistory([FromQuery] TransactionHistoryRequest request)
         {
             var userId = GetUserId();
             
             var parameters = TransactionQueryParametersMapper.FromHistoryRequest(request, isPaginationEnabled: true);
 
-            var transactions = await _transactionService.GetTransactionHistory(parameters, userId);
-            var paginatedTransactions = transactions.ToPagination(request.Take);
+            var transactions = await _transactionService.GetHistory(parameters, userId);
 
             var response = new TransactionHistoryResponse()
             {
-                Page = paginatedTransactions.Page
+                Page = transactions.Page
                     .Select(x => new TransactionHistoryItemResponse
                     {
                         Id = x.Base.Id,
@@ -56,18 +54,20 @@ namespace Budget.Server.Api.Transactions
                             .ToList(),
                     })
                     .ToList(),
-                IsLastPage = paginatedTransactions.IsLastPage,
+                IsLastPage = transactions.IsLastPage,
             };
 
             return Ok(response);
         }
 
+        #region CRUD 
+
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<TransactionDetailsResponse?>> GetTransactionDetails(int id)
+        public async Task<ActionResult<TransactionDetailsResponse?>> GetDetails(int id)
         {
             var userId = GetUserId();
             
-            var transaction = await _transactionService.GetTransactionDetails(id, userId);
+            var transaction = await _transactionService.GetDetails(id, userId);
             if (transaction == null)
             {
                 return Failure(HttpStatusCode.NotFound, ErrorCodes.Transaction.NotFound);
@@ -97,11 +97,11 @@ namespace Budget.Server.Api.Transactions
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateTransaction([FromBody] TransactionCreateRequest request)
+        public async Task<IActionResult> Create([FromBody] TransactionCreateRequest request)
         {
             var userId = GetUserId();
 
-            var result = await _transactionService.CreateTransaction(request, userId);
+            var result = await _transactionService.Create(request, userId);
             if (result == 0)
             {
                 return Failure(HttpStatusCode.BadRequest, ErrorCodes.Transaction.CannotCreate);
@@ -111,11 +111,11 @@ namespace Budget.Server.Api.Transactions
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateTransaction(int id, [FromBody] TransactionUpdateRequest request)
+        public async Task<IActionResult> Update(int id, [FromBody] TransactionUpdateRequest request)
         {
             var userId = GetUserId();
 
-            var result = await _transactionService.UpdateTransaction(id, request, userId);
+            var result = await _transactionService.Update(id, request, userId);
             if (result == 0)
             {
                 return Failure(HttpStatusCode.NotFound, ErrorCodes.Transaction.CannotUpdate);
@@ -125,11 +125,11 @@ namespace Budget.Server.Api.Transactions
         }
 
         [HttpPatch("{id:int}")]
-        public async Task<IActionResult> PatchTransaction(int id, [FromBody] TransactionPatchRequest request)
+        public async Task<IActionResult> Patch(int id, [FromBody] TransactionPatchRequest request)
         {
             var userId = GetUserId();
 
-            var result = await _transactionService.PatchTransaction(id, request, userId);
+            var result = await _transactionService.Patch(id, request, userId);
             if (result == 0)
             {
                 return Failure(HttpStatusCode.NotFound, ErrorCodes.Transaction.CannotPatch);
@@ -139,11 +139,11 @@ namespace Budget.Server.Api.Transactions
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteTransaction(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var userId = GetUserId();
 
-            var result = await _transactionService.DeleteTransaction(id, userId);
+            var result = await _transactionService.Delete(id, userId);
             if (result == 0)
             {
                 return Failure(HttpStatusCode.NotFound, ErrorCodes.Transaction.CannotDelete);
@@ -151,5 +151,7 @@ namespace Budget.Server.Api.Transactions
 
             return Ok();
         }
+
+        #endregion CRUD
     }
 }

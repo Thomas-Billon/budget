@@ -50,24 +50,4 @@ namespace Budget.Server.Core.Categories.Models
             Transactions = c.Transactions.Select(t => t.ToQuery()).ToList(),
         };
     }
-
-    public class CategoryQueryBalance
-    {
-        public required CategoryQuery Base { get; set; }
-
-        public static Expression<Func<Category, CategoryQueryBalance>> Select => c => new()
-        {
-            Base = c.ToQuery(),
-        };
-    }
-
-    public class CategoryQueryFieldOptions
-    {
-        public required CategoryQuery Base { get; set; }
-
-        public static Expression<Func<Category, CategoryQueryFieldOptions>> Select => c => new()
-        {
-            Base = c.ToQuery(),
-        };
-    }
 }

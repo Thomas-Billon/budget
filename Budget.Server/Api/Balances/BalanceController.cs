@@ -18,18 +18,15 @@ namespace Budget.Server.Api.Balances
     {
         private readonly BalanceService _balanceService;
         private readonly TransactionService _transactionService;
-        private readonly CategoryService _categoryService;
 
         public BalanceController
         (
             BalanceService balanceService,
-            TransactionService transactionService,
-            CategoryService categoryService
+            TransactionService transactionService
         )
         {
             _balanceService = balanceService;
             _transactionService = transactionService;
-            _categoryService = categoryService;
         }
 
         [HttpGet]
@@ -39,28 +36,24 @@ namespace Budget.Server.Api.Balances
 
             var parameters = TransactionQueryParametersMapper.FromBalanceRequest(request);
 
-            var transactions = await _transactionService.GetTransactionBalance(parameters, userId);
-            var categories = await _categoryService.GetCategoryBalance(userId);
-            var balanceReport = _balanceService.CalculateBalanceReport(transactions);
+            var transactions = await _transactionService.GetStats(parameters, userId);
+            var report = _balanceService.CalculateReport(transactions);
 
             var response = new BalanceReportResponse()
             {
-                TotalIncome = balanceReport.TotalIncome,
-                TotalExpense = balanceReport.TotalExpense,
-                NetBalance = balanceReport.NetBalance,
-                MostLucrativeTransactions = balanceReport.MostLucrativeTransactions
+                TotalIncome = report.TotalIncome,
+                TotalExpense = report.TotalExpense,
+                NetBalance = report.NetBalance,
+                MostLucrativeTransactions = report.MostLucrativeTransactions
                     .Select(ToTransactionItemResponse)
                     .ToList(),
-                MostExpensiveTransactions = balanceReport.MostExpensiveTransactions
+                MostExpensiveTransactions = report.MostExpensiveTransactions
                     .Select(ToTransactionItemResponse)
                     .ToList(),
-                Categories = categories
-                    .Select(ToCategoryItemResponse)
-                    .ToList(),
-                IncomeTransactionsByCategory = balanceReport.IncomeTransactionsByCategory
+                IncomeTransactionsByCategory = report.IncomeTransactionsByCategory
                     .Select(ToTransactionsByCategoryItemResponse)
                     .ToList(),
-                ExpenseTransactionsByCategory = balanceReport.ExpenseTransactionsByCategory
+                ExpenseTransactionsByCategory = report.ExpenseTransactionsByCategory
                     .Select(ToTransactionsByCategoryItemResponse)
                     .ToList(),
             };
@@ -68,11 +61,9 @@ namespace Budget.Server.Api.Balances
             return Ok(response);
         }
 
-        #region Private
-
         #region Report
 
-        private BalanceReportTransactionItemResponse ToTransactionItemResponse(TransactionQueryBalance transaction)
+        private BalanceReportTransactionItemResponse ToTransactionItemResponse(TransactionQueryStats transaction)
         {
             return new BalanceReportTransactionItemResponse
             {
@@ -84,14 +75,19 @@ namespace Budget.Server.Api.Balances
             };
         }
 
-        private BalanceReportCategoryItemResponse ToCategoryItemResponse(CategoryQueryBalance category)
+        private BalanceReportCategoryItemResponse? ToCategoryItemResponse(CategoryQuery? category)
         {
+            if (category == null)
+            {
+                return null;
+            }
+
             return new BalanceReportCategoryItemResponse
             {
-                Id = category.Base.Id,
-                Name = category.Base.Name,
-                Color = category.Base.Color,
-                ColorHex = category.Base.Color.ToHex(),
+                Id = category.Id,
+                Name = category.Name,
+                Color = category.Color,
+                ColorHex = category.Color.ToHex(),
             };
         }
 
@@ -99,14 +95,12 @@ namespace Budget.Server.Api.Balances
         {
             return new BalanceReportTransactionsByCategoryItemResponse
             {
-                CategoryId = transactionsByCategory.CategoryId,
+                Category = ToCategoryItemResponse(transactionsByCategory.Category),
                 CategoryShare = transactionsByCategory.CategoryShare,
                 Transactions = transactionsByCategory.Transactions.Select(ToTransactionItemResponse).ToList(),
             };
         }
 
         #endregion Report
-
-        #endregion Private
     }
 }
