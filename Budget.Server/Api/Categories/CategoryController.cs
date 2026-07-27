@@ -38,6 +38,7 @@ namespace Budget.Server.Api.Categories
                     Name = x.Name,
                     Color = x.Color,
                     ColorHex = x.Color.ToHex(),
+                    Icon = x.Icon.ToClassName(),
                 }).ToList(),
             };
 
@@ -61,6 +62,7 @@ namespace Budget.Server.Api.Categories
                     Name = x.Base.Name,
                     Color = x.Base.Color,
                     ColorHex = x.Base.Color.ToHex(),
+                    Icon = x.Base.Icon.ToClassName(),
                 }).ToList(),
             };
 
@@ -84,6 +86,7 @@ namespace Budget.Server.Api.Categories
                 Name = category.Base.Name,
                 Color = category.Base.Color,
                 ColorHex = category.Base.Color.ToHex(),
+                Icon = category.Base.Icon.ToClassName(),
             };
 
             return Ok(response);

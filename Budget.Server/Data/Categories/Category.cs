@@ -14,6 +14,8 @@ namespace Budget.Server.Data.Categories
 
         public CategoryColor Color { get; set; } = CategoryColor.None;
 
+        public CategoryIcon Icon { get; set; } = CategoryIcon.None;
+
         #region Transactions
 
         public List<Transaction> Transactions { get; set; } = [];

@@ -10,6 +10,7 @@ namespace Budget.Server.Core.Categories.Models
         public required int Id { get; set; }
         public required string Name { get; set; }
         public required CategoryColor Color { get; set; }
+        public required CategoryIcon Icon { get; set; }
 
         public static Expression<Func<Category, CategoryQuery>> Select => c => c.ToQuery();
     }
@@ -23,6 +24,7 @@ namespace Budget.Server.Core.Categories.Models
                 Id = x.Id,
                 Name = x.Name,
                 Color = x.Color,
+                Icon = x.Icon,
             };
         }
     }
