@@ -240,7 +240,10 @@ public static class ProgramExtensions
     public static WebApplicationBuilder ConfigureDbContext(this WebApplicationBuilder builder)
     {
         builder.Services.AddDbContext<ApplicationDbContext>(
-            options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+            options => options.UseSqlServer(
+                builder.Configuration.GetConnectionString("DefaultConnection"),
+                sqlOptions => sqlOptions.EnableRetryOnFailure()
+            )
         );
 
         return builder;
