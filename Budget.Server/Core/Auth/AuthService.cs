@@ -357,6 +357,8 @@ namespace Budget.Server.Core.Auth
 
         #region Refresh Token Cookie
 
+        private const string RefreshTokenCookiePath = "/auth";
+
         private string? GetRefreshTokenCookie(HttpContext httpContext)
         {
             return httpContext.Request.Cookies[_authConfiguration.RefreshToken.CookieKey];
@@ -369,14 +371,17 @@ namespace Budget.Server.Core.Auth
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                Path = "/auth/refresh",
+                Path = RefreshTokenCookiePath,
                 Expires = expiresAt,
             });
         }
 
         private void DeleteRefreshTokenCookie(HttpContext httpContext)
         {
-            httpContext.Response.Cookies.Delete(_authConfiguration.RefreshToken.CookieKey);
+            httpContext.Response.Cookies.Delete(_authConfiguration.RefreshToken.CookieKey, new CookieOptions
+            {
+                Path = RefreshTokenCookiePath,
+            });
         }
 
         #endregion Refresh Token Cookie
