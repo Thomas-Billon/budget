@@ -1,13 +1,11 @@
-using Budget.Server.Data;
+using Budget.Server.Core.Auth;
 using Budget.Server.Middleware.Configuration;
-using Cronos;
-using Microsoft.EntityFrameworkCore;
 
 namespace Budget.Server.Middleware.Background
 {
     public class RefreshTokenCleanupService : BackgroundService
     {
-        private readonly CronExpression _schedule;
+        private readonly TimeSpan _interval;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<RefreshTokenCleanupService> _logger;
 
@@ -17,46 +15,30 @@ namespace Budget.Server.Middleware.Background
             ILogger<RefreshTokenCleanupService> logger
         )
         {
-            _schedule = CronExpression.Parse(authConfiguration.RefreshToken.CleanupCronExpression);
+            _interval = TimeSpan.FromSeconds(authConfiguration.RefreshToken.CleanupIntervalInSeconds);
             _scopeFactory = scopeFactory;
             _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            using var timer = new PeriodicTimer(_interval);
+
+            do
             {
-                var now = DateTimeOffset.UtcNow;
-                var nextOccurrence = _schedule.GetNextOccurrence(now, TimeZoneInfo.Utc);
-
-                if (nextOccurrence == null)
-                {
-                    _logger.LogError("Error: Refresh token cleanup cron expression has no future occurrence. Stopping the scheduler.");
-                    return;
-                }
-
-                var delay = nextOccurrence.Value - now;
-                if (delay > TimeSpan.Zero)
-                {
-                    await Task.Delay(delay, stoppingToken);
-                }
-
                 await CleanupExpiredTokensAsync(stoppingToken);
             }
+            while (await timer.WaitForNextTickAsync(stoppingToken));
         }
 
         private async Task CleanupExpiredTokensAsync(CancellationToken cancellationToken)
         {
             using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var authService = scope.ServiceProvider.GetRequiredService<AuthService>();
 
             try
             {
-                var now = DateTimeOffset.UtcNow;
-
-                var deletedCount = await context.UserRefreshTokens
-                    .Where(x => x.IsRevoked || x.ExpiresAt < now)
-                    .ExecuteDeleteAsync(cancellationToken);
+                var deletedCount = await authService.CleanupExpiredRefreshTokensAsync();
 
                 if (deletedCount > 0)
                 {

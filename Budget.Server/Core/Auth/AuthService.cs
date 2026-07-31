@@ -344,6 +344,15 @@ namespace Budget.Server.Core.Auth
             await _context.SaveChangesAsync();
         }
 
+        public async Task<int> CleanupExpiredRefreshTokensAsync()
+        {
+            var now = DateTimeOffset.UtcNow;
+
+            return await _context.UserRefreshTokens
+                .Where(x => x.IsRevoked || x.ExpiresAt < now)
+                .ExecuteDeleteAsync();
+        }
+
         #endregion Refresh Token
 
         #region Refresh Token Cookie
