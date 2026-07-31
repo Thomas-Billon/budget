@@ -43,6 +43,7 @@ export default defineConfig(({ command }) => {
     }
 
     return {
+        envPrefix: 'ENV_',
         plugins: [
             plugin(),
             vueDevTools({
@@ -56,13 +57,7 @@ export default defineConfig(({ command }) => {
         },
         server: isServe ? {
             port: 49835,
-            https: httpsConfig,
-            proxy: {
-                '/api': {
-                    target: 'https://localhost:7177',
-                    secure: false
-                }
-            }
+            https: httpsConfig
         } : undefined
     };
 });

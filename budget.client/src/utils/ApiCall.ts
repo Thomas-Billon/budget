@@ -36,7 +36,7 @@ const apiCall = async <TRequest, TResponse = void>(
     options: ApiCallOptions<TRequest> = { method: 'GET' },
     { canRetryOnUnauthorized = true } = {}
 ): Promise<ApiCallResult<TResponse>> => {
-    const urlBase = import.meta.env.VITE_API_BASE_URL;
+    const urlBase = import.meta.env.ENV_API_BASE_URL;
 
     const accessToken = getAccessToken();
 
