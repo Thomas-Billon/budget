@@ -5,7 +5,7 @@ on:
     branches: [master]
     paths:
       - 'Budget.Server/**'
-      - '.github/workflows/deploy-api.yml'
+      - '.github/workflows/deploy-server-api.yml'
   workflow_dispatch:
 
 env:

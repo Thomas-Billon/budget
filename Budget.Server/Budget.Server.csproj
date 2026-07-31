@@ -29,10 +29,4 @@
     <PackageReference Include="Scalar.AspNetCore" Version="2.6.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\budget.client\budget.client.esproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
-
 </Project>
