@@ -1,16 +1,16 @@
-name: Deploy API to Azure App Service
+name: Deploy server API
 
 on:
   push:
     branches: [master]
     paths:
-      - 'Budget.Server/**'
-      - '.github/workflows/deploy-server-api.yml'
+      - "Budget.Server/**"
+      - ".github/workflows/deploy-server-api.yml"
   workflow_dispatch:
 
 env:
   AZURE_WEBAPP_NAME: api-server-budget
-  DOTNET_VERSION: '10.0.x'
+  DOTNET_VERSION: "10.0.x"
 
 jobs:
   build-and-deploy:

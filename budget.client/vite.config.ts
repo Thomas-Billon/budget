@@ -8,50 +8,61 @@ import path from 'path';
 import childProcess from 'child_process';
 import { env } from 'process';
 
-const baseFolder =
-    env.APPDATA !== undefined && env.APPDATA !== ''
-        ? `${env.APPDATA}/ASP.NET/https`
-        : `${env.HOME}/.aspnet/https`;
+// INFO: The dev-cert logic below is only needed for the local HTTPS dev server, never for `vite build` (no server is started, e.g. CI/production builds).
+export default defineConfig(({ command }) => {
+    const isServe = command === 'serve';
 
-const certificateName = 'budget.client';
-const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
-const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
+    let httpsConfig;
 
-if (!fs.existsSync(baseFolder)) {
-    fs.mkdirSync(baseFolder, { recursive: true });
-}
+    if (isServe) {
+        const baseFolder =
+            env.APPDATA !== undefined && env.APPDATA !== ''
+                ? `${env.APPDATA}/ASP.NET/https`
+                : `${env.HOME}/.aspnet/https`;
 
-if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
-    const dotnetCommand = childProcess.spawnSync('dotnet', ['dev-certs', 'https', '--export-path', certFilePath, '--format', 'Pem', '--no-password'], { stdio: 'inherit' });
+        const certificateName = 'budget.client';
+        const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
+        const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
 
-    if (dotnetCommand.status !== 0) {
-        throw new Error('Error: Could not create certificate');
-    }
-}
-
-export default defineConfig({
-    plugins: [
-        plugin(),
-        vueDevTools({
-            launchEditor: 'code' // 'visualstudio' is only supported on macOS right now, ew.
-        })
-    ],
-    resolve: {
-        alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url))
+        if (!fs.existsSync(baseFolder)) {
+            fs.mkdirSync(baseFolder, { recursive: true });
         }
-    },
-    server: {
-        port: 49835,
-        https: {
-            key: fs.readFileSync(keyFilePath),
-            cert: fs.readFileSync(certFilePath)
-        },
-        proxy: {
-            '/api': {
-                target: 'https://localhost:7177',
-                secure: false
+
+        if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
+            const dotnetCommand = childProcess.spawnSync('dotnet', ['dev-certs', 'https', '--export-path', certFilePath, '--format', 'Pem', '--no-password'], { stdio: 'inherit' });
+
+            if (dotnetCommand.status !== 0) {
+                throw new Error('Error: Could not create certificate');
             }
         }
+
+        httpsConfig = {
+            key: fs.readFileSync(keyFilePath),
+            cert: fs.readFileSync(certFilePath)
+        };
     }
+
+    return {
+        plugins: [
+            plugin(),
+            vueDevTools({
+                launchEditor: 'code' // 'visualstudio' is only supported on macOS right now, ew.
+            })
+        ],
+        resolve: {
+            alias: {
+                '@': fileURLToPath(new URL('./src', import.meta.url))
+            }
+        },
+        server: isServe ? {
+            port: 49835,
+            https: httpsConfig,
+            proxy: {
+                '/api': {
+                    target: 'https://localhost:7177',
+                    secure: false
+                }
+            }
+        } : undefined
+    };
 });
