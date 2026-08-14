@@ -1,4 +1,5 @@
 import { type CategoryColor } from '@/enums/CategoryColor';
+import { type CategoryIcon } from '@/enums/CategoryIcon';
 import { type TransactionType } from '@/enums/TransactionType.ts';
 
 interface IBalanceReportResponse {
@@ -24,7 +25,7 @@ interface IBalanceReportCategoryItemResponse {
     id: number;
     name: string;
     color: CategoryColor;
-    colorHex: string;
+    icon: CategoryIcon;
 }
 
 interface IBalanceReportTransactionsByCategoryItemResponse {

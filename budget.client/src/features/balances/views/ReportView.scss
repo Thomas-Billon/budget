@@ -1,4 +1,56 @@
-@import "@/assets/variables.module";
+@import "@/assets/css/variables";
 
 .balance-report {
+    &-date-range {
+        display: flex;
+        flex-direction: column;
+        gap: $spacer-sm;
+
+        &-custom {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-end;
+            gap: $spacer-sm;
+
+            .form-group {
+                display: flex;
+                align-items: center;
+                gap: $spacer-sm;
+
+                .field-label {
+                    margin-bottom: 0;
+                    flex-shrink: 0;
+                }
+
+                .field-input {
+                    background-color: $secondary-200;
+                    border-radius: $radius-circle;
+                }
+            }
+
+            @media (min-width: $breakpoint-xl) {
+                flex-direction: row;
+                gap: $spacer-xl;
+                max-width: unset;
+            }
+        }
+    }
+
+    &-amount {
+        font-size: $text-3xl;
+        font-weight: 700;
+
+        &.income {
+            color: $success;
+        }
+
+        &.expense {
+            color: $error;
+        }
+    }
+
+    &-empty {
+        color: $primary-500;
+    }
 }
