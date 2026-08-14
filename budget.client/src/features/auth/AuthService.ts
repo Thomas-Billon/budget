@@ -1,6 +1,15 @@
-import { emailMaxLength, nameMaxLength, passwordMaxLength, passwordMinLength, passwordSpecialChars } from '@/utils/errorMessages';
-
 const EMAIL_FORMAT_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_MAX_LENGTH = 256;
+
+const NAME_MAX_LENGTH = 64;
+
+const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_MAX_LENGTH = 128;
+const PASSWORD_SPECIAL_CHARS = [
+    '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',',
+    '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\',
+    ']', '^', '_', '`', '{', '|', '}', '~'
+];
 
 const validateEmail = (value: string): string[] => {
     if (!value) {
@@ -9,7 +18,7 @@ const validateEmail = (value: string): string[] => {
 
     const errors: string[] = [];
 
-    if (value.length > emailMaxLength) {
+    if (value.length > EMAIL_MAX_LENGTH) {
         errors.push('error.email.too_long');
     }
     if (!EMAIL_FORMAT_REGEX.test(value)) {
@@ -26,10 +35,10 @@ const validatePasswordLength = (value: string): string[] => {
 
     const errors: string[] = [];
 
-    if (value.length < passwordMinLength) {
+    if (value.length < PASSWORD_MIN_LENGTH) {
         errors.push('error.password.too_short');
     }
-    if (value.length > passwordMaxLength) {
+    if (value.length > PASSWORD_MAX_LENGTH) {
         errors.push('error.password.too_long');
     }
 
@@ -53,7 +62,7 @@ const validatePassword = (value: string): string[] => {
     if (!/[0-9]/.test(value)) {
         errors.push('error.password.missing_digit');
     }
-    if (!passwordSpecialChars.some(char => value.includes(char))) {
+    if (!PASSWORD_SPECIAL_CHARS.some(char => value.includes(char))) {
         errors.push('error.password.missing_special');
     }
 
@@ -61,11 +70,22 @@ const validatePassword = (value: string): string[] => {
 };
 
 const validateOptionalName = (value: string): string[] => {
-    if (value.length > nameMaxLength) {
+    if (value.length > NAME_MAX_LENGTH) {
         return ['error.name.too_long'];
     }
 
     return [];
 };
 
-export { validateEmail, validatePassword, validatePasswordLength, validateOptionalName };
+export {
+    EMAIL_FORMAT_REGEX,
+    EMAIL_MAX_LENGTH,
+    NAME_MAX_LENGTH,
+    PASSWORD_MIN_LENGTH,
+    PASSWORD_MAX_LENGTH,
+    PASSWORD_SPECIAL_CHARS,
+    validateEmail,
+    validatePassword,
+    validatePasswordLength,
+    validateOptionalName
+};

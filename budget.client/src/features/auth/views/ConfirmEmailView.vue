@@ -1,10 +1,14 @@
 <script setup lang="ts">
+
+    import './AuthView.scss';
+
     import { apiCall } from '@/utils/ApiCall';
     import { onMounted, ref } from 'vue';
-    import { errorMessages } from '@/utils/errorMessages';
+    import { errorMessages } from '@/utils/Error';
     import { type IConfirmEmailRequest } from '@/features/auth/models/IConfirmEmailRequest';
     import { routes } from '@/router';
     import { useRoute } from 'vue-router';
+    import BrandLogo from '@/components/brand-logo/BrandLogo.vue';
 
     const route = useRoute();
 
@@ -38,29 +42,38 @@
         else if (result.error.type === 'failure') {
             serverError.value = result.error.code;
         }
-        else {
-            serverError.value = 'error.auth.email_confirmation_failed';
-        }
 
         isLoading.value = false;
     });
 </script>
 
 <template>
-    <div class="container">
-        <div v-if="isLoading" class="text-center">
-            Confirming your email…
+    <div class="auth-screen">
+
+        <BrandLogo class="stacked" />
+
+        <div class="auth-card card">
+
+            <div v-if="serverError" class="alert alert-danger">
+                {{ errorMessages[serverError] }}
+            </div>
+
+            <div v-if="!isLinkValid" class="alert alert-danger">
+                {{ errorMessages['error.auth.email_confirmation_failed'] }}
+            </div>
+
+            <div v-else-if="isSuccess" class="alert alert-info">
+                Your email has been confirmed.<br />
+                You can now <RouterLink :to="routes.auth.login" class="link text-600">sign in</RouterLink>.
+            </div>
+
         </div>
 
-        <div v-else-if="!isLinkValid || serverError" class="alert alert-danger" role="alert">
-            {{ errorMessages['error.auth.email_confirmation_failed'] }}
-            <RouterLink :to="routes.auth.resendEmailConfirmation">
-                Resend confirmation email
-            </RouterLink>
+        <div class="auth-foot">
+            <p>
+                <RouterLink :to="routes.auth.login" class="link">Back to sign in</RouterLink>
+            </p>
         </div>
 
-        <div v-else-if="isSuccess" class="alert alert-success" role="alert">
-            Your email has been confirmed. You can now <RouterLink :to="routes.auth.login">sign in</RouterLink>.
-        </div>
     </div>
 </template>

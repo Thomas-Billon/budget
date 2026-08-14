@@ -1,10 +1,14 @@
 <script setup lang="ts">
+
+    import './AuthView.scss';
+
     import { apiCall } from '@/utils/ApiCall';
     import { computed, ref, watch } from 'vue';
-    import { errorMessages } from '@/utils/errorMessages';
+    import { errorMessages } from '@/utils/Error';
     import { type IResendEmailConfirmationRequest } from '@/features/auth/models/IResendEmailConfirmationRequest';
     import { routes } from '@/router';
-    import { validateEmail } from '@/utils/AuthValidation';
+    import { validateEmail } from '@/features/auth/AuthService';
+    import BrandLogo from '@/components/brand-logo/BrandLogo.vue';
 
     const email = ref<string>('');
     const serverError = ref<string>('');
@@ -59,43 +63,63 @@
 </script>
 
 <template>
-    <div class="container">
-        <div v-if="isSubmitted" class="alert alert-success" role="alert">
-            If an account exists for that email and hasn't been confirmed yet, we've sent a new confirmation link.
-        </div>
+    <div class="auth-screen">
 
-        <form v-else novalidate @submit.prevent="submit">
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input
-                    v-model="email"
-                    type="email"
-                    class="form-control"
-                    :class="{ 'is-invalid': touched.email && fieldErrors.email && fieldErrors.email.length > 0 }"
-                    autocomplete="email"
-                    required
-                    @blur="onEmailBlur"
-                />
-                <div v-if="touched.email && fieldErrors.email && fieldErrors.email.length > 0" class="invalid-feedback">
-                    <div v-for="(error, index) in fieldErrors.email" :key="index">
-                        {{ errorMessages[error] }}
-                    </div>
-                </div>
-            </div>
+        <BrandLogo class="stacked" />
 
-            <div v-if="serverError" class="alert alert-danger" role="alert">
+        <div class="auth-card card">
+
+            <div v-if="serverError" class="alert alert-danger">
                 {{ errorMessages[serverError] }}
             </div>
 
-            <button type="submit" class="btn btn-primary w-100" :disabled="!isFormValid || isLoading">
-                {{ isLoading ? 'Sending…' : 'Resend confirmation email' }}
-            </button>
-        </form>
+            <div v-if="isSubmitted" class="alert alert-info">
+                If an account exists for that email and hasn't been confirmed yet, we've sent a new confirmation link.
+            </div>
 
-        <p class="mt-3 text-center">
-            <RouterLink :to="routes.auth.login">
-                Back to sign in
-            </RouterLink>
-        </p>
+            <form v-else novalidate @submit.prevent="submit">
+                <div class="row">
+                    <div class="col-12">
+                        <label for="email" class="form-label">Email</label>
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <font-awesome-icon icon="fa-solid fa-envelope" fixed-width />
+                            </div>
+                            <input
+                                id="email"
+                                v-model="email"
+                                type="email"
+                                :class="['form-control', { 'is-invalid': touched.email && fieldErrors.email && fieldErrors.email.length > 0 }]"
+                                placeholder="name@company.com"
+                                autocomplete="email"
+                                required
+                                @blur="onEmailBlur"
+                            />
+                        </div>
+                        <div class="invalid-feedback">
+                            <div v-for="(error, index) in fieldErrors.email" :key="index">
+                                {{ errorMessages[error] }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 mt-6">
+                        <button type="submit" class="btn btn-primary btn-lg w-100" :disabled="!isFormValid || isLoading">
+                            {{ isLoading ? 'Sending…' : 'Resend confirmation email' }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+
+        <div class="auth-foot">
+            <p>
+                <RouterLink :to="routes.auth.login" class="link">Back to sign in</RouterLink>
+            </p>
+        </div>
+
     </div>
 </template>

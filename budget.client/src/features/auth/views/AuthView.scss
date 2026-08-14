@@ -1,0 +1,26 @@
+@import "@/assets/css/variables";
+
+.auth {
+    &-screen {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        gap: $spacer-2xl;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &-card {
+        width: 100%;
+        max-width: 440px;
+        padding: $spacer-2xl;
+    }
+
+    &-foot {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: $spacer-sm;
+        text-align: center;
+    }
+}

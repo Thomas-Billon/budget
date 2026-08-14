@@ -1,25 +1,29 @@
 <script setup lang="ts">
+
+    import './AuthView.scss';
+
     import { apiCall } from '@/utils/ApiCall';
     import { computed, onMounted, ref, watch } from 'vue';
-    import { errorMessages, passwordMaxLength, passwordMinLength } from '@/utils/errorMessages';
+    import { errorMessages } from '@/utils/Error';
     import { type IResetPasswordRequest } from '@/features/auth/models/IResetPasswordRequest';
     import { routes } from '@/router';
-    import { useAuthStore } from '@/stores/useAuthStore';
     import { useRoute } from 'vue-router';
-    import { validatePassword } from '@/utils/AuthValidation';
+    import { validatePassword } from '@/features/auth/AuthService';
+    import BrandLogo from '@/components/brand-logo/BrandLogo.vue';
 
     const route = useRoute();
-    const authStore = useAuthStore();
 
     const email = ref<string>('');
     const token = ref<string>('');
-    const isLinkValid = ref<boolean>(false);
 
+    const isLinkValid = ref<boolean>(false);
     const newPassword = ref<string>('');
     const confirmPassword = ref<string>('');
     const serverError = ref<string>('');
     const isLoading = ref<boolean>(false);
     const isSuccess = ref<boolean>(false);
+    const isNewPasswordVisible = ref<boolean>(false);
+    const isConfirmPasswordVisible = ref<boolean>(false);
 
     const fieldErrors = ref<Record<string, string[]>>({ newPassword: [] });
 
@@ -64,7 +68,7 @@
         };
 
         const result = await apiCall<IResetPasswordRequest, void>(
-            `auth/reset-password`,
+            'auth/reset-password',
             { method: 'POST', body: request },
             { canRetryOnUnauthorized: false }
         );
@@ -92,59 +96,96 @@
 </script>
 
 <template>
-    <div class="container">
-        <div v-if="!isLinkValid" class="alert alert-danger" role="alert">
-            This password reset link is invalid or has expired. Please request a new one.
-        </div>
+    <div class="auth-screen">
 
-        <div v-else-if="isSuccess" class="alert alert-success" role="alert">
-            Your password has been reset. You can now <RouterLink :to="routes.auth.login">sign in</RouterLink>.
-        </div>
+        <BrandLogo class="stacked" />
 
-        <form v-else novalidate @submit.prevent="submit">
-            <div class="mb-3">
-                <label for="newPassword" class="form-label">New password</label>
-                <input
-                    v-model="newPassword"
-                    type="password"
-                    class="form-control"
-                    :class="{ 'is-invalid': touched.newPassword && fieldErrors.newPassword && fieldErrors.newPassword.length > 0 }"
-                    autocomplete="new-password"
-                    required
-                    :minlength="passwordMinLength"
-                    :maxlength="passwordMaxLength"
-                    @blur="onNewPasswordBlur"
-                />
-                <div v-if="touched.newPassword && fieldErrors.newPassword && fieldErrors.newPassword.length > 0" class="invalid-feedback">
-                    <div v-for="(error, index) in fieldErrors.newPassword" :key="index">
-                        {{ errorMessages[error] }}
-                    </div>
-                </div>
-            </div>
+        <div class="auth-card card">
 
-            <div class="mb-3">
-                <label for="confirmPassword" class="form-label">Confirm new password</label>
-                <input
-                    v-model="confirmPassword"
-                    type="password"
-                    class="form-control"
-                    :class="{ 'is-invalid': touched.confirmPassword && !passwordsMatch }"
-                    autocomplete="new-password"
-                    required
-                    @blur="onConfirmPasswordBlur"
-                />
-                <div v-if="touched.confirmPassword && !passwordsMatch" class="invalid-feedback">
-                    Passwords do not match.
-                </div>
-            </div>
-
-            <div v-if="serverError" class="alert alert-danger" role="alert">
+            <div v-if="serverError" class="alert alert-danger">
                 {{ errorMessages[serverError] }}
             </div>
 
-            <button type="submit" class="btn btn-primary w-100" :disabled="!isFormValid || isLoading">
-                {{ isLoading ? 'Resetting…' : 'Reset password' }}
-            </button>
-        </form>
+            <div v-if="!isLinkValid" class="alert alert-danger">
+                {{ errorMessages['error.auth.reset_password_failed'] }}
+            </div>
+
+            <div v-else-if="isSuccess" class="alert alert-info">
+                Your password has been reset.<br />
+                You can now <RouterLink :to="routes.auth.login" class="link text-600">sign in</RouterLink>.
+            </div>
+
+            <form v-else novalidate @submit.prevent="submit">
+                <div class="row">
+                    <div class="col-12">
+                        <label for="newPassword" class="form-label">New password</label>
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <font-awesome-icon icon="fa-solid fa-lock" fixed-width />
+                            </div>
+                            <input
+                                id="newPassword"
+                                v-model="newPassword"
+                                :type="isNewPasswordVisible ? 'text' : 'password'"
+                                :class="['form-control', 'password', { 'is-invalid': touched.newPassword && fieldErrors.newPassword && fieldErrors.newPassword.length > 0 }]"
+                                placeholder="••••••••"
+                                required
+                                @blur="onNewPasswordBlur"
+                            />
+                            <button type="button" class="input-group-text" @click="isNewPasswordVisible = !isNewPasswordVisible">
+                                <font-awesome-icon :icon="`fa-solid fa-${isNewPasswordVisible ? 'eye-slash' : 'eye'}`" fixed-width />
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">
+                            <div v-for="(error, index) in fieldErrors.newPassword" :key="index">
+                                {{ errorMessages[error] }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <label for="confirmPassword" class="form-label">Confirm new password</label>
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <font-awesome-icon icon="fa-solid fa-lock" fixed-width />
+                            </div>
+                            <input
+                                id="confirmPassword"
+                                v-model="confirmPassword"
+                                :type="isConfirmPasswordVisible ? 'text' : 'password'"
+                                :class="['form-control', 'password', { 'is-invalid': touched.confirmPassword && !passwordsMatch }]"
+                                placeholder="••••••••"
+                                required
+                                @blur="onConfirmPasswordBlur"
+                            />
+                            <button type="button" class="input-group-text" @click="isConfirmPasswordVisible = !isConfirmPasswordVisible">
+                                <font-awesome-icon :icon="`fa-solid fa-${isConfirmPasswordVisible ? 'eye-slash' : 'eye'}`" fixed-width />
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">
+                            Passwords do not match.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 mt-6">
+                        <button type="submit" class="btn btn-primary btn-lg w-100" :disabled="!isFormValid || isLoading">
+                            {{ isLoading ? 'Resetting…' : 'Reset password' }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+
+        <div class="auth-foot">
+            <p>
+                <RouterLink :to="routes.auth.login" class="link">Back to sign in</RouterLink>
+            </p>
+        </div>
+
     </div>
 </template>

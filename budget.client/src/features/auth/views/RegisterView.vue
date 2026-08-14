@@ -1,10 +1,14 @@
 <script setup lang="ts">
+
+    import './AuthView.scss';
+
     import { computed, ref, watch } from 'vue';
-    import { errorMessages, passwordMaxLength, passwordMinLength } from '@/utils/errorMessages';
+    import { errorMessages } from '@/utils/Error';
     import { type IRegisterRequest } from '@/features/auth/models/IRegisterRequest';
     import { routes } from '@/router';
     import { useAuthStore } from '@/stores/useAuthStore';
-    import { validateEmail, validateOptionalName, validatePassword } from '@/utils/AuthValidation';
+    import { validateEmail, validateOptionalName, validatePassword } from '@/features/auth/AuthService';
+    import BrandLogo from '@/components/brand-logo/BrandLogo.vue';
 
     const authStore = useAuthStore();
 
@@ -15,6 +19,7 @@
     const serverError = ref<string>('');
     const isLoading = ref<boolean>(false);
     const isRegistered = ref<boolean>(false);
+    const isPasswordVisible = ref<boolean>(false);
 
     const fieldErrors = ref<Record<string, string[]>>({ email: [], password: [], firstName: [], lastName: [] });
 
@@ -90,98 +95,129 @@
 </script>
 
 <template>
-    <div class="container">
-        <div v-if="isRegistered" class="alert alert-success" role="alert">
-            Account created! Please check your email to confirm your address before signing in.
-        </div>
+    <div class="auth-screen">
 
-        <form v-else novalidate @submit.prevent="submit">
-            <div class="mb-3">
-                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                <input
-                    v-model="email"
-                    type="email"
-                    class="form-control"
-                    :class="{ 'is-invalid': touched.email && fieldErrors.email && fieldErrors.email.length > 0 }"
-                    autocomplete="email"
-                    required
-                    @blur="onEmailBlur"
-                />
-                <div v-if="touched.email && fieldErrors.email && fieldErrors.email.length > 0" class="invalid-feedback">
-                    <div v-for="(error, index) in fieldErrors.email" :key="index">
-                        {{ errorMessages[error] }}
-                    </div>
-                </div>
-            </div>
+        <BrandLogo class="stacked" />
 
-            <div class="mb-3">
-                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-                <input
-                    v-model="password"
-                    type="password"
-                    class="form-control"
-                    :class="{ 'is-invalid': touched.password && fieldErrors.password && fieldErrors.password.length > 0 }"
-                    autocomplete="new-password"
-                    required
-                    :minlength="passwordMinLength"
-                    :maxlength="passwordMaxLength"
-                    @blur="onPasswordBlur"
-                />
-                <div v-if="touched.password && fieldErrors.password && fieldErrors.password.length > 0" class="invalid-feedback">
-                    <div v-for="(error, index) in fieldErrors.password" :key="index">
-                        {{ errorMessages[error] }}
-                    </div>
-                </div>
-            </div>
+        <div class="auth-card card ">
 
-            <div class="mb-3">
-                <label for="firstName" class="form-label">First name <span class="text-muted">(optional)</span></label>
-                <input
-                    v-model="firstName"
-                    type="text"
-                    class="form-control"
-                    :class="{ 'is-invalid': touched.firstName && fieldErrors.firstName && fieldErrors.firstName.length > 0 }"
-                    autocomplete="given-name"
-                    @blur="onFirstNameBlur"
-                />
-                <div v-if="touched.firstName && fieldErrors.firstName && fieldErrors.firstName.length > 0" class="invalid-feedback">
-                    <div v-for="(error, index) in fieldErrors.firstName" :key="index">
-                        {{ errorMessages[error] }}
-                    </div>
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="lastName" class="form-label">Last name <span class="text-muted">(optional)</span></label>
-                <input
-                    v-model="lastName"
-                    type="text"
-                    class="form-control"
-                    :class="{ 'is-invalid': touched.lastName && fieldErrors.lastName && fieldErrors.lastName.length > 0 }"
-                    autocomplete="family-name"
-                    @blur="onLastNameBlur"
-                />
-                <div v-if="touched.lastName && fieldErrors.lastName && fieldErrors.lastName.length > 0" class="invalid-feedback">
-                    <div v-for="(error, index) in fieldErrors.lastName" :key="index">
-                        {{ errorMessages[error] }}
-                    </div>
-                </div>
-            </div>
-
-            <div v-if="serverError" class="alert alert-danger" role="alert">
+            <div v-if="serverError" class="alert alert-danger">
                 {{ errorMessages[serverError] }}
             </div>
 
-            <button type="submit" class="btn btn-primary w-100" :disabled="!isFormValid || isLoading">
-                {{ isLoading ? 'Creating account…' : 'Create account' }}
-            </button>
-        </form>
+            <div v-if="isRegistered" class="alert alert-info">
+                Account created!<br />
+                Please check your email to confirm your address before signing in.
+            </div>
 
-        <p v-if="!isRegistered" class="mt-3 text-center">
-            Already have an account?
-            <RouterLink :to="routes.auth.login">
-                Sign in
-            </RouterLink>
-        </p>
+            <form v-else novalidate @submit.prevent="submit">
+                <div class="row">
+                    <div class="col-12">
+                        <label for="email" class="form-label">Email</label>
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <font-awesome-icon icon="fa-solid fa-envelope" fixed-width />
+                            </div>
+                            <input
+                                id="email"
+                                v-model="email"
+                                type="email"
+                                :class="['form-control', { 'is-invalid': touched.email && fieldErrors.email && fieldErrors.email.length > 0 }]"
+                                placeholder="name@company.com"
+                                autocomplete="email"
+                                required
+                                @blur="onEmailBlur"
+                            />
+                        </div>
+                        <div class="invalid-feedback">
+                            <div v-for="(error, index) in fieldErrors.email" :key="index">
+                                {{ errorMessages[error] }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <font-awesome-icon icon="fa-solid fa-lock" fixed-width />
+                            </div>
+                            <input
+                                id="password"
+                                v-model="password"
+                                :type="isPasswordVisible ? 'text' : 'password'"
+                                :class="['form-control', 'password', { 'is-invalid': touched.password && fieldErrors.password && fieldErrors.password.length > 0 }]"
+                                placeholder="••••••••"
+                                required
+                                @blur="onPasswordBlur"
+                            />
+                            <button type="button" class="input-group-text" @click="isPasswordVisible = !isPasswordVisible">
+                                <font-awesome-icon :icon="`fa-solid fa-${isPasswordVisible ? 'eye-slash' : 'eye'}`" fixed-width />
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">
+                            <div v-for="(error, index) in fieldErrors.password" :key="index">
+                                {{ errorMessages[error] }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <label for="firstName" class="form-label">First name</label>
+                        <input
+                            id="firstName"
+                            v-model="firstName"
+                            type="text"
+                            :class="['form-control', { 'is-invalid': touched.firstName && fieldErrors.firstName && fieldErrors.firstName.length > 0 }]"
+                            @blur="onFirstNameBlur"
+                        />
+                        <div class="invalid-feedback">
+                            <div v-for="(error, index) in fieldErrors.firstName" :key="index">
+                                {{ errorMessages[error] }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <label for="lastName" class="form-label">Last name</label>
+                        <input
+                            id="lastName"
+                            v-model="lastName"
+                            type="text"
+                            :class="['form-control', { 'is-invalid': touched.lastName && fieldErrors.lastName && fieldErrors.lastName.length > 0 }]"
+                            @blur="onLastNameBlur"
+                        />
+                        <div class="invalid-feedback">
+                            <div v-for="(error, index) in fieldErrors.lastName" :key="index">
+                                {{ errorMessages[error] }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 mt-6">
+                        <button type="submit" class="btn btn-primary btn-lg w-100" :disabled="!isFormValid || isLoading">
+                            {{ isLoading ? 'Creating account…' : 'Create account' }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+
+        <div class="auth-foot">
+            <p>
+                Already have an account?
+                <RouterLink :to="routes.auth.login" class="link">Sign in</RouterLink>
+            </p>
+        </div>
+
     </div>
 </template>
