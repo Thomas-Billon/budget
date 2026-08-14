@@ -10,5 +10,8 @@ namespace Budget.Server.Api.Categories.Models.Requests
 
         [Required]
         public CategoryColor Color { get; init; } = CategoryColor.None;
+
+        [Required]
+        public CategoryIcon Icon { get; init; } = CategoryIcon.None;
     }
 }

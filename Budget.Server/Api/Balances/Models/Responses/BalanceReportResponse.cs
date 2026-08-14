@@ -21,6 +21,7 @@ namespace Budget.Server.Api.Balances.Models.Responses
         public required decimal Amount { get; set; }
         public required string Reason { get; set; }
         public required DateOnly Date { get; set; }
+        public required List<BalanceReportCategoryItemResponse> Categories { get; set; }
     }
 
     public class BalanceReportCategoryItemResponse
@@ -28,7 +29,7 @@ namespace Budget.Server.Api.Balances.Models.Responses
         public required int Id { get; set; }
         public required string Name { get; set; }
         public required CategoryColor Color { get; set; }
-        public required string ColorHex { get; set; }
+        public required CategoryIcon Icon { get; set; }
     }
 
     public class BalanceReportTransactionsByCategoryItemResponse

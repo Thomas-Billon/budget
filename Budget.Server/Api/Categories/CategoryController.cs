@@ -1,7 +1,6 @@
 using Budget.Server.Api.Categories.Models.Requests;
 using Budget.Server.Api.Categories.Models.Responses;
 using Budget.Server.Core.Categories;
-using Budget.Server.Core.Categories.Enums;
 using Budget.Server.Core.Errors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,8 +36,7 @@ namespace Budget.Server.Api.Categories
                     Id = x.Id,
                     Name = x.Name,
                     Color = x.Color,
-                    ColorHex = x.Color.ToHex(),
-                    Icon = x.Icon.ToClassName(),
+                    Icon = x.Icon,
                 }).ToList(),
             };
 
@@ -61,8 +59,8 @@ namespace Budget.Server.Api.Categories
                     Id = x.Base.Id,
                     Name = x.Base.Name,
                     Color = x.Base.Color,
-                    ColorHex = x.Base.Color.ToHex(),
-                    Icon = x.Base.Icon.ToClassName(),
+                    Icon = x.Base.Icon,
+                    TransactionCount = x.TransactionCount,
                 }).ToList(),
             };
 
@@ -85,8 +83,7 @@ namespace Budget.Server.Api.Categories
                 Id = category.Base.Id,
                 Name = category.Base.Name,
                 Color = category.Base.Color,
-                ColorHex = category.Base.Color.ToHex(),
-                Icon = category.Base.Icon.ToClassName(),
+                Icon = category.Base.Icon,
             };
 
             return Ok(response);

@@ -47,6 +47,7 @@ namespace Budget.Server.Core.Categories
             {
                 Name = request.Name,
                 Color = request.Color,
+                Icon = request.Icon,
                 UserId = userId,
             };
 
@@ -67,6 +68,7 @@ namespace Budget.Server.Core.Categories
 
             entity.Name = request.Name;
             entity.Color = request.Color;
+            entity.Icon = request.Icon;
 
             return await _context.SaveChangesAsync();
         }
@@ -83,6 +85,7 @@ namespace Budget.Server.Core.Categories
 
             if (request.Name?.IsSet == true) entity.Name = request.Name.Value ?? string.Empty;
             if (request.Color?.IsSet == true) entity.Color = request.Color.Value;
+            if (request.Icon?.IsSet == true) entity.Icon = request.Icon.Value;
 
             return await _context.SaveChangesAsync();
         }

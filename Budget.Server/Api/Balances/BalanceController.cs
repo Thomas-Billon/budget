@@ -3,7 +3,6 @@ using Budget.Server.Api.Balances.Models.Responses;
 using Budget.Server.Core.Balances;
 using Budget.Server.Core.Balances.Models;
 using Budget.Server.Core.Categories;
-using Budget.Server.Core.Categories.Enums;
 using Budget.Server.Core.Categories.Models;
 using Budget.Server.Core.Transactions;
 using Budget.Server.Core.Transactions.Models;
@@ -72,22 +71,18 @@ namespace Budget.Server.Api.Balances
                 Amount = transaction.Base.Amount,
                 Reason = transaction.Base.Reason,
                 Date = transaction.Base.Date,
+                Categories = transaction.Categories.Select(ToCategoryItemResponse).ToList(),
             };
         }
 
-        private BalanceReportCategoryItemResponse? ToCategoryItemResponse(CategoryQuery? category)
+        private BalanceReportCategoryItemResponse ToCategoryItemResponse(CategoryQuery category)
         {
-            if (category == null)
-            {
-                return null;
-            }
-
             return new BalanceReportCategoryItemResponse
             {
                 Id = category.Id,
                 Name = category.Name,
                 Color = category.Color,
-                ColorHex = category.Color.ToHex(),
+                Icon = category.Icon,
             };
         }
 
@@ -95,7 +90,7 @@ namespace Budget.Server.Api.Balances
         {
             return new BalanceReportTransactionsByCategoryItemResponse
             {
-                Category = ToCategoryItemResponse(transactionsByCategory.Category),
+                Category = transactionsByCategory.Category != null ? ToCategoryItemResponse(transactionsByCategory.Category) : null,
                 CategoryShare = transactionsByCategory.CategoryShare,
                 Transactions = transactionsByCategory.Transactions.Select(ToTransactionItemResponse).ToList(),
             };

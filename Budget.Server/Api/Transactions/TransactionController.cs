@@ -1,6 +1,5 @@
 using Budget.Server.Api.Transactions.Models.Requests;
 using Budget.Server.Api.Transactions.Models.Responses;
-using Budget.Server.Core.Categories.Enums;
 using Budget.Server.Core.Errors;
 using Budget.Server.Core.Transactions;
 using Budget.Server.Core.Transactions.Models;
@@ -49,7 +48,7 @@ namespace Budget.Server.Api.Transactions
                                 Id = x.Id,
                                 Name = x.Name,
                                 Color = x.Color,
-                                ColorHex = x.Color.ToHex(),
+                                Icon = x.Icon,
                             })
                             .ToList(),
                     })
@@ -88,7 +87,7 @@ namespace Budget.Server.Api.Transactions
                         Id = x.Id,
                         Name = x.Name,
                         Color = x.Color,
-                        ColorHex = x.Color.ToHex(),
+                        Icon = x.Icon,
                     })
                     .ToList(),
             };

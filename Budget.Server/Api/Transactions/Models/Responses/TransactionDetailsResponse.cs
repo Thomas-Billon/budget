@@ -21,6 +21,6 @@ namespace Budget.Server.Api.Transactions.Models.Responses
         public required int Id { get; set; }
         public required string Name { get; set; }
         public required CategoryColor Color { get; set; }
-        public required string ColorHex { get; set; }
+        public required CategoryIcon Icon { get; set; }
     }
 }

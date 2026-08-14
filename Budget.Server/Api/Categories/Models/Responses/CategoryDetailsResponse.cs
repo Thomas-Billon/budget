@@ -7,8 +7,7 @@ namespace Budget.Server.Api.Categories.Models.Responses
         public required int Id { get; set; }
         public required string Name { get; set; }
         public required CategoryColor Color { get; set; }
-        public required string ColorHex { get; set; }
-        public required string Icon { get; set; }
+        public required CategoryIcon Icon { get; set; }
     }
 
     public class CategoryDetailsResponse : CategoryDetailsBaseResponse
