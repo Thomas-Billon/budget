@@ -1,18 +1,17 @@
 <script setup lang="ts">
 
-    import './HistoryView.scss';
-
     import { onMounted, ref } from 'vue';
     import { routes } from '@/router.ts';
     import { apiCall } from '@/utils/ApiCall.ts';
     import { type ITransactionHistoryResponse, type ITransactionHistoryItemResponse } from '@/features/transactions/models/ITransactionHistoryResponse';
-    import { formatAmount } from '@/features/transactions/TransactionService.ts';
-    import CategoryTag from '@/features/categories/components/CategoryTag.vue';
+    import TransactionRow from '@/features/transactions/components/TransactionRow.vue';
+    import PageHeaderActions from '@/components/page-header/PageHeaderActions.vue';
 
+    const isLoading = ref<boolean>(true);
     const transactions = ref<ITransactionHistoryItemResponse[]>([]);
     const isLastPage = ref<boolean>(false);
 
-    const itemNumberPerPage = 5;
+    const itemNumberPerPage = 10;
 
     const getTransactionHistory = (skip: number, take: number) => {
         apiCall<undefined, ITransactionHistoryResponse>(`transaction/history?skip=${skip}&take=${take}`, { method: 'GET' })
@@ -25,6 +24,7 @@
                     transactions.value = transactions.value.filter(({ id }) => !ids.has(id) && ids.add(id));
                 }
                 // TODO: Handle error in else case
+                isLoading.value = false;
             });
     };
 
@@ -40,36 +40,29 @@
 </script>
 
 <template>
-    <div class="transaction-history section-container container">
-        <div class="transaction-history-actions">
-            <RouterLink :to="routes.transaction.create" class="transaction-history-action-link">
-                <span class="transaction-history-action-icon btn btn-primary btn-circle">
-                    <font-awesome-icon icon="fa-solid fa-plus" />
-                </span>
-                <span class="transaction-history-action-label">Create</span>
+    <div class="transaction-history">
+        <PageHeaderActions>
+            <RouterLink :to="routes.transaction.create" class="btn btn-primary btn-lg w-100">
+                <font-awesome-icon icon="fa-solid fa-plus" />
+                <span>Add transaction</span>
             </RouterLink>
+        </PageHeaderActions>
+
+        <div v-if="!isLoading" class="card">
+            <div class="d-flex flex-column">
+                <TransactionRow
+                    v-for="(transaction, index) in transactions"
+                    :key="index"
+                    :transaction="transaction"
+                    class="in-card"
+                />
+            </div>
+
+            <button class="btn btn-outline-secondary" :class="{ 'disabled': isLastPage }" @click="onSeeMoreClick()">
+                <span>See more</span>
+            </button>
         </div>
 
-        <div class="transaction-history-items">
-            <RouterLink v-for="transaction in transactions" :key="transaction.id" :to="routes.transaction.update(transaction.id)" class="transaction-history-item">
-                <span class="transaction-history-item-icon"></span>
-                <div class="transaction-history-item-details">
-                    <span class="transaction-history-item-reason">{{ transaction.reason }}</span>
-                    <span>{{ formatAmount(transaction.amount) }} €</span>
-                </div>
-                <div class="transaction-history-item-categories">
-                    <CategoryTag
-                        v-for="category in transaction.categories"
-                        :key="category.id"
-                        :name="category.name"
-                        :color-hex="category.colorHex"
-                    />
-                </div>
-            </RouterLink>
-        </div>
-
-        <button :class="[ 'btn btn-outline-secondary', isLastPage ? 'disabled' : '' ]" @click="onSeeMoreClick()">
-            <span>See more</span>
-        </button>
+        <div v-else>Loading…</div>
     </div>
 </template>

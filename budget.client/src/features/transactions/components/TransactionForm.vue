@@ -6,6 +6,7 @@
     import { TransactionType } from '@/enums/TransactionType.ts';
     import { PaymentMethod } from '@/enums/PaymentMethod.ts';
     import ButtonSwitch from '@/components/button-switch/ButtonSwitch.vue';
+    import CategoryPicker from '@/features/categories/components/CategoryPicker.vue';
     import { formatAmount, parseAmount } from '@/features/transactions/TransactionService.ts';
     import { type ITransactionRequest } from '@/features/transactions/models/ITransactionRequest';
     import { type IButtonSwitchOption } from '@/components/button-switch/ButtonSwitch';
@@ -13,18 +14,26 @@
     import { type ICategoryOptionsItemResponse, type ICategoryOptionsResponse } from '@/features/categories/models/ICategoryOptionsResponse';
     import FormBase from '@/components/form-base/FormBase.vue';
     import { type FormProps, type FormEmits } from '@/components/form-base/FormBase';
+    import WidgetCard from '@/components/widget-card/WidgetCard.vue';
+    import PageHeaderActions from '@/components/page-header/PageHeaderActions.vue';
 
-    const { isNew, saveAllResult, savePartialResult, deleteResult } = defineProps<FormProps>();
+    const { isNew, isAutoSave, isLoading, saveAllResult, savePartialResult, deleteResult } = defineProps<FormProps>();
     const model = defineModel<ITransactionRequest>({ required: true });
     const emit = defineEmits<FormEmits<ITransactionRequest>>();
 
-    const typeInput = ref<HTMLInputElement | undefined>();
-    const typeOptions: IButtonSwitchOption[] = [{ value: TransactionType.Income, label: 'Income', icon: 'plus' }, { value: TransactionType.Expense, label: 'Expense', icon: 'minus' }];
+    const typeOptions: IButtonSwitchOption[] = [
+        { value: TransactionType.Income, label: 'Income' },
+        { value: TransactionType.Expense, label: 'Expense' }
+    ];
 
     const amountPlaceholder: string = formatAmount(0, { isFalsyValueAllowed: true });
     const amountDisplayValue = ref<string>('');
 
     const categoryOptions = ref<ICategoryOptionsItemResponse[]>([]);
+
+    // Recurring toggle — UI only, not part of ITransactionRequest, not sent to the API yet.
+    const isRecurring = ref<boolean>(false);
+    const recurringFrequency = ref<'day' | 'week' | 'month' | 'year'>('month');
 
     // #region Init
 
@@ -101,8 +110,11 @@
 
 <template>
     <FormBase
+        v-slot="{ onChange }"
         v-model="model"
         :is-new="isNew"
+        :is-auto-save="isAutoSave"
+        :is-loading="isLoading"
         :save-all-result="saveAllResult"
         :save-partial-result="savePartialResult"
         :delete-result="deleteResult"
@@ -110,55 +122,123 @@
         v-bind="formEvents"
     >
 
-        <template #head="{ onChange }">
-            <div class="form-head">
-                <input ref="typeInput" v-model="model.type" name="Type" type="hidden" required />
-                <ButtonSwitch v-model="model.type" :options="typeOptions" class-name="bg-secondary bg-opacity-50" @change="onChange('type', model.type)" />
-            </div>
-        </template>
+        <PageHeaderActions>
+            <input v-model="model.type" name="Type" type="hidden" required />
+            <ButtonSwitch v-model="model.type" :options="typeOptions" @change="onChange('type', model.type)" />
+        </PageHeaderActions>
 
-        <template #body="{ onChange }">
-            <div class="form-body transition-opacity" :class="[ !model.type && 'hidden' ]">
+        <div class="row">
+            <div :class="['col-12', { 'mt-0': model.type === TransactionType.None }]">
+                <div :class="['collapsible', { 'hidden': model.type === TransactionType.None }]">
+                    <div>
+                        <div class="form-body card">
 
-                <div class="input-group">
-                    <input
-                        v-model="amountDisplayValue"
-                        name="Amount"
-                        type="text"
-                        class="transaction-form-input-amount form-control form-control-lg"
-                        :placeholder="amountPlaceholder"
-                        autocomplete="off"
-                        required
-                        @input="onAmountInput(); onChange('amount', model.amount);"
-                        @change="onAmountChange()"
-                    />
-                    <span class="input-group-text">
-                        €
-                    </span>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="transaction-form-amount">
+                                        <input
+                                            id="amount-input"
+                                            v-model="amountDisplayValue"
+                                            name="Amount"
+                                            type="text"
+                                            class="transaction-form-amount-input"
+                                            :placeholder="amountPlaceholder"
+                                            autocomplete="off"
+                                            required
+                                            @input="onAmountInput(); onChange('amount', model.amount);"
+                                            @change="onAmountChange()"
+                                        />
+                                        <span class="transaction-form-amount-currency">€</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="form-label" for="reason">Reason</label>
+                                    <input id="reason" v-model="model.reason" name="Reason" type="text" class="form-control" placeholder="What was this for?" required @input="onChange('reason', model.reason);" />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12 col-md-with-navbar-6">
+                                    <label class="form-label" for="date">Date</label>
+                                    <input id="date" v-model="model.date" name="Date" type="date" class="form-control" required @input="onChange('date', model.date);" />
+                                </div>
+                                <div class="col-12 col-md-with-navbar-6">
+                                    <label class="form-label" for="payment-method">Payment Method</label>
+                                    <select id="payment-method" v-model="model.paymentMethod" name="PaymentMethod" class="form-select" @change="onChange('paymentMethod', model.paymentMethod);">
+                                        <option :value="PaymentMethod.None" disabled selected>Select Payment Method</option>
+                                        <option :value="PaymentMethod.Cash">{{ PaymentMethod[PaymentMethod.Cash] }}</option>
+                                        <option :value="PaymentMethod.CreditCard">{{ PaymentMethod[PaymentMethod.CreditCard] }}</option>
+                                        <option :value="PaymentMethod.DebitCard">{{ PaymentMethod[PaymentMethod.DebitCard] }}</option>
+                                        <option :value="PaymentMethod.BankTransfer">{{ PaymentMethod[PaymentMethod.BankTransfer] }}</option>
+                                        <option :value="PaymentMethod.Cryptocurrency">{{ PaymentMethod[PaymentMethod.Cryptocurrency] }}</option>
+                                        <option :value="PaymentMethod.Other">{{ PaymentMethod[PaymentMethod.Other] }}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="form-label" for="comment">Comment</label>
+                                    <textarea id="comment" v-model="model.comment" name="Comment" class="form-control" placeholder="Comment" @input="onChange('comment', model.comment);"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="form-label">Category</label>
+                                    <CategoryPicker v-model="model.categoryIds" :options="categoryOptions" @change="onChange('categoryIds', model.categoryIds)" />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="transaction-form-recurring">
+                                        <font-awesome-icon icon="fa-solid fa-repeat" class="transaction-form-recurring-icon" fixed-width />
+                                        <div class="transaction-form-recurring-text">
+                                            <p class="transaction-form-recurring-title">Set as recurring</p>
+                                            <div class="transaction-form-recurring-frequency">
+                                                <span>Repeat every</span>
+                                                <select v-model="recurringFrequency" class="transaction-form-recurring-select">
+                                                    <option value="day">Day</option>
+                                                    <option value="week">Week</option>
+                                                    <option value="month">Month</option>
+                                                    <option value="year">Year</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch text-xl">
+                                            <input v-model="isRecurring" class="form-check-input" type="checkbox" role="switch" aria-label="Set as recurring" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
-
-                <input v-model="model.reason" name="Reason" type="text" class="form-control form-control-lg" placeholder="Reason" required @input="onChange('reason', model.reason);" />
-
-                <input v-model="model.date" name="Date" type="date" class="form-control form-control-lg" required @input="onChange('date', model.date);" />
-
-                <select v-model="model.paymentMethod" name="PaymentMethod" class="form-select form-select-lg" @change="onChange('paymentMethod', model.paymentMethod);">
-                    <option :value="PaymentMethod.None" disabled selected>Select Payment Method</option>
-                    <option :value="PaymentMethod.Cash">{{ PaymentMethod[PaymentMethod.Cash] }}</option>
-                    <option :value="PaymentMethod.CreditCard">{{ PaymentMethod[PaymentMethod.CreditCard] }}</option>
-                    <option :value="PaymentMethod.DebitCard">{{ PaymentMethod[PaymentMethod.DebitCard] }}</option>
-                    <option :value="PaymentMethod.BankTransfer">{{ PaymentMethod[PaymentMethod.BankTransfer] }}</option>
-                    <option :value="PaymentMethod.Cryptocurrency">{{ PaymentMethod[PaymentMethod.Cryptocurrency] }}</option>
-                    <option :value="PaymentMethod.Other">{{ PaymentMethod[PaymentMethod.Other] }}</option>
-                </select>
-
-                <textarea v-model="model.comment" name="Comment" class="form-control form-control-lg" placeholder="Comment" @input="onChange('comment', model.comment);"></textarea>
-
-                <select v-model="model.categoryIds" name="CategoryIds" class="form-select form-select-lg" multiple @change="onChange('categoryIds', model.categoryIds);">
-                    <option v-for="option in categoryOptions" :key="option.id" :value="option.id">{{ option.name }}</option>
-                </select>
-
             </div>
-        </template>
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-md-with-navbar-4">
+                <WidgetCard icon="chart-line" title="Budget Status" class="info">
+                    <p class="widget-desc">You have <strong>1 240,00 €</strong> left for 'Dining Out' this month.</p>
+                </WidgetCard>
+            </div>
+            <div class="col-12 col-md-with-navbar-4">
+                <WidgetCard icon="clock-rotate-left" title="Recent Similar" class="info">
+                    <p class="widget-desc">Last 'Dining Out' was <strong>28,50 €</strong> at Le Bistrot yesterday.</p>
+                </WidgetCard>
+            </div>
+            <div class="col-12 col-md-with-navbar-4">
+                <WidgetCard icon="calendar-day" title="Prediction" class="info">
+                    <p class="widget-desc">This matches your recurring weekly spending pattern.</p>
+                </WidgetCard>
+            </div>
+        </div>
 
     </FormBase>
 </template>

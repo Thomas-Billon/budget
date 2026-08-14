@@ -14,6 +14,7 @@
 
     const router = useRouter();
 
+    const isLoading = ref<boolean>(true);
     const transaction = ref(getDefaultTransactionRequest());
 
     useMountedOrRouteParamUpdate((params) => {
@@ -55,6 +56,7 @@
                 comment: result.comment,
                 categoryIds: result.categories.map(c => c.id)
             };
+            isLoading.value = false;
         }
     });
 
@@ -64,6 +66,8 @@
     <TransactionForm
         v-model="transaction"
         :is-new="false"
+        :is-loading="isLoading"
+        :is-auto-save="false"
         :save-all-result="fullUpdateResult"
         :save-partial-result="partialUpdateResult"
         :delete-result="deleteResult"

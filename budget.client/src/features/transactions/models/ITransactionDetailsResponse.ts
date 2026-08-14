@@ -1,4 +1,5 @@
 import { type CategoryColor } from '@/enums/CategoryColor';
+import { type CategoryIcon } from '@/enums/CategoryIcon';
 import { type TransactionType } from '@/enums/TransactionType.ts';
 import { type PaymentMethod } from '@/enums/PaymentMethod.ts';
 
@@ -18,7 +19,7 @@ interface ITransactionDetailsCategoryItemResponse {
     id: number;
     name: string;
     color: CategoryColor;
-    colorHex: string;
+    icon: CategoryIcon;
 }
 
 export { type ITransactionDetailsResponse, type ITransactionDetailsCategoryItemResponse };

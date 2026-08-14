@@ -1,0 +1,43 @@
+@import "@/assets/css/variables";
+
+.transaction-row {
+    &-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: $spacer-xs;
+    }
+
+    &-text {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    &-title {
+        font-weight: 700;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    &-date {
+        font-size: $text-sm;
+        font-weight: 600;
+        color: $primary-600;
+    }
+
+    &-amount {
+        margin-left: auto;
+        font-size: $text-xl;
+        font-weight: 600;
+        white-space: nowrap;
+
+        &.income {
+            color: $success;
+        }
+
+        &.expense {
+            color: $error;
+        }
+    }
+}

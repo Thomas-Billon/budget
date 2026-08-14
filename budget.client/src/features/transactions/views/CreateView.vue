@@ -23,6 +23,8 @@
     <TransactionForm
         v-model="transaction"
         :is-new="true"
+        :is-loading="false"
+        :is-auto-save="false"
         :save-all-result="createResult"
         @save-all="createEntity"
     />

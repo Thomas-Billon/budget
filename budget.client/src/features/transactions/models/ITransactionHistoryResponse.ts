@@ -1,4 +1,5 @@
 import { type CategoryColor } from '@/enums/CategoryColor';
+import { type CategoryIcon } from '@/enums/CategoryIcon';
 import { type TransactionType } from '@/enums/TransactionType.ts';
 import { type IPagination } from '@/utils/IPagination';
 
@@ -18,7 +19,7 @@ interface ITransactionHistoryCategoryItemResponse {
     id: number;
     name: string;
     color: CategoryColor;
-    colorHex: string;
+    icon: CategoryIcon;
 }
 
 export { type ITransactionHistoryResponse, type ITransactionHistoryItemResponse, type ITransactionHistoryCategoryItemResponse };
