@@ -98,6 +98,16 @@ namespace Budget.Server.Api.Users
             return Ok();
         }
 
+        [HttpPost("resend-email-confirmation")]
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimiterConfiguration.ResendEmailConfirmationPolicy)]
+        public async Task<IActionResult> ResendEmailConfirmation([FromBody] ResendEmailConfirmationRequest request)
+        {
+            await _authService.ResendEmailConfirmationAsync(request);
+
+            return Ok();
+        }
+
         [HttpPost("confirm-email")]
         [AllowAnonymous]
         [EnableRateLimiting(RateLimiterConfiguration.ConfirmEmailPolicy)]
@@ -109,16 +119,6 @@ namespace Budget.Server.Api.Users
             {
                 return Failure(HttpStatusCode.BadRequest, ErrorCodes.Auth.EmailConfirmationFailed);
             }
-
-            return Ok();
-        }
-
-        [HttpPost("resend-email-confirmation")]
-        [AllowAnonymous]
-        [EnableRateLimiting(RateLimiterConfiguration.ResendEmailConfirmationPolicy)]
-        public async Task<IActionResult> ResendEmailConfirmation([FromBody] ResendEmailConfirmationRequest request)
-        {
-            await _authService.ResendEmailConfirmationAsync(request);
 
             return Ok();
         }

@@ -199,6 +199,15 @@ namespace Budget.Server.Core.Auth
             await SendEmailEmailConfirmationAsync(user);
         }
 
+        private async Task SendEmailEmailConfirmationAsync(ApplicationUser user)
+        {
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var confirmUrl = $"{_clientConfiguration.Url}/confirm-email?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
+            var htmlBody = EmailTemplateEmailConfirmation.BuildHtml(confirmUrl, _authConfiguration.EmailConfirmation.ExpirationInSeconds);
+
+            await _emailSender.SendAsync(user.Email, EmailTemplateEmailConfirmation.Subject, htmlBody);
+        }
+
         public async Task<bool> ConfirmEmailAsync(ConfirmEmailRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.Email);
@@ -209,15 +218,6 @@ namespace Budget.Server.Core.Auth
 
             var result = await _userManager.ConfirmEmailAsync(user, request.Token);
             return result.Succeeded;
-        }
-
-        private async Task SendEmailEmailConfirmationAsync(ApplicationUser user)
-        {
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var confirmUrl = $"{_clientConfiguration.Url}/confirm-email?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
-            var htmlBody = EmailTemplateEmailConfirmation.BuildHtml(confirmUrl, _authConfiguration.EmailConfirmation.ExpirationInSeconds);
-
-            await _emailSender.SendAsync(user.Email, EmailTemplateEmailConfirmation.Subject, htmlBody);
         }
 
         #endregion Confirm Email
