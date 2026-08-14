@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Budget.Server (https)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Budget.Server/bin/Debug/net10.0/Budget.Server.dll",
+            "cwd": "${workspaceFolder}/Budget.Server",
+            "stopAtEntry": false,
+            "console": "externalTerminal",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+                "ASPNETCORE_URLS": "https://localhost:7177;http://localhost:5256"
+            }
+        },
+        {
+            "name": "budget.client (Chrome)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "https://localhost:49835",
+            "webRoot": "${workspaceFolder}/budget.client"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Full Stack (Server + Chrome)",
+            "configurations": [
+                "Budget.Server (https)",
+                "budget.client (Chrome)"
+            ]
+        }
+    ]
+}
