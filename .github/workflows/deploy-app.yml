@@ -1,0 +1,52 @@
+name: Deploy app
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "Budget.Server/**"
+      - "budget.client/**"
+      - ".github/workflows/deploy-app.yml"
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: web-app-budget
+  DOTNET_VERSION: "10.0.x"
+  NODE_VERSION: "22.x"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: budget.client/package-lock.json
+
+      - name: Install client dependencies
+        run: npm ci
+        working-directory: budget.client
+
+      # The client build outputs into Budget.Server/wwwroot, so it must run before the publish below.
+      - name: Build client
+        run: npm run build
+        working-directory: budget.client
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Publish
+        run: dotnet publish Budget.Server/Budget.Server.csproj -c Release -o ./publish
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEB_APP_PUBLISH_PROFILE }}
+          package: ./publish

@@ -8,12 +8,12 @@ import path from 'path';
 import childProcess from 'child_process';
 import { env } from 'process';
 
-// INFO: The dev-cert logic below is only needed for the local HTTPS dev server, never for `vite build` (no server is started, e.g. CI/production builds).
 export default defineConfig(({ command }) => {
     const isServe = command === 'serve';
 
     let httpsConfig;
 
+    // INFO: The dev-cert logic below is only needed for the local HTTPS dev server, never for `vite build` (no server is started, e.g. CI/production builds).
     if (isServe) {
         const baseFolder =
             env.APPDATA !== undefined && env.APPDATA !== ''
@@ -66,9 +66,20 @@ export default defineConfig(({ command }) => {
                 }
             }
         },
+        build: {
+            outDir: fileURLToPath(new URL('../Budget.Server/wwwroot', import.meta.url)),
+            emptyOutDir: true
+        },
         server: isServe ? {
             port: 49835,
-            https: httpsConfig
+            https: httpsConfig,
+            // INFO: Keeps the api same-origin in dev, same as prod.
+            proxy: {
+                '/api': {
+                    target: 'https://localhost:7177',
+                    secure: false
+                }
+            }
         } : undefined
     };
 });
