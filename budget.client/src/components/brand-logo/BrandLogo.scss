@@ -1,0 +1,75 @@
+@import "@/assets/css/variables";
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+
+    &.inline {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: $spacer-md;
+    }
+
+    &.stacked {
+        flex-direction: column;
+        justify-content: center;
+        gap: $spacer-sm;
+    }
+
+    &-image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &.inline &-image {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    &.stacked &-image {
+        width: 3.5rem;
+        height: 3.5rem;
+    }
+
+    &-text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &.inline &-text {
+        text-align: left;
+    }
+
+    &.stacked &-text {
+        text-align: center;
+    }
+
+    &-title {
+        font-weight: 600;
+    }
+
+    &.inline &-title {
+        font-size: $text-xl;
+    }
+
+    &.stacked &-title {
+        font-size: $text-2xl;
+    }
+
+    &-subtitle {
+        font-weight: 500;
+        text-transform: uppercase;
+        color: $primary-500;
+    }
+
+    &.inline &-subtitle {
+        font-size: $text-xs;
+        letter-spacing: 0.1em;
+    }
+
+    &.stacked &-subtitle {
+        font-size: $text-sm;
+        letter-spacing: 0.075em;
+    }
+}

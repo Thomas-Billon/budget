@@ -1,0 +1,52 @@
+@import "@/assets/css/bootstrap-override";
+@import "@/assets/css/variables";
+
+* {
+    line-height: normal;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 0;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    border: none;
+    background: transparent;
+}
+
+select {
+    outline: none;
+}
+
+.collapsible {
+    display: grid;
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transition: grid-template-rows $animation-duration-md ease-in-out,
+        opacity $animation-duration-md ease-in-out;
+
+    &.hidden {
+        grid-template-rows: 0fr;
+        opacity: 0;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    > * {
+        overflow: hidden;
+        transition: padding $animation-duration-md ease-in-out;
+    }
+
+    &.hidden > * {
+        padding: 0;
+    }
+}

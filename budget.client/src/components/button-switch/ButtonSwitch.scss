@@ -1,42 +1,100 @@
-@import "@/assets/variables.module";
+@import "@/assets/css/variables";
+
+$options-gap: 0px;
+$scroll-fade-width: $spacer-md;
 
 .button-switch {
-    padding: $spacer-xs;
-    border-radius: $radius-sm;
+    position: relative;
+    margin: 0 (-$scroll-fade-width);
+    width: calc(100% + 2 * $scroll-fade-width);
+    z-index: 0;
 
-    &-container {
-        position: relative;
-        z-index: 0;
+    &::before, &::after {
+        content: "";
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        width: $scroll-fade-width;
+        height: 100%;
+    }
+
+    &::before {
+        left: 0;
+        background: linear-gradient(to right, $body-bg, transparent);
+    }
+
+    &::after {
+        right: 0;
+        background: linear-gradient(to left, $body-bg, transparent);
+    }
+
+    &-scroll {
         display: flex;
-        gap: $spacer-xs;
-    }
+        overflow-x: auto;
+        padding: 0 $scroll-fade-width;
+        scrollbar-width: none;
 
-    &-option {
-        width: 100%;
-        border: none;
-    }
+        &::-webkit-scrollbar {
+            display: none;
+        }
 
-    &.has-active &-option {
-        background-color: rgb(255, 255, 255, 0);
-
-        &:hover {
-            background-color: rgb(255, 255, 255, 0.25);
+        &.is-dragging {
+            user-select: none;
+            cursor: grabbing;
         }
     }
 
+        &-scroll.is-dragging &-option {
+            cursor: grabbing;
+            pointer-events: none;
+        }
+
+    &-content {
+        flex-grow: 1;
+        padding: $spacer-xs;
+        border-radius: $radius-pill;
+        background-color: $secondary-200;
+    }
+
+    &-options {
+        position: relative;
+        z-index: 0;
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(max-content, 1fr);
+        gap: $options-gap;
+    }
+
+    &-option {
+        padding: $spacer-md $spacer-xl;
+        border-radius: $radius-pill;
+        font-weight: 600;
+        white-space: nowrap;
+
+        &.active, &.active:active {
+            color: $white;
+        }
+    }
+
+    &.sm &-option {
+        font-size: $text-sm;
+    }
+
     &-highlight {
-        $switch-width: calc(100% - (var(--switchCount) - 1) * $spacer-xs);
-        $option-width: calc($switch-width / var(--switchCount));
-        $offset-left: calc(var(--switchIndex) / var(--switchCount) * $switch-width + var(--switchIndex) * $spacer-xs);
         position: absolute;
         top: 0;
         bottom: 0;
-        left: $offset-left;
-        width: $option-width;
         z-index: -1;
         border: none;
+        border-radius: $radius-pill;
+        background-color: $secondary-600;
         pointer-events: none;
-        transition: left 250ms ease;
+        left: var(--optionPosition);
+        width: var(--optionWidth);
+
+        &.ready {
+            transition: left $animation-duration-md ease-in-out, width $animation-duration-md ease-in-out;
+        }
     }
 
     &.no-active &-highlight {

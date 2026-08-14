@@ -1,0 +1,36 @@
+@import "@/assets/css/variables";
+
+.color-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacer-md;
+
+    &-option {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: $spacer-2xl + $spacer-sm;
+        height: $spacer-2xl + $spacer-sm;
+        border-radius: $radius-circle;
+        background-color: var(--color, $primary-600);
+        color: $white;
+        font-size: $text-lg;
+        opacity: 0.4;
+        transition: transform $animation-duration-sm ease-in-out,
+            opacity $animation-duration-sm ease-in-out,
+            box-shadow $animation-duration-sm ease-in-out;
+
+        &:hover {
+            transform: scale(1.05);
+        }
+
+        &.selected {
+            opacity: 1;
+            box-shadow: inset 0 0 0 2px $white, 0 0 0 2px var(--color, $primary-600);
+        }
+    }
+
+    &-empty {
+        color: $primary-500;
+    }
+}

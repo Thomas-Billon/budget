@@ -1,0 +1,47 @@
+@import "@/assets/css/variables";
+
+.widget-card {
+    background-color: $white;
+
+    &.dark {
+        background-color: $primary-900;
+        color: $white;
+    }
+
+    &-head {
+        color: $primary-700;
+    }
+
+    &.info &-head {
+        color: $secondary-600;
+    }
+
+    &.income &-head {
+        color: $success;
+    }
+
+    &.expense &-head {
+        color: $error;
+    }
+
+    &.dark &-head {
+        color: $primary-300;
+    }
+
+    &-head {
+        display: flex;
+        align-items: center;
+        gap: $spacer-sm;
+    }
+
+    &-title {
+        font-size: $text-sm;
+        font-weight: 600;
+        letter-spacing: 0.075em;
+        text-transform: uppercase;
+    }
+
+    &-body {
+        height: 100%;
+    }
+}

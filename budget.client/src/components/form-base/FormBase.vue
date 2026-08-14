@@ -4,43 +4,16 @@
 
     import { onMounted, ref, watch } from 'vue';
     import { debounce } from '@/utils/Utils';
-    import { type FormProps, type FormEmits } from '@/components/form-base/FormBase';
+    import { type FormEmits, type FormBaseProps } from '@/components/form-base/FormBase';
+    import useNavigation from '@/composables/useNavigation';
 
-
-    interface Props extends FormProps {
-        isFormValid: () => boolean
-    }
-
-    interface FormHeadProps {
-        onChange: <K extends keyof T>(field: K, value: T[K]) => void;
-    }
-
-    interface FormBodyProps {
-        onChange: <K extends keyof T>(field: K, value: T[K]) => void;
-    }
-
-    interface FormFootProps {
-        isFormValid: () => boolean;
-        onSubmit: () => void;
-        onDelete: () => void;
-        isNew: boolean;
-        deleteButtonLabel: string;
-        submitButtonLabel: string;
-        isSubmitButtonDisabled: boolean;
-        isDeleteButtonDisabled: boolean;
-    }
-
-    const { isNew, saveAllResult, savePartialResult, deleteResult, isFormValid } = defineProps<Props>();
+    const { isNew, isLoading, isAutoSave = false, saveAllResult, savePartialResult, deleteResult, isFormValid } = defineProps<FormBaseProps>();
     const model = defineModel<T>({ required: true });
     const emit = defineEmits<FormEmits<T>>();
 
-    const _slots = defineSlots<{
-        head?(props: FormHeadProps): void;
-        body(props: FormBodyProps): void;
-        foot?(props: FormFootProps): void;
-    }>();
-
     let partialModel: Partial<T> = {};
+
+    const { goBack } = useNavigation();
 
     const submitButtonLabel = ref('');
     const deleteButtonLabel = ref('');
@@ -123,7 +96,7 @@
     };
 
     const debounceSavePartial = debounce(() => {
-        if (!isFormValid() || Object.keys(partialModel).length === 0) {
+        if (!isAutoSave || !isFormValid() || Object.keys(partialModel).length === 0) {
             return;
         }
 
@@ -188,35 +161,33 @@
 </script>
 
 <template>
-    <form novalidate class="form section-container-grow container" @submit.prevent="onSubmit">
+    <form v-if="!isLoading" novalidate class="form" @submit.prevent="onSubmit">
 
         <input v-model="model.id" type="hidden" name="Id" />
-        
-        <slot name="head" :on-change="onChange"></slot>
 
-        <slot name="body" :on-change="onChange"></slot>
+        <div class="form-content">
+            <Teleport defer to=".form-body">
+                <div class="form-close-container">
+                    <button type="button" class="form-close" @click="goBack()">
+                        <font-awesome-icon icon="fa-solid fa-xmark" />
+                    </button>
+                </div>
+            </Teleport>
+            <slot :on-change="onChange"></slot>
+        </div>
 
-        <slot
-            name="foot"
-            :is-form-valid="isFormValid"
-            :on-submit="onSubmit"
-            :on-delete="onDelete"
-            :is-new="isNew"
-            :delete-button-label="deleteButtonLabel"
-            :submit-button-label="submitButtonLabel"
-            :is-submit-button-disabled="isSubmitButtonDisabled"
-            :is-delete-button-disabled="isDeleteButtonDisabled"
-        >
-            <div class="form-foot">
-                <button v-if="!isNew" type="button" class="form-button btn btn-outline-danger btn-lg" :disabled="isDeleteButtonDisabled" @click="onDelete">
-                    <font-awesome-icon icon="fa-solid fa-trash" />
-                    <span>{{ deleteButtonLabel }}</span>
-                </button>
-                <button type="submit" class="form-button btn btn-primary btn-lg" :disabled="isSubmitButtonDisabled || !isFormValid()">
-                    <font-awesome-icon icon="fa-solid fa-floppy-disk" />
-                    <span>{{ submitButtonLabel }}</span>
-                </button>
-            </div>
-        </slot>
+        <div class="form-foot">
+            <button v-if="!isNew" type="button" class="form-button btn btn-outline-danger btn-lg" :disabled="isDeleteButtonDisabled" @click="onDelete">
+                <font-awesome-icon icon="fa-solid fa-trash" />
+                <span>{{ deleteButtonLabel }}</span>
+            </button>
+            <button type="submit" class="form-button btn btn-primary btn-lg" :disabled="isSubmitButtonDisabled || !isFormValid()">
+                <font-awesome-icon icon="fa-solid fa-floppy-disk" />
+                <span>{{ submitButtonLabel }}</span>
+            </button>
+        </div>
+
     </form>
+
+    <div v-else>Loading…</div>
 </template>

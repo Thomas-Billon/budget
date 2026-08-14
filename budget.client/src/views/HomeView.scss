@@ -1,0 +1,117 @@
+@import "@/assets/css/variables";
+
+.home {
+    .widget-balance {
+        display: flex;
+        flex-direction: column;
+        gap: $spacer-md;
+        height: 100%;
+
+        &-amount {
+            font-size: $text-4xl;
+            font-weight: 700;
+        }
+
+        &-update {
+            display: flex;
+            align-items: center;
+            gap: $spacer-xs;
+            font-weight: 600;
+
+            &.income {
+                color: $success;
+            }
+
+            &.expense {
+                color: $error;
+            }
+        }
+
+        &-chart {
+            height: 180px;
+            width: 100%;
+
+            svg {
+                width: 100%;
+                height: 100%;
+            }
+        }
+    }
+
+    .widget-spending {
+        display: flex;
+        flex-direction: column;
+        gap: $spacer-md;
+        height: 100%;
+
+        &-amount {
+            font-size: $text-2xl;
+            font-weight: 700;
+        }
+
+        &-progress {
+            display: flex;
+            flex-direction: column;
+            gap: $spacer-sm;
+
+            &-bar {
+                width: 100%;
+                height: $spacer-sm;
+                border-radius: $radius-pill;
+                background-color: $primary-600;
+            }
+
+            &-filler {
+                width: var(--progressValue, 0%);
+                height: 100%;
+                border-radius: $radius-pill;
+                background-color: $white;
+            }
+
+            &-limit {
+                font-size: $text-sm;
+                font-weight: 600;
+                color: $primary-400;
+            }
+        }
+
+        &-chart {
+            flex-grow: 1;
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: 1fr;
+            gap: $spacer-sm;
+
+            &-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-end;
+                gap: $spacer-xs;
+                height: 100%;
+            }
+
+            &-amount {
+                color: var(--categoryColor, $white);
+                font-size: $text-xs;
+                font-weight: 700;
+            }
+
+            &-bar {
+                display: flex;
+                align-items: flex-end;
+                justify-content: center;
+                width: 100%;
+                height: var(--categoryValue, 0%);
+                background-color: var(--categoryColor, $white);
+                border-radius: $radius-md $radius-md 0 0;
+            }
+
+            &-label {
+                color: var(--categoryColor, $white);
+                font-size: $text-xs;
+                font-weight: 500;
+            }
+        }
+    }
+}

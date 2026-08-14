@@ -1,0 +1,44 @@
+@import "@/assets/css/variables";
+
+.page-header {
+    display: flex;
+    flex-direction: column;
+    gap: $spacer-lg;
+    justify-content: space-between;
+
+    &.no-text:not(:has(&-actions > *)) {
+        display: none;
+    }
+
+    &.no-text {
+        gap: 0;
+    }
+
+    @media (min-width: $breakpoint-md) {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    &-text {
+        display: flex;
+        flex-direction: column;
+        gap: $spacer-xs;
+    }
+
+    &-title {
+        font-size: $text-2xl;
+        font-weight: 700;
+    }
+
+    &-subtitle {
+        color: $primary-700;
+    }
+
+    &-actions {
+        min-width: 0;
+    }
+
+    &.no-text &-actions {
+        flex-grow: 1;
+    }
+}

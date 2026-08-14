@@ -1,0 +1,484 @@
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "@/assets/css/variables";
+
+$spacers: (
+    0: 0,
+    1: $spacer * 0.25,
+    2: $spacer * 0.5,
+    3: $spacer * 0.75,
+    4: $spacer,
+    5: $spacer * 1.25,
+    6: $spacer * 1.5,
+    7: $spacer * 1.75,
+    8: $spacer * 2,
+    9: $spacer * 2.25,
+    10: $spacer * 2.5,
+    11: $spacer * 2.75,
+    12: $spacer * 3,
+);
+
+$gutters: $spacers;
+
+$custom-colors: (
+    "primary": $primary,
+    "secondary": $secondary,
+    "white": $white
+);
+
+$theme-colors: map-merge($theme-colors, $custom-colors);
+
+// INFO: These variables must be declared BEFORE importing Bootstrap.
+// Bootstrap builds its generated classes at import time using whatever value each variable holds at that point.
+@import "bootstrap";
+
+:root {
+    --bs-body-font-size: #{$body-text};
+}
+
+$grid-breakpoints-with-navbar: (
+    xs: 0,
+    sm: 576px,
+    md: 768px,
+    md-with-navbar: 768px + $nav-sidebar-width,
+    lg-with-navbar: 992px + $nav-sidebar-width,
+    xl-with-navbar: 1200px + $nav-sidebar-width,
+    xxl-with-navbar: 1400px + $nav-sidebar-width
+);
+
+$container-with-navbar-max-widths: (
+    sm: 540px,
+    md: 720px - $nav-sidebar-width,
+    md-with-navbar: 720px,
+    lg-with-navbar: 960px,
+    xl-with-navbar: 1140px,
+    xxl-with-navbar: 1320px
+);
+
+.container-with-navbar {
+    @include make-container();
+
+    @each $name, $container-max-width in $container-with-navbar-max-widths {
+        $grid-breakpoint: map-get($grid-breakpoints-with-navbar, $name);
+
+        @media (min-width: $grid-breakpoint) {
+            @if $grid-breakpoint >= $breakpoint-md {
+                transform: translateX($nav-sidebar-width / 2);
+            }
+
+            max-width: $container-max-width;
+        }
+    }
+
+    @include make-grid-columns($breakpoints: $grid-breakpoints-with-navbar);
+}
+
+.container, .container-fluid, .container-with-navbar {
+    --bs-gutter-x: #{$gutter-x};
+    --bs-gutter-y: 0;
+}
+
+.row {
+    --bs-gutter-x: #{$gutter-x} / 2;
+    --bs-gutter-y: #{$gutter-y};
+
+    + .row {
+        // INFO: Removes bootstrap default negative margin for spacing between rows.
+        margin-top: 0;
+    }
+}
+
+.w-0 {
+    width: 0;
+}
+
+.h-0 {
+    height: 0;
+}
+
+.link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacer-sm;
+    font-weight: 500;
+    color: $secondary-600;
+
+    &:hover {
+        color: $secondary-800;
+    }
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacer-sm;
+    --bs-btn-font-size: #{$body-text};
+    --bs-btn-font-weight: 600;
+    --bs-btn-border-width: 0;
+    --bs-btn-border-radius: #{$radius-lg};
+    --bs-btn-disabled-color: #{$body-color};
+    --bs-btn-disabled-bg: #{$disabled};
+    --bs-btn-disabled-border-color: #{$disabled};
+    --bs-btn-disabled-opacity: 1;
+}
+
+.btn-lg {
+    --bs-btn-padding-y: #{$spacer-lg};
+    --bs-btn-padding-x: #{$spacer-2xl};
+}
+
+$btn-hover-colors: (
+    "primary": $primary-800,
+    "secondary": $secondary-500,
+);
+
+@each $color, $value in $theme-colors {
+    $hover-bg: map-get($btn-hover-colors, $color);
+
+    .btn-#{$color} {
+        --bs-btn-hover-bg: #{if($hover-bg, $hover-bg, lighten($value, 10%))};
+    }
+
+    .btn-outline-#{$color} {
+        --bs-btn-border-width: #{$border-lg};
+        --bs-btn-disabled-color: #{$disabled};
+        --bs-btn-disabled-bg: transparent;
+    }
+
+    .btn-#{$color}, .btn-outline-#{$color} {
+        transition: color $animation-duration-sm ease-in-out,
+            background-color $animation-duration-sm ease-in-out,
+            border-color $animation-duration-sm ease-in-out,
+            box-shadow $animation-duration-sm ease-in-out,
+            transform $animation-duration-sm ease-in-out;
+
+        &:active {
+            transform: scale(0.99);
+        }
+    }
+}
+
+.btn-link {
+    text-decoration: none;
+    --bs-btn-color: #{$secondary-600};
+    --bs-btn-hover-color: #{$secondary-900};
+    --bs-btn-active-color: #{$secondary-900};
+}
+
+.btn-static {
+    --bs-btn-hover-color: var(--bs-btn-color);
+    --bs-btn-hover-bg: var(--bs-btn-bg);
+    --bs-btn-hover-border-color: var(--bs-btn-border-color);
+    --bs-btn-active-color: var(--bs-btn-color);
+    --bs-btn-active-bg: var(--bs-btn-bg);
+    --bs-btn-active-border-color: var(--bs-btn-border-color);
+    --bs-btn-active-shadow: none;
+}
+
+.form-group {
+
+}
+
+.form-label {
+    color: $primary-700;
+    font-size: $text-sm;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+    .form-label:has(~ .form-control:required, ~ .form-select:required, ~ .input-group > .form-control:required, ~ .input-group > .form-select:required) {
+        &::after {
+            content: "*";
+            margin-left: $spacer-xs;
+        }
+    }
+
+.form-control, .form-select {
+    --bs-border-width: 0;
+    --bs-border-radius: #{$radius-lg};
+    background-color: transparent;
+    padding: $spacer-md ($spacer-lg + $spacer-xs);
+    font-size: $text-md;
+
+    &:focus {
+        background-color: transparent;
+    }
+
+    &.sm {
+        padding: $spacer-sm ($spacer-md + $spacer-2xs);
+    }
+}
+
+.form-control {
+    &[type="password"],
+    &.password:placeholder-shown {
+        font-family: 'Verdana', 'Montserrat', sans-serif;
+        letter-spacing: 0.05em;
+    }
+
+    &.is-invalid {
+        padding-right: ($spacer-lg + $spacer-xs + $spacer-xl);
+        background-position: right ($spacer-lg + $spacer-xs) center;
+    }
+}
+
+.invalid-feedback {
+    --bs-form-invalid-color: #{$error};
+    font-weight: 600;
+}
+
+.form-check {
+    min-height: 0;
+    margin: 0;
+}
+
+.form-check-input {
+    margin: 0;
+    border: none;
+    background-color: $primary-300;
+    cursor: pointer;
+
+    &:focus {
+        box-shadow: none;
+    }
+
+    &:checked {
+        background-color: $secondary-600;
+    }
+}
+
+.form-switch .form-check-input, .form-switch .form-check-input:focus {
+    --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgb%28255, 255, 255%29'/%3e%3c/svg%3e");
+}
+
+.input-group {
+    border-radius: $radius-lg;
+}
+
+.input-group-text {
+    --bs-border-width: 0;
+    --bs-border-radius: #{$radius-lg};
+    background-color: transparent;
+    padding: 0 $spacer-lg;
+    font-size: $text-md;
+    color: $primary-700;
+
+    &.sm {
+        padding: 0 $spacer-md;
+    }
+}
+
+.input-group, .form-control, .form-select {
+    transition: box-shadow $animation-duration-sm ease-in-out,
+        background-color $animation-duration-sm ease-in-out;
+}
+
+    :not(.input-group) > .form-control,
+    :not(.input-group) > .form-select,
+    .input-group:has(> .form-control),
+    .input-group:has(> .form-select) {
+        background-color: $secondary-100;
+    }
+
+    :not(.input-group) > .form-control:focus,
+    :not(.input-group) > .form-select:focus,
+    .input-group:has(> .form-control:focus),
+    .input-group:has(> .form-select:focus) {
+        background-color: $secondary-100;
+        box-shadow: 0 0 0 2px $secondary;
+    }
+
+    :not(.input-group) > .form-control.is-invalid, :not(.input-group) > .form-control.is-invalid:focus,
+    :not(.input-group) > .form-select.is-invalid, :not(.input-group) > .form-select.is-invalid:focus,
+    .input-group:has(> .form-control.is-invalid, > .form-control.is-invalid:focus),
+    .input-group:has(> .form-select.is-invalid, > .form-select.is-invalid:focus) {
+        background-color: rgba($error, 0.1);
+        box-shadow: 0 0 0 2px $error;
+    }
+
+    .input-group > .form-control,
+    .input-group > .form-select {
+        &:focus, .is-invalid, &.is-invalid:focus {
+            box-shadow: none;
+        }
+    }
+
+    .input-group > :not(:first-child):not(.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.invalid-tooltip):not(.invalid-feedback) {
+        // INFO: Bootstrap default behavior for input groups is to remove the border radius for every children except the first one.
+        // This behavior causes issues when extensions such as password managers, as they insert content inside the input group, breaking the styling.
+        // This rule overrides the default behavior to keep the border radius for all children.
+        border-top-left-radius: #{$radius-lg};
+        border-bottom-left-radius: #{$radius-lg};
+    }
+
+    .input-group > :not(.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.invalid-tooltip):not(.invalid-feedback) {
+        & ~ .form-control, & ~ .form-select, & ~ .input-group-text {
+            // INFO: See above comment for explanation.
+            // This rule removes the border radius for every children except the first one, but is limited to input classes.
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+    }
+
+    .input-group > :not(.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.invalid-tooltip):not(.invalid-feedback) {
+        & ~ .form-control {
+            padding-left: 0;
+        }
+    }
+
+    .input-group:not(.has-validation) > :not(:last-child):not(.dropdown-toggle):not(.dropdown-menu):not(.form-floating) {
+        // INFO: Bootstrap default behavior for input groups is to remove the border radius for every children except the last one.
+        // This behavior causes issues when extensions such as password managers, as they insert content inside the input group, breaking the styling.
+        // This rule overrides the default behavior to keep the border radius for all children.
+        border-top-right-radius: #{$radius-lg};
+        border-bottom-right-radius: #{$radius-lg};
+    }
+
+    .input-group:not(.has-validation) > :not(.dropdown-toggle):not(.dropdown-menu):not(.form-floating) {
+        &:has(~ .form-control, ~ .form-select, ~ .input-group-text) {
+            // INFO: See above comment for explanation.
+            // This rule removes the border radius for every children except the last one, but is limited to input classes.
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+    }
+
+    .input-group:not(.has-validation) > .form-control:not(.dropdown-toggle):not(.dropdown-menu):not(.form-floating) {
+        &:has(~ .form-control, ~ .form-select, ~ .input-group-text) {
+            padding-right: 0;
+
+            &.is-invalid {
+                padding-right: $spacer-lg + $spacer-md;
+                background-position: right 0 center;
+
+                &.sm {
+                    padding-right: $spacer-lg + $spacer-sm;
+                }
+            }
+        }
+    }
+
+    .input-group > .form-control[data-np-input-autofilled] {
+        background-color: transparent !important;
+    }
+
+    .input-group:has(> .is-invalid) ~ .invalid-feedback {
+        display: block;
+    }
+
+.card {
+    gap: $spacer-lg;
+    padding: $spacer-xl;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+    --bs-card-bg: #{$white};
+    --bs-card-height: 100%;
+    --bs-card-border-width: 0;
+    --bs-card-border-radius: #{$radius-lg};
+}
+
+.alert {
+    font-size: $text-sm;
+    font-weight: 600;
+    --bs-alert-padding-x: #{$spacer-lg + $spacer-xs};
+    --bs-alert-padding-y: #{$spacer-md};
+    --bs-alert-margin-bottom: 0;
+    --bs-alert-border: none;
+    --bs-alert-border-radius: #{$radius-lg};
+
+    &-danger {
+        color: $error;
+        background-color: rgba($error, 0.25);
+    }
+
+    &-info {
+        color: $secondary;
+        background-color: rgba($secondary, 0.25);
+    }
+}
+
+.text-sm {
+    font-size: $text-sm;
+}
+
+.text-md {
+    font-size: $text-md;
+}
+
+.text-lg {
+    font-size: $text-lg;
+}
+
+.text-xl {
+    font-size: $text-xl;
+}
+
+.text-100 {
+    font-weight: 100;
+}
+
+.text-200 {
+    font-weight: 200;
+}
+
+.text-300 {
+    font-weight: 300;
+}
+
+.text-400 {
+    font-weight: 400;
+}
+
+.text-500 {
+    font-weight: 500;
+}
+
+.text-600 {
+    font-weight: 600;
+}
+
+.text-700 {
+    font-weight: 700;
+}
+
+.text-800 {
+    font-weight: 800;
+}
+
+.text-900 {
+    font-weight: 900;
+}
+
+.bg-opacity-0 {
+    --bs-bg-opacity: 0;
+}
+
+.bg-opacity-100 {
+    --bs-bg-opacity: 1;
+}
+
+.bg-opacity-0-hover:hover {
+    --bs-bg-opacity: 0;
+}
+
+.bg-opacity-10-hover:hover {
+    --bs-bg-opacity: 0.1;
+}
+
+.bg-opacity-25-hover:hover {
+    --bs-bg-opacity: 0.25;
+}
+
+.bg-opacity-50-hover:hover {
+    --bs-bg-opacity: 0.5;
+}
+
+.bg-opacity-75-hover:hover {
+    --bs-bg-opacity: 0.75;
+}
+
+.bg-opacity-100-hover:hover {
+    --bs-bg-opacity: 1;
+}

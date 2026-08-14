@@ -1,0 +1,78 @@
+@import "@/assets/css/variables";
+
+$hover-offset: $spacer-2xs;
+
+.clickable-row {
+    &.in-card {
+        margin: 0 ($spacer-xl * -1);
+
+        &:first-child {
+            margin-top: ($spacer-xs * -1);
+        }
+
+        &:last-child {
+            margin-bottom: ($spacer-xs * -1);
+        }
+    }
+
+    &-link {
+        position: relative;
+        padding: $spacer-md $spacer-xl $spacer-md $spacer-lg + $spacer-xs + $hover-offset;
+        width: 100%;
+    }
+
+    &-decorator {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: $spacer-xs;
+        height: 100%;
+        background-color: $secondary-200;
+        transition: background-color $animation-duration-sm ease-in-out;
+
+        &::before, &::after {
+            content: '';
+            position: absolute;
+            left: 0px;
+            width: 100%;
+            height: $spacer-md;
+            transition: background-color $animation-duration-sm ease-in-out;
+        }
+
+        &::before {
+            top: 0px;
+            background: linear-gradient(to bottom, $secondary-200, transparent);
+        }
+
+        &::after {
+            bottom: 0px;
+            background: linear-gradient(to top, $secondary-200, transparent);
+        }
+    }
+
+    &:first-child &-decorator::before {
+        background: linear-gradient(to bottom, $white, transparent);
+    }
+
+    &:last-child &-decorator::after {
+        background: linear-gradient(to top, $white, transparent);
+    }
+
+    &:hover &-decorator {
+        background-color: $secondary-600;
+    }
+
+    &-content {
+        position: relative;
+        left: 0px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: $spacer-lg + $spacer-xs;
+        transition: left $animation-duration-sm ease-in-out;
+    }
+
+    &:hover &-content {
+        left: $hover-offset;
+    }
+}
