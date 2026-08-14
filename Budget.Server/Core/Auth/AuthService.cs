@@ -111,6 +111,13 @@ namespace Budget.Server.Core.Auth
 
             if (refreshToken.IsRevoked)
             {
+                // INFO: Concurrent refreshes can present the same token (ex: multiple tabs reloading at the same time).
+                // This concurrency is tolerated for a short grace period, instead of being mistaken for a stolen copy.
+                if (refreshToken.IsWithinReuseGracePeriod(_authConfiguration.RefreshToken.ReuseGraceInSeconds))
+                {
+                    return await IssueTokensAsync(httpContext, refreshToken.User);
+                }
+
                 // INFO: Token was already revoked, meaning this is most likely a stolen copy, so we revoke all active tokens for this user to prevent further misuse.
                 await RevokeAllRefreshTokensAsync(refreshToken.UserId);
                 return null;
@@ -323,6 +330,7 @@ namespace Budget.Server.Core.Auth
             if (refreshToken != null)
             {
                 refreshToken.IsRevoked = true;
+                refreshToken.RevokedAt = DateTimeOffset.UtcNow;
                 await _context.SaveChangesAsync();
             }
 
@@ -331,6 +339,8 @@ namespace Budget.Server.Core.Auth
 
         private async Task RevokeAllRefreshTokensAsync(string userId)
         {
+            var revokedAt = DateTimeOffset.UtcNow;
+
             var refreshTokens = await _context.UserRefreshTokens
                 .Where(x => x.UserId == userId)
                 .Where(x => x.IsRevoked == false)
@@ -339,6 +349,7 @@ namespace Budget.Server.Core.Auth
             foreach (var refreshToken in refreshTokens)
             {
                 refreshToken.IsRevoked = true;
+                refreshToken.RevokedAt = revokedAt;
             }
 
             await _context.SaveChangesAsync();

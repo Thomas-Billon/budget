@@ -15,5 +15,7 @@ namespace Budget.Server.Data.Users
         public DateTimeOffset ExpiresAt { get; set; }
 
         public bool IsRevoked { get; set; } = false;
+
+        public DateTimeOffset? RevokedAt { get; set; }
     }
 }

@@ -22,6 +22,7 @@ namespace Budget.Server.Middleware.Configuration
             public required string CookieKey { get; init; }
             public required int ExpirationInSeconds { get; init; }
             public required int CleanupIntervalInSeconds { get; init; }
+            public required int ReuseGraceInSeconds { get; init; }
         }
 
         public class ResetPasswordConfig
