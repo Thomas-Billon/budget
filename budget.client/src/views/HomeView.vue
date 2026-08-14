@@ -17,12 +17,14 @@
     }
 
     interface ActivityCategory {
+        id: number;
         name: string;
         color: CategoryColor;
         icon: CategoryIcon;
     }
 
     interface ActivityItem {
+        id: number;
         type: TransactionType;
         amount: number;
         reason: string;
@@ -49,10 +51,10 @@
     ];
 
     const recentActivity: ActivityItem[] = [
-        { type: TransactionType.Expense, amount: 84.20, reason: 'Organic Market', date: 'Today, 2:45 PM', categories: [{ name: 'Groceries', color: CategoryColor.Yellow, icon: CategoryIcon.Cart }] },
-        { type: TransactionType.Income, amount: 6400, reason: 'Salary Deposit', date: 'Yesterday', categories: [{ name: 'Income', color: CategoryColor.Green, icon: CategoryIcon.Wallet }] },
-        { type: TransactionType.Expense, amount: 142.30, reason: 'Costco', date: 'Aug 20, 2024', categories: [{ name: 'Housing', color: CategoryColor.Orange, icon: CategoryIcon.House }, { name: 'Transport', color: CategoryColor.Blue, icon: CategoryIcon.Car }] },
-        { type: TransactionType.Expense, amount: 32.00, reason: 'Cineplex Ent.', date: 'Aug 18, 2024', categories: [] }
+        { id: 1, type: TransactionType.Expense, amount: 84.20, reason: 'Organic Market', date: 'Today, 2:45 PM', categories: [{ id: 1, name: 'Groceries', color: CategoryColor.Yellow, icon: CategoryIcon.Cart }] },
+        { id: 2, type: TransactionType.Income, amount: 6400, reason: 'Salary Deposit', date: 'Yesterday', categories: [{ id: 2, name: 'Income', color: CategoryColor.Green, icon: CategoryIcon.Wallet }] },
+        { id: 3, type: TransactionType.Expense, amount: 142.30, reason: 'Costco', date: 'Aug 20, 2024', categories: [{ id: 3, name: 'Housing', color: CategoryColor.Orange, icon: CategoryIcon.House }, { id: 4, name: 'Transport', color: CategoryColor.Blue, icon: CategoryIcon.Car }] },
+        { id: 4, type: TransactionType.Expense, amount: 32.00, reason: 'Cineplex Ent.', date: 'Aug 18, 2024', categories: [] }
     ];
 
     // Init

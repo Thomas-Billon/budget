@@ -161,7 +161,7 @@
             </div>
         </PageHeaderActions>
 
-        <div v-if="!isLoading">
+        <div v-if="!isLoading && balanceReport">
             <div class="row">
                 <div class="col-12 col-md-with-navbar-4">
                     <WidgetCard icon="arrow-trend-up" title="Total Income">

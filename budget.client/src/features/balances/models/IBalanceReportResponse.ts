@@ -19,6 +19,7 @@ interface IBalanceReportTransactionItemResponse {
     amount: number;
     reason: string;
     date: string;
+    categories: IBalanceReportCategoryItemResponse[];
 }
 
 interface IBalanceReportCategoryItemResponse {
