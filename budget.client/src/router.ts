@@ -1,6 +1,6 @@
 import BalanceReportView from '@/features/balances/views/ReportView.vue';
 import CategoryCreateView from '@/features/categories/views/CreateView.vue';
-import CategoryHierarchyView from '@/features/categories/views/HierarchyView.vue';
+import CategoryListView from '@/features/categories/views/ListView.vue';
 import CategoryUpdateView from '@/features/categories/views/UpdateView.vue';
 import ConfirmEmailView from '@/features/auth/views/ConfirmEmailView.vue';
 import ForgotPasswordView from '@/features/auth/views/ForgotPasswordView.vue';
@@ -16,7 +16,7 @@ import TransactionUpdateView from '@/features/transactions/views/UpdateView.vue'
 import { useAuthStore } from '@/stores/useAuthStore';
 
 const getIdParam = (id?: number): string => {
-    if (id) {
+    if (id !== undefined && id !== null) {
         return `/${id}`;
     }
     return '';
@@ -41,8 +41,8 @@ const routes = {
         update: (id?: number) => `/transaction/update${getIdParam(id)}`
     },
     category: {
-        hierarchy: '/category/hierarchy',
-        create: (parentCategoryId?: number) => `/category/create${getIdParam(parentCategoryId)}`,
+        list: '/category/list',
+        create: '/category/create',
         update: (id?: number) => `/category/update${getIdParam(id)}`
     }
 };
@@ -55,14 +55,14 @@ const routerConfig = [
     { path: routes.auth.resetPassword, component: ResetPasswordView, meta: { public: true }},
     { path: routes.auth.confirmEmail, component: ConfirmEmailView, meta: { public: true }},
     { path: routes.auth.resendEmailConfirmation, component: ResendEmailConfirmationView, meta: { public: true }},
-    { path: routes.balance.report, component: BalanceReportView, meta: { back: routes.home }},
-    { path: routes.transaction.history, component: TransactionHistoryView, meta: { back: routes.home }},
+    { path: routes.balance.report, component: BalanceReportView, meta: { back: routes.home, title: 'Balance Report', subtitle: 'Your financial overview for the selected period.' }},
+    { path: routes.transaction.history, component: TransactionHistoryView, meta: { back: routes.home, title: 'Transaction History', subtitle: "Every transaction you've logged, most recent first." }},
     { path: routes.transaction.create, component: TransactionCreateView, meta: { back: routes.transaction.history }},
     { path: `${routes.transaction.update()}/:id`, component: TransactionUpdateView, meta: { back: routes.transaction.history }},
-    { path: routes.category.hierarchy, component: CategoryHierarchyView, meta: { back: routes.home }},
-    { path: `${routes.category.create()}`, component: CategoryCreateView, meta: { back: routes.category.hierarchy }},
-    { path: `${routes.category.create()}/:parentCategoryId`, component: CategoryCreateView, meta: { back: routes.category.hierarchy }},
-    { path: `${routes.category.update()}/:id`, component: CategoryUpdateView, meta: { back: routes.category.hierarchy }}
+    { path: routes.category.list, component: CategoryListView, meta: { back: routes.home, title: 'Categories', subtitle: 'Organize your transactions into meaningful groups.' }},
+    { path: routes.category.create, component: CategoryCreateView, meta: { back: routes.category.list }},
+    { path: `${routes.category.update()}/:id`, component: CategoryUpdateView, meta: { back: routes.category.list }},
+    { path: '/:pathMatch(.*)*', redirect: routes.home }
 ];
 
 const routeAuthGuard = async (route: RouteLocationNormalized) => {

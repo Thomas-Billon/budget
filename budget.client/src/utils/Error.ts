@@ -1,26 +1,17 @@
-export const emailMaxLength = 256;
-export const nameMaxLength = 64;
-export const passwordMinLength = 8;
-export const passwordMaxLength = 128;
-
-export const passwordSpecialChars = [
-    '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',',
-    '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\',
-    ']', '^', '_', '`', '{', '|', '}', '~'
-];
+import { EMAIL_MAX_LENGTH, NAME_MAX_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, PASSWORD_SPECIAL_CHARS } from '@/features/auth/AuthService';
 
 export const errorMessages: Record<string, string> =
 {
     'error.field.required': 'This field is required.',
-    'error.email.too_long': `Email must be at most ${emailMaxLength} characters.`,
+    'error.email.too_long': `Email must be at most ${EMAIL_MAX_LENGTH} characters.`,
     'error.email.invalid_format': 'Please enter a valid email address.',
-    'error.name.too_long': `Name must be at most ${nameMaxLength} characters.`,
-    'error.password.too_short': `Password must be at least ${passwordMinLength} characters.`,
-    'error.password.too_long': `Password must be at most ${passwordMaxLength} characters.`,
+    'error.name.too_long': `Name must be at most ${NAME_MAX_LENGTH} characters.`,
+    'error.password.too_short': `Password must be at least ${PASSWORD_MIN_LENGTH} characters.`,
+    'error.password.too_long': `Password must be at most ${PASSWORD_MAX_LENGTH} characters.`,
     'error.password.missing_uppercase': 'Password must contain at least one uppercase letter.',
     'error.password.missing_lowercase': 'Password must contain at least one lowercase letter.',
     'error.password.missing_digit': 'Password must contain at least one digit.',
-    'error.password.missing_special': `Password must contain at least one special character (${passwordSpecialChars.join(' ')}).`,
+    'error.password.missing_special': `Password must contain at least one special character (${PASSWORD_SPECIAL_CHARS.join(' ')}).`,
     'error.auth.invalid_credentials': 'Invalid credentials.',
     'error.auth.registration_failed': 'Registration failed. Please check your details and try again.',
     'error.auth.token_expired': 'Your session has expired. Please log in again.',

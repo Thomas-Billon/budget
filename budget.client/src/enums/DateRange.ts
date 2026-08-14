@@ -8,7 +8,8 @@ enum DateRange {
     LastMonth = 6,
     CurrentYear = 7,
     LastYear = 8,
-    AllTime = 9
+    AllTime = 9,
+    Custom = 10
 }
 
 export { DateRange };

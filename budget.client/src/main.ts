@@ -1,7 +1,51 @@
-import '@/assets/main.scss';
+import '@/assets/css/main.scss';
 
 import { createRouter, createWebHistory } from 'vue-router';
-import { faArrowLeft, faFloppyDisk, faMinus, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+    faArrowLeft,
+    faArrowTrendDown,
+    faArrowTrendUp,
+    faBriefcase,
+    faBuilding,
+    faCalendar,
+    faCalendarDay,
+    faCar,
+    faCartShopping,
+    faChartLine,
+    faCheck,
+    faClockRotateLeft,
+    faCoins,
+    faCreditCard,
+    faEnvelope,
+    faEye,
+    faEyeSlash,
+    faFileInvoice,
+    faFloppyDisk,
+    faGamepad,
+    faGift,
+    faGraduationCap,
+    faHouse,
+    faKitMedical,
+    faLandmark,
+    faLock,
+    faMinus,
+    faPaw,
+    faPiggyBank,
+    faPlane,
+    faPlus,
+    faReceipt,
+    faRepeat,
+    faRightFromBracket,
+    faRuler,
+    faScrewdriverWrench,
+    faTags,
+    faTrash,
+    faTriangleExclamation,
+    faUtensils,
+    faWallet,
+    faWandMagicSparkles,
+    faXmark
+} from '@fortawesome/free-solid-svg-icons';
 import { routeAuthGuard, routerConfig } from '@/router.ts';
 import App from '@/App.vue';
 import { initApiAuth } from '@/utils/ApiAuth';
@@ -20,7 +64,17 @@ const router = createRouter({
 });
 router.beforeEach(routeAuthGuard);
 
-library.add([faPlus, faMinus, faFloppyDisk, faTrash, faArrowLeft]);
+library.add([
+    faPlus, faMinus, faFloppyDisk, faTrash, faArrowLeft,
+    faHouse, faLandmark, faReceipt, faTags, faRightFromBracket,
+    faEnvelope, faEye, faEyeSlash, faLock, faWandMagicSparkles,
+    faArrowTrendUp, faBriefcase, faCartShopping, faGamepad, faWallet,
+    faCalendarDay, faChartLine, faClockRotateLeft, faRepeat, faXmark,
+    faBuilding, faCar, faCheck, faGraduationCap, faKitMedical, faPaw,
+    faPiggyBank, faPlane, faRuler, faScrewdriverWrench, faUtensils,
+    faArrowTrendDown, faTriangleExclamation, faCalendar,
+    faCoins, faCreditCard, faFileInvoice, faGift
+]);
 
 const app = createApp(App)
     .use(pinia)
