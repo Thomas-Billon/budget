@@ -1,9 +1,41 @@
-@import "@/assets/variables.module";
+@import "@/assets/css/variables";
 
 .category-tag {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(var(--color-rgb), 0.2);
-    border: $border-sm solid var(--color);
+    flex-wrap: wrap;
+    gap: $spacer-xs;
+    font-size: $text-sm;
+
+    &.sm {
+        font-size: $text-xs;
+    }
+
+    &-item {
+        display: flex;
+        align-items: center;
+        gap: $spacer-xs;
+        font-weight: 600;
+        background-color: $primary-150;
+        border-radius: $radius-pill;
+        color: var(--color, $primary-600);
+        padding: $spacer-xs $spacer-sm;
+    }
+
+    &.sm &-item {
+        padding: $spacer-2xs $spacer-sm;
+    }
+
+    &.no-icon &-icon {
+        display: none;
+    }
+
+    &-empty {
+        font-weight: 600;
+        color: $primary-300;
+        padding: $spacer-xs 0;
+    }
+
+    &.sm &-empty {
+        padding: $spacer-2xs 0;
+    }
 }

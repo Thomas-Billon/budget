@@ -1,0 +1,58 @@
+@import "@/assets/css/variables";
+
+.category-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 4rem);
+    justify-content: start;
+    gap: $spacer-md;
+
+    &-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: $spacer-2xs;
+        width: 100%;
+        padding: 0;
+
+        &-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: $spacer-2xl + $spacer-sm;
+            height: $spacer-2xl + $spacer-sm;
+            border-radius: $radius-circle;
+            background-color: $primary-150;
+            color: var(--color, $primary-600);
+            font-size: $text-lg;
+            transition: transform $animation-duration-sm ease-in-out, background-color $animation-duration-sm ease-in-out, color $animation-duration-sm ease-in-out;
+        }
+
+        &-name {
+            width: 100%;
+            font-size: $text-xs;
+            font-weight: 600;
+            color: $primary-700;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        &:hover &-icon {
+            transform: scale(1.05);
+        }
+
+        &.selected &-icon {
+            background-color: $secondary-600;
+            color: $white;
+        }
+
+        &.selected &-name {
+            color: $secondary-600;
+        }
+    }
+
+    &-empty {
+        color: $primary-500;
+    }
+}

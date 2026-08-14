@@ -6,25 +6,13 @@
     import { type ICategoryRequest, getDefaultCategoryRequest } from '@/features/categories/models/ICategoryRequest';
     import CategoryForm from '@/features/categories/components/CategoryForm.vue';
     import useCreateEntity from '@/composables/useCreateEntity';
-    import { getIdFromRoute } from '@/utils/Route';
-    import useMountedOrRouteParamUpdate from '@/composables/useMountedOrRouteParamUpdate';
 
     const router = useRouter();
 
     const category = ref(getDefaultCategoryRequest());
 
-    useMountedOrRouteParamUpdate((params) => {
-        if (params?.parentCategoryId) {
-            const parentCategoryId = getIdFromRoute(params?.parentCategoryId);
-
-            if (parentCategoryId) {
-                category.value.parentCategoryId = parentCategoryId;
-            }
-        }
-    });
-
     const onCreateSuccess = () => {
-        router.push({ path: routes.category.hierarchy });
+        router.push({ path: routes.category.list });
     };
 
     const { createEntity, createResult } = useCreateEntity<ICategoryRequest>({ endpoint: 'category', onCreateSuccess });
@@ -35,6 +23,8 @@
     <CategoryForm
         v-model="category"
         :is-new="true"
+        :is-loading="false"
+        :is-auto-save="false"
         :save-all-result="createResult"
         @save-all="createEntity"
     />

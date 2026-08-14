@@ -1,15 +1,11 @@
 import { type CategoryColor } from '@/enums/CategoryColor';
+import { type CategoryIcon } from '@/enums/CategoryIcon';
 
-interface ICategoryDetailsBaseResponse {
+interface ICategoryDetailsResponse {
     id: number;
     name: string;
     color: CategoryColor;
-    colorHex: string;
+    icon: CategoryIcon;
 }
 
-interface ICategoryDetailsResponse extends ICategoryDetailsBaseResponse {
-    parentCategoryId: number | null;
-    subCategories: ICategoryDetailsBaseResponse[];
-}
-
-export { type ICategoryDetailsResponse, type ICategoryDetailsBaseResponse };
+export { type ICategoryDetailsResponse };

@@ -14,6 +14,7 @@
 
     const router = useRouter();
 
+    const isLoading = ref<boolean>(true);
     const category = ref(getDefaultCategoryRequest());
 
     useMountedOrRouteParamUpdate((params) => {
@@ -29,11 +30,11 @@
     };
 
     const onFullUpdateSuccess = () => {
-        router.push({ path: routes.category.hierarchy });
+        router.push({ path: routes.category.list });
     };
 
     const onDeleteSuccess = () => {
-        router.push({ path: routes.category.hierarchy });
+        router.push({ path: routes.category.list });
     };
 
     const endpoint = 'category';
@@ -49,8 +50,9 @@
                 id: result.id,
                 name: result.name,
                 color: result.color,
-                parentCategoryId: result.parentCategoryId
+                icon: result.icon
             };
+            isLoading.value = false;
         }
     });
 
@@ -60,6 +62,8 @@
     <CategoryForm
         v-model="category"
         :is-new="false"
+        :is-loading="isLoading"
+        :is-auto-save="false"
         :save-all-result="fullUpdateResult"
         :save-partial-result="partialUpdateResult"
         :delete-result="deleteResult"

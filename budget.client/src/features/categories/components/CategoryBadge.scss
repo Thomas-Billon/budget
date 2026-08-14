@@ -1,0 +1,29 @@
+@import "@/assets/css/variables";
+
+.category-badge {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: $spacer-2xl;
+    height: $spacer-2xl;
+    border-radius: $radius-circle;
+    background-color: $primary-150;
+    color: var(--color, $primary-600);
+
+    &-count {
+        position: absolute;
+        bottom: -($spacer-xs + $spacer-2xs);
+        right: -$spacer-md;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: $spacer-lg + $spacer-xs;
+        height: $spacer-lg + $spacer-xs;
+        border-radius: $radius-circle;
+        border: solid $spacer-2xs $white;
+        background-color: $primary-150;
+        font-size: $text-2xs;
+        font-weight: 800;
+    }
+}

@@ -2,45 +2,36 @@
 
     import './CategoryForm.scss';
 
-    import { onMounted, ref } from 'vue';
-    import { apiCall } from '@/utils/ApiCall.ts';
+    import { computed } from 'vue';
     import { CategoryColor } from '@/enums/CategoryColor.ts';
+    import { CategoryIcon } from '@/enums/CategoryIcon.ts';
+    import { getCategoryColor, getCategoryColorHex, getCategoryIcon, getCategoryIconClass } from '@/features/categories/CategoryService';
     import { type ICategoryRequest } from '@/features/categories/models/ICategoryRequest';
-    import { type ICategoryOptionsResponse, type ICategoryOptionsItemResponse } from '@/features/categories/models/ICategoryOptionsResponse';
     import FormBase from '@/components/form-base/FormBase.vue';
     import { type FormProps, type FormEmits } from '@/components/form-base/FormBase';
+    import WidgetCard from '@/components/widget-card/WidgetCard.vue';
+    import ColorPicker from '@/components/color-picker/ColorPicker.vue';
+    import IconPicker from '@/components/icon-picker/IconPicker.vue';
 
-    const { isNew, saveAllResult, savePartialResult, deleteResult } = defineProps<FormProps>();
+    const { isNew, isAutoSave, isLoading, saveAllResult, savePartialResult, deleteResult } = defineProps<FormProps>();
     const model = defineModel<ICategoryRequest>({ required: true });
     const emit = defineEmits<FormEmits<ICategoryRequest>>();
 
-    const categoryOptions = ref<ICategoryOptionsItemResponse[]>([]);
+    const colorOptions: CategoryColor[] = [CategoryColor.None, CategoryColor.Blue, CategoryColor.Green, CategoryColor.Yellow, CategoryColor.Orange, CategoryColor.Red];
+    const colorHexOptions: string[] = colorOptions.map(getCategoryColorHex);
 
-    // #region Init
-
-    onMounted(() => {
-        getCategoryOptions();
+    const colorHex = computed<string>({
+        get: () => getCategoryColorHex(model.value.color),
+        set: (hex: string) => model.value.color = getCategoryColor(hex)
     });
 
-    // #endregion Init
+    const iconOptions: CategoryIcon[] = [CategoryIcon.None, CategoryIcon.Bank, CategoryIcon.Bill, CategoryIcon.House, CategoryIcon.Wallet, CategoryIcon.CreditCard, CategoryIcon.Coins, CategoryIcon.PiggyBank, CategoryIcon.Cart, CategoryIcon.Gift, CategoryIcon.Car, CategoryIcon.Plane, CategoryIcon.Restaurant];
+    const iconClassOptions: string[] = iconOptions.map(getCategoryIconClass);
 
-    // #region Category options
-
-    const getCategoryOptions = (): void => {
-        if (isNew) {
-            return;
-        }
-
-        apiCall<undefined, ICategoryOptionsResponse>('category/options', { method: 'GET' })
-            .then(response => {
-                if (response.isSuccess) {
-                    categoryOptions.value = response.data.items;
-                }
-                // TODO: Handle error in else case
-            });
-    };
-
-    // #endregion Category options
+    const iconClass = computed<string>({
+        get: () => getCategoryIconClass(model.value.icon),
+        set: (value: string) => model.value.icon = getCategoryIcon(value)
+    });
 
     // #region Events
 
@@ -64,8 +55,11 @@
 
 <template>
     <FormBase
+        v-slot="{ onChange }"
         v-model="model"
         :is-new="isNew"
+        :is-auto-save="isAutoSave"
+        :is-loading="isLoading"
         :save-all-result="saveAllResult"
         :save-partial-result="savePartialResult"
         :delete-result="deleteResult"
@@ -73,29 +67,52 @@
         v-bind="formEvents"
     >
 
-        <template #body="{ onChange }">
-            <div class="form-body">
+        <div class="row">
+            <div class="col-12">
+                <div class="form-body card">
 
-                <input v-model="model.name" name="Name" type="text" class="form-control form-control-lg" placeholder="Name" required @input="onChange('name', model.name);" />
+                    <div class="row">
+                        <div class="col-12">
+                            <label class="form-label" for="name">Category Name</label>
+                            <input id="name" v-model="model.name" name="Name" type="text" class="form-control" placeholder="e.g. Dining Out" required @input="onChange('name', model.name);" />
+                        </div>
+                    </div>
 
-                <select v-model="model.color" name="Color" class="form-select form-select-lg" @input="onChange('color', model.color);">
-                    <option :value="CategoryColor.None" disabled selected>Select Color</option>
-                    <option :value="CategoryColor.Blue">{{ CategoryColor[CategoryColor.Blue] }}</option>
-                    <option :value="CategoryColor.Green">{{ CategoryColor[CategoryColor.Green] }}</option>
-                    <option :value="CategoryColor.Yellow">{{ CategoryColor[CategoryColor.Yellow] }}</option>
-                    <option :value="CategoryColor.Orange">{{ CategoryColor[CategoryColor.Orange] }}</option>
-                    <option :value="CategoryColor.Red">{{ CategoryColor[CategoryColor.Red] }}</option>
-                </select>
+                    <div class="row">
+                        <div class="col-12">
+                            <label class="form-label">Color</label>
+                            <ColorPicker v-model="colorHex" :options="colorHexOptions" @change="onChange('color', model.color)" />
+                        </div>
+                    </div>
 
-                <select v-if="!isNew" v-model="model.parentCategoryId" name="ParentCategoryId" class="form-select form-select-lg" @input="onChange('parentCategoryId', model.parentCategoryId);">
-                    <option :value="null" selected>No parent category</option>
-                    <option v-for="option in categoryOptions" :key="option.id" :value="option.id">{{ option.name }}</option>
-                </select>
+                    <div class="row">
+                        <div class="col-12">
+                            <label class="form-label">Icon</label>
+                            <IconPicker v-model="iconClass" v-color="colorHex" :options="iconClassOptions" @change="onChange('icon', model.icon)" />
+                        </div>
+                    </div>
 
-                <input v-if="isNew" v-model="model.parentCategoryId" name="ParentCategoryId" type="hidden" />
-
+                </div>
             </div>
-        </template>
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-md-with-navbar-4">
+                <WidgetCard icon="ruler" title="Similar Category" class="info">
+                    <p class="widget-desc">You already have a similar category 'Restaurant'.</p>
+                </WidgetCard>
+            </div>
+            <div class="col-12 col-md-with-navbar-4">
+                <WidgetCard icon="wand-magic-sparkles" title="Auto-tag" class="info">
+                    <p class="widget-desc"><strong>12</strong> past transactions could match this category.</p>
+                </WidgetCard>
+            </div>
+            <div class="col-12 col-md-with-navbar-4">
+                <WidgetCard icon="piggy-bank" title="Budget Impact" class="info">
+                    <p class="widget-desc">Adds ~<strong>420 €</strong>/mo based on similar spending.</p>
+                </WidgetCard>
+            </div>
+        </div>
 
     </FormBase>
 </template>
