@@ -16,5 +16,6 @@
         "javascript",
         "typescript",
         "vue"
-    ]
+    ],
+    "debug.onTaskErrors": "showErrors"
 }

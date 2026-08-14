@@ -4,7 +4,7 @@
         {
             "label": "build",
             "command": "dotnet",
-            "type": "process",
+            "type": "shell",
             "args": [
                 "build",
                 "${workspaceFolder}/Budget.Server/Budget.Server.csproj",
@@ -14,8 +14,33 @@
             "problemMatcher": "$msCompile",
             "presentation": {
                 "reveal": "always",
-                "close": true
+                "panel": "dedicated"
             }
+        },
+        {
+            "type": "npm",
+            "script": "type-check",
+            "path": "budget.client",
+            "label": "type-check: client",
+            "problemMatcher": {
+                "base": "$tsc",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}/budget.client"
+                ]
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "prelaunch: full stack",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "type-check: client",
+                "build"
+            ]
         }
     ]
 }
