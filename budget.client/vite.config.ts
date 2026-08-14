@@ -47,12 +47,23 @@ export default defineConfig(({ command }) => {
         plugins: [
             plugin(),
             vueDevTools({
-                launchEditor: 'code' // 'visualstudio' is only supported on macOS right now, ew.
+                // INFO: 'visualstudio' is only supported on macOS right now, ew.
+                launchEditor: 'code'
             })
         ],
         resolve: {
             alias: {
                 '@': fileURLToPath(new URL('./src', import.meta.url))
+            }
+        },
+        // INFO: Silences Bootstrap 5's legacy Sass deprecation warnings.
+        // Remove once migrated to Bootstrap 6.
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    quietDeps: true,
+                    silenceDeprecations: ['import', 'global-builtin', 'color-functions']
+                }
             }
         },
         server: isServe ? {
