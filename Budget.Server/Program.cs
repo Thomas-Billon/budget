@@ -10,6 +10,7 @@ using Budget.Server.Data;
 using Budget.Server.Data.Users;
 using Budget.Server.Middleware.Background;
 using Budget.Server.Middleware.Configuration;
+using Budget.Server.Middleware.Conventions;
 using Budget.Server.Middleware.Converters;
 using Budget.Server.Middleware.Exceptions;
 using Budget.Server.Middleware.Startup;
@@ -27,28 +28,27 @@ using System.Text;
 using System.Threading.RateLimiting;
 
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication
+    .CreateBuilder(args)
+    .Configure();
 
-builder.ConfigureBuilder();
-
-var app = builder.Build();
-
-await app.ConfigureApp()
-    .ConfigureDbMigration();
+var app = await builder
+    .Build()
+    .Setup()
+    .InitDatabase();
 
 app.Run();
 
 
 public static class ProgramExtensions
 {
-    public static WebApplicationBuilder ConfigureBuilder(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder Configure(this WebApplicationBuilder builder)
     {
         return builder.ConfigureMiddleware()
             .ConfigureApi()
             .ConfigureForwardedHeaders()
-            .ConfigureCors()
             .ConfigureAuth()
-            .ConfigureClient()
+            .ConfigureApp()
             .ConfigureSmtp()
             .ConfigureRateLimiting()
             .ConfigureHsts()
@@ -66,11 +66,16 @@ public static class ProgramExtensions
 
     public static WebApplicationBuilder ConfigureApi(this WebApplicationBuilder builder)
     {
-        builder.Services.AddControllers().AddNewtonsoftJson(options =>
-        {
-            options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
-            options.SerializerSettings.Converters.Add(new OptionalJsonConverter());
-        });
+        builder.Services
+            .AddControllers(options =>
+            {
+                options.Conventions.Add(new ApiRoutePrefixConvention());
+            })
+            .AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
+                options.SerializerSettings.Converters.Add(new OptionalJsonConverter());
+            });
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApi();
 
@@ -106,23 +111,6 @@ public static class ProgramExtensions
             }
         });
 
-        return builder;
-    }
-
-    public static WebApplicationBuilder ConfigureCors(this WebApplicationBuilder builder)
-    {
-        string[] allowedOrigins = builder.Configuration.GetValue<string>("AllowedOrigins")?.Split(';') ?? [];
-
-        builder.Services.AddCors(options =>
-        {
-            options.AddDefaultPolicy(policy =>
-            {
-                policy.WithOrigins(allowedOrigins)
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials();
-            });
-        });
         return builder;
     }
 
@@ -184,11 +172,11 @@ public static class ProgramExtensions
         return builder;
     }
 
-    public static WebApplicationBuilder ConfigureClient(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder ConfigureApp(this WebApplicationBuilder builder)
     {
-        var clientUrl = builder.Configuration.GetRequiredValue<string>("ClientUrl");
+        var appUrl = builder.Configuration.GetRequiredValue<string>("AppUrl");
 
-        builder.Services.AddSingleton(new ClientConfiguration { Url = clientUrl });
+        builder.Services.AddSingleton(new AppConfiguration { Url = appUrl });
 
         return builder;
     }
@@ -277,7 +265,7 @@ public static class ProgramExtensions
         return builder;
     }
 
-    public static WebApplication ConfigureApp(this WebApplication app)
+    public static WebApplication Setup(this WebApplication app)
     {
         app.UseForwardedHeaders();
 
@@ -297,7 +285,6 @@ public static class ProgramExtensions
         app.UseHttpsRedirection();
         app.UseDefaultFiles();
         app.MapStaticAssets();
-        app.UseCors();
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseRateLimiter();
@@ -307,7 +294,7 @@ public static class ProgramExtensions
         return app;
     }
 
-    public static async Task<WebApplication> ConfigureDbMigration(this WebApplication app)
+    public static async Task<WebApplication> InitDatabase(this WebApplication app)
     {
         using (IServiceScope serviceScope = app.Services.CreateScope())
         {

@@ -7,6 +7,7 @@ using Budget.Server.Core.Email.Templates;
 using Budget.Server.Data;
 using Budget.Server.Data.Users;
 using Budget.Server.Middleware.Configuration;
+using Budget.Server.Middleware.Conventions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -24,7 +25,7 @@ namespace Budget.Server.Core.Auth
         private readonly ApplicationDbContext _context;
         private readonly AuthConfiguration _authConfiguration;
         private readonly IEmailSender _emailSender;
-        private readonly ClientConfiguration _clientConfiguration;
+        private readonly AppConfiguration _appConfiguration;
 
         public AuthService(
             UserManager<ApplicationUser> userManager,
@@ -32,14 +33,14 @@ namespace Budget.Server.Core.Auth
             ApplicationDbContext context,
             AuthConfiguration authConfiguration,
             IEmailSender emailSender,
-            ClientConfiguration clientConfiguration)
+            AppConfiguration appConfiguration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
             _authConfiguration = authConfiguration;
             _emailSender = emailSender;
-            _clientConfiguration = clientConfiguration;
+            _appConfiguration = appConfiguration;
         }
 
         public async Task<bool> RegisterAsync(RegisterRequest request)
@@ -185,7 +186,7 @@ namespace Budget.Server.Core.Auth
         private async Task SendEmailForgotPasswordAsync(ApplicationUser user)
         {
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var resetUrl = $"{_clientConfiguration.Url}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
+            var resetUrl = $"{_appConfiguration.Url}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
             var htmlBody = EmailTemplatePasswordReset.BuildHtml(resetUrl, _authConfiguration.ResetPassword.ExpirationInSeconds);
 
             await _emailSender.SendAsync(user.Email, EmailTemplatePasswordReset.Subject, htmlBody);
@@ -209,7 +210,7 @@ namespace Budget.Server.Core.Auth
         private async Task SendEmailEmailConfirmationAsync(ApplicationUser user)
         {
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var confirmUrl = $"{_clientConfiguration.Url}/confirm-email?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
+            var confirmUrl = $"{_appConfiguration.Url}/confirm-email?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
             var htmlBody = EmailTemplateEmailConfirmation.BuildHtml(confirmUrl, _authConfiguration.EmailConfirmation.ExpirationInSeconds);
 
             await _emailSender.SendAsync(user.Email, EmailTemplateEmailConfirmation.Subject, htmlBody);
@@ -368,7 +369,7 @@ namespace Budget.Server.Core.Auth
 
         #region Refresh Token Cookie
 
-        private const string RefreshTokenCookiePath = "/auth";
+        private const string RefreshTokenCookiePath = $"/{ApiRoutePrefixConvention.PREFIX}/auth";
 
         private string? GetRefreshTokenCookie(HttpContext httpContext)
         {

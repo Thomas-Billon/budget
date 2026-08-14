@@ -1,6 +1,6 @@
 namespace Budget.Server.Middleware.Configuration
 {
-    public class ClientConfiguration
+    public class AppConfiguration
     {
         public required string Url { get; init; }
     }
