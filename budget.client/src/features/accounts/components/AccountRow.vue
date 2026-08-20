@@ -27,10 +27,10 @@
 
 <template>
     <ClickableRow :target="routes.account.update(account.id)">
-        <div class="transaction-row-info">
-            <div class="transaction-row-text">
-                <p class="transaction-row-title">{{ account.name }}</p>
-                <p class="transaction-row-subtitle">{{ subtitle }}</p>
+        <div class="account-row-info">
+            <div class="account-row-text">
+                <p class="account-row-title">{{ account.name }}</p>
+                <p class="account-row-subtitle">{{ subtitle }}</p>
             </div>
         </div>
     </ClickableRow>

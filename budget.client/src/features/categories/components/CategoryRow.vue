@@ -29,10 +29,10 @@
 <template>
     <ClickableRow :target="routes.category.update(category.id)">
         <CategoryBadge :categories="[category]" />
-        <div class="transaction-row-info">
-            <div class="transaction-row-text">
-                <p class="transaction-row-title">{{ category.name }}</p>
-                <p class="transaction-row-count">{{ transactionCount }}</p>
+        <div class="category-row-info">
+            <div class="category-row-text">
+                <p class="category-row-title">{{ category.name }}</p>
+                <p class="category-row-count">{{ transactionCount }}</p>
             </div>
         </div>
     </ClickableRow>
