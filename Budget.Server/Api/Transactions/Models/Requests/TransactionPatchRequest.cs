@@ -11,6 +11,7 @@ namespace Budget.Server.Api.Transactions.Models.Requests
         public Optional<DateOnly>? Date { get; init; }
         public Optional<PaymentMethod>? PaymentMethod { get; init; }
         public Optional<string>? Comment { get; init; }
+        public Optional<int>? AccountId { get; init; }
 
         public Optional<List<int>>? CategoryIds { get; init; }
     }

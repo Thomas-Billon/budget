@@ -9,6 +9,7 @@ interface ITransactionRequest {
     date: string;
     paymentMethod: PaymentMethod;
     comment: string;
+    accountId: number;
     categoryIds: number[];
 }
 
@@ -20,6 +21,7 @@ const getDefaultTransactionRequest = ():ITransactionRequest => JSON.parse(JSON.s
     date: '',
     paymentMethod: PaymentMethod.None,
     comment: '',
+    accountId: 0,
     categoryIds: []
 }));
 

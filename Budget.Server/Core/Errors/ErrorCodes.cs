@@ -54,6 +54,15 @@ namespace Budget.Server.Core.Errors
             public const string CannotDelete = "error.category.cannot_delete";
         }
 
+        public static class Account
+        {
+            public const string NotFound = "error.account.not_found";
+            public const string CannotCreate = "error.account.cannot_create";
+            public const string CannotUpdate = "error.account.cannot_update";
+            public const string CannotPatch = "error.account.cannot_patch";
+            public const string CannotDelete = "error.account.cannot_delete";
+        }
+
         public static class Server
         {
             public const string Internal = "error.server.internal";

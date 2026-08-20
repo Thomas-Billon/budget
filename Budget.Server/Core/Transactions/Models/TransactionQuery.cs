@@ -15,6 +15,7 @@ namespace Budget.Server.Core.Transactions.Models
         public required DateOnly Date { get; set; }
         public required PaymentMethod PaymentMethod { get; set; }
         public required string Comment { get; set; }
+        public required int AccountId { get; set; }
     }
 
     public static class TransactionQueryExtension
@@ -30,6 +31,7 @@ namespace Budget.Server.Core.Transactions.Models
                 Date = x.Date,
                 PaymentMethod = x.PaymentMethod,
                 Comment = x.Comment,
+                AccountId = x.AccountId,
             };
         }
     }

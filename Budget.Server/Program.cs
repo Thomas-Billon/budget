@@ -1,3 +1,4 @@
+using Budget.Server.Core.Accounts;
 using Budget.Server.Core.Auth;
 using Budget.Server.Core.Auth.Validation;
 using Budget.Server.Core.Balances;
@@ -261,6 +262,7 @@ public static class ProgramExtensions
         builder.Services.AddScoped<BalanceService>();
         builder.Services.AddScoped<TransactionService>();
         builder.Services.AddScoped<CategoryService>();
+        builder.Services.AddScoped<AccountService>();
 
         return builder;
     }

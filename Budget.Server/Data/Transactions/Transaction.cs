@@ -1,4 +1,5 @@
 ﻿using Budget.Server.Core.Transactions.Enums;
+using Budget.Server.Data.Accounts;
 using Budget.Server.Data.Categories;
 using Budget.Server.Data.Users;
 using System.ComponentModel.DataAnnotations;
@@ -24,9 +25,15 @@ namespace Budget.Server.Data.Transactions
 
         public string Comment { get; set; } = string.Empty;
 
-        //public Account Account { get; set; } -> Currency will be handled inside the Account entity
-
         // Merchant -> string or entity ?
+
+        #region Account
+
+        public int AccountId { get; set; }
+
+        public Account? Account { get; set; }
+
+        #endregion Account
 
         #region Categories
 

@@ -1,0 +1,28 @@
+@import "@/assets/css/variables";
+
+.transaction-row {
+    &-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: $spacer-xs;
+    }
+
+    &-text {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    &-title {
+        font-weight: 700;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    &-subtitle {
+        font-size: $text-sm;
+        font-weight: 600;
+        color: $primary-600;
+    }
+}

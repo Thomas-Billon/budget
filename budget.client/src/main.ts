@@ -42,6 +42,7 @@ import {
     faTrash,
     faTriangleExclamation,
     faUtensils,
+    faVault,
     faWallet,
     faWandMagicSparkles,
     faXmark
@@ -72,7 +73,7 @@ library.add([
     faCalendarDay, faChartLine, faClockRotateLeft, faRepeat, faXmark,
     faBuilding, faCar, faCheck, faGraduationCap, faKitMedical, faPaw,
     faPiggyBank, faPlane, faRuler, faScrewdriverWrench, faUtensils,
-    faArrowTrendDown, faTriangleExclamation, faCalendar,
+    faArrowTrendDown, faTriangleExclamation, faCalendar, faVault,
     faCoins, faCreditCard, faFileInvoice, faGift
 ]);
 
