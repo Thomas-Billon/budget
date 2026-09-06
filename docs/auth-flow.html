@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Budgeteer — Authentication flow</title>
+<style>
+:root {
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --panel-2: #eef0f4;
+    --border: #d6dae2;
+    --text: #1b1f27;
+    --muted: #5f6878;
+    --green: #1a7f37;
+    --red: #cf222e;
+    --blue: #0969da;
+    --purple: #8250df;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 32px 24px 80px;
+}
+
+.wrap { max-width: 1400px; margin: 0 auto; }
+
+h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -0.02em; }
+h2 { font-size: 17px; margin: 0 0 14px; letter-spacing: -0.01em; }
+h3 { font-size: 13px; margin: 0 0 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+.sub { color: var(--muted); margin: 0 0 28px; font-size: 14px; }
+
+/* ---------- Token state panel ---------- */
+.state-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 14px;
+    margin-bottom: 12px;
+}
+.token-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    border-left: 3px solid var(--kc, var(--border));
+}
+.token-card[data-snip] { cursor: pointer; transition: border-color .12s, background .12s; }
+.token-card[data-snip]:hover, .token-card[data-snip]:focus-visible { background: var(--panel-2); outline: none; }
+.token-card.memory { --kc: var(--green); }
+.token-card.cookie { --kc: var(--purple); }
+.token-card .name { font-weight: 650; font-size: 15px; margin-bottom: 2px; }
+.token-card .where { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+.token-card dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; font-size: 13px; }
+.token-card dt { color: var(--muted); }
+.token-card dd { margin: 0; }
+/* .ref carries a margin-left for inline use; inside a dd it is the whole value */
+.token-card dd .ref { margin-left: 0; }
+.survive-yes { color: var(--green); font-weight: 600; }
+.survive-no { color: var(--red); font-weight: 600; }
+
+.keystone {
+    background: linear-gradient(90deg, rgba(130,80,223,0.08), transparent 70%);
+    border: 1px solid rgba(130,80,223,0.28);
+    border-radius: 10px;
+    padding: 13px 16px;
+    font-size: 14px;
+    margin-bottom: 26px;
+}
+.keystone b { color: var(--purple); }
+
+/* ---------- Tabs ---------- */
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--border); margin-bottom: 22px; }
+.tab {
+    background: none; border: 0; border-bottom: 2px solid transparent;
+    color: var(--muted); font: inherit; font-size: 14px; font-weight: 550;
+    padding: 10px 16px; cursor: pointer; margin-bottom: -1px; border-radius: 6px 6px 0 0;
+}
+.tab:hover { color: var(--text); border-bottom-color: var(--border); }
+.tab[aria-selected="true"] {
+    color: var(--blue); font-weight: 650;
+    background: rgba(9,105,218,0.08);
+    border-bottom-color: var(--blue);
+}
+.panel[hidden] { display: none; }
+
+/* ---------- Layout: diagram + inspector ---------- */
+.layout { display: grid; grid-template-columns: minmax(0,1fr) 400px; gap: 26px; align-items: start; }
+@media (max-width: 1080px) { .layout { grid-template-columns: minmax(0,1fr); } }
+
+/* ---------- Decision tree ---------- */
+.flow { display: flex; flex-direction: column; gap: 0; }
+
+.node {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 12px 15px;
+    cursor: default;
+    transition: border-color .12s, background .12s;
+}
+.node[data-snip] { cursor: pointer; }
+.node[data-snip]:hover, .node[data-snip]:focus-visible {
+    border-color: var(--blue);
+    background: var(--panel-2);
+    outline: none;
+}
+.node .label { font-weight: 600; font-size: 14px; }
+.node .desc { color: var(--muted); font-size: 13px; margin-top: 3px; }
+
+.node.start { border-style: dashed; }
+.node.decision { border-left: 3px solid var(--blue); }
+
+.spine { display: flex; flex-direction: column; align-items: stretch; }
+
+.connector {
+    width: 2px; height: 20px; background: var(--border);
+    margin-left: 26px; flex: none;
+}
+.connector.no::after, .connector.yes::after {
+    display: block; position: relative; left: 10px; top: 1px;
+    font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--muted);
+}
+.connector.no::after { content: "NO"; }
+.connector.yes::after { content: "YES"; }
+
+.branch {
+    display: flex; align-items: center; gap: 10px;
+    margin: 8px 0 8px 26px; padding-left: 18px;
+    border-left: 2px solid var(--bc, var(--border));
+}
+.branch::before {
+    content: ""; position: relative; left: -18px; width: 16px; height: 2px;
+    background: var(--bc, var(--border)); flex: none; margin-right: -16px;
+}
+.branch.green { --bc: var(--green); }
+.branch.red { --bc: var(--red); }
+.branch.violet { --bc: var(--purple); }
+
+.yes-tag {
+    font-size: 10px; font-weight: 700; letter-spacing: .06em;
+    color: var(--bc, var(--muted)); flex: none;
+}
+.outcome {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-left: 3px solid var(--bc, var(--border));
+    border-radius: 8px; padding: 9px 14px; font-size: 13.5px; font-weight: 550;
+}
+.outcome.green { --bc: var(--green); }
+.outcome.red { --bc: var(--red); }
+.outcome.violet { --bc: var(--purple); }
+.outcome[data-snip] { cursor: pointer; }
+.outcome[data-snip]:hover { border-color: var(--blue); }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--bc, var(--muted)); flex: none; }
+
+/* Inline pastille inside a node label — marks a refresh attempt */
+.pill {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--purple); margin-right: 8px;
+    position: relative; top: -1px; flex: none;
+}
+
+/* ---------- Source badge ---------- */
+.ref {
+    display: inline-block; font-family: var(--mono); font-size: 11px;
+    color: var(--blue); background: rgba(9,105,218,0.07);
+    border: 1px solid rgba(9,105,218,0.22); border-radius: 5px;
+    padding: 1px 6px; margin-left: 8px; text-decoration: none; white-space: nowrap;
+}
+.ref:hover { background: rgba(9,105,218,0.16); }
+
+/* ---------- Callouts ---------- */
+.warn, .note {
+    border-radius: 8px; padding: 11px 14px; margin: 14px 0;
+    font-size: 13px;
+}
+.warn {
+    background: rgba(207,34,46,0.06);
+    border: 1px solid rgba(207,34,46,0.26);
+    color: #7a1f24;
+}
+.warn b { color: var(--red); }
+.note {
+    background: rgba(9,105,218,0.06);
+    border: 1px solid rgba(9,105,218,0.22);
+    color: #0a3069;
+}
+
+/* ---------- Code inspector ---------- */
+.inspector { position: sticky; top: 24px; }
+.inspector-box {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+}
+.inspector-head {
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+}
+.inspector-head a { color: var(--blue); text-decoration: none; font-size: 11px; white-space: nowrap; }
+.inspector-head a:hover { text-decoration: underline; }
+.inspector pre {
+    margin: 0; padding: 14px; overflow-x: auto;
+    font-family: var(--mono); font-size: 12px; line-height: 1.65; color: #24292f;
+    min-height: 190px; white-space: pre;
+}
+.inspector .hint { color: var(--muted); font-style: italic; white-space: normal; }
+
+/* ---------- Multi-tab sequence ---------- */
+.seq { display: grid; grid-template-columns: 46px 1fr 1fr 1fr; gap: 8px; align-items: stretch; }
+.seq-head { font-size: 11px; font-weight: 700; letter-spacing: .07em; color: var(--muted); text-transform: uppercase; padding: 6px 4px; text-align: center; }
+.seq-t { font-family: var(--mono); font-size: 11px; color: var(--muted); display: flex; align-items: center; justify-content: center; }
+.seq-cell {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    padding: 9px 11px; font-size: 12.5px;
+}
+.seq-cell.empty { background: transparent; border-color: transparent; }
+.seq-cell.ok { border-left: 3px solid var(--green); }
+.seq-cell.bad { border-left: 3px solid var(--red); }
+.seq-cell.warn-c { border-left: 3px solid var(--purple); }
+.seq-cell[data-snip] { cursor: pointer; }
+.seq-cell[data-snip]:hover { border-color: var(--blue); }
+.seq-cell .t { font-weight: 600; margin-bottom: 2px; }
+.seq-cell .d { color: var(--muted); font-size: 11.5px; }
+
+/* ---------- Journey cards ---------- */
+.journeys { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 16px; }
+.journey { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+.journey h4 { margin: 0 0 4px; font-size: 14.5px; }
+.journey .goal { color: var(--muted); font-size: 12.5px; margin-bottom: 13px; }
+.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+.steps li {
+    position: relative; padding: 7px 0 7px 30px; font-size: 13px;
+    border-top: 1px solid var(--border); counter-increment: s;
+}
+.steps li:first-child { border-top: 0; }
+.steps li::before {
+    content: counter(s); position: absolute; left: 0; top: 8px;
+    width: 19px; height: 19px; border-radius: 50%;
+    background: var(--panel-2); border: 1px solid var(--border);
+    font-size: 10.5px; font-weight: 700; color: var(--muted);
+    display: flex; align-items: center; justify-content: center;
+}
+.steps li[data-snip] { cursor: pointer; }
+.steps li[data-snip]:hover { color: var(--blue); }
+.steps li .d { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+.legend { display: flex; gap: 18px; flex-wrap: wrap; margin: 0 0 20px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+
+code.k { font-family: var(--mono); font-size: 12px; background: var(--panel-2); padding: 1px 5px; border-radius: 4px; color: #24292f; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Authentication flow</h1>
+<p class="sub">This page was generated by AI, with Claude, from the codebase as it stood on 15 August 2026.</p>
+
+<h3>Where the tokens live</h3>
+<div class="state-grid">
+    <div class="token-card memory" tabindex="0" data-snip="useAuthStore.ts:22">
+        <div class="name">Access token <span style="color:var(--muted);font-weight:400">(JWT)</span></div>
+        <div class="where">Browser memory — Pinia ref</div>
+        <dl>
+            <dt>Survives a reload</dt><dd class="survive-no">✗ NO — wiped</dd>
+            <dt>Lifetime</dt><dd>15 minutes</dd>
+            <dt>Sent as</dt><dd><code class="k">Authorization: Bearer</code></dd>
+            <dt>Readable by JS</dt><dd>Yes (required)</dd>
+            <dt>Source</dt><dd><a class="ref" data-file="budget.client/src/stores/useAuthStore.ts" data-line="22">useAuthStore.ts:22</a></dd>
+        </dl>
+    </div>
+    <div class="token-card cookie" tabindex="0" data-snip="AuthService.cs:381">
+        <div class="name">Refresh token</div>
+        <div class="where">HttpOnly cookie <code class="k">refreshToken</code></div>
+        <dl>
+            <dt>Survives a reload</dt><dd class="survive-yes">✓ YES</dd>
+            <dt>Lifetime</dt><dd>7 days</dd>
+            <dt>Sent as</dt><dd>Cookie, attached automatically</dd>
+            <dt>Readable by JS</dt><dd>No — <code class="k">HttpOnly</code></dd>
+            <dt>Scope</dt><dd><code class="k">Path=/api/auth</code>, <code class="k">Secure</code>, <code class="k">SameSite=Strict</code></dd>
+            <dt>Source</dt><dd><a class="ref" data-file="Budget.Server/Core/Auth/AuthService.cs" data-line="381">AuthService.cs:381</a></dd>
+        </dl>
+    </div>
+</div>
+
+<div class="keystone">
+    <b>Everything else follows from this asymmetry.</b> Reloading a page wipes memory: the access token is gone, but the cookie survives. The route guard must therefore rebuild a session from the refresh token alone — and when that fails, the user lands back on the sign-in screen.
+</div>
+
+<div class="tabs" role="tablist" aria-label="Authentication flow views">
+    <button class="tab" role="tab" id="tab-p1" aria-controls="p1" aria-selected="true" tabindex="0" data-panel="p1">1 · Page load (F5)</button>
+    <button class="tab" role="tab" id="tab-p2" aria-controls="p2" aria-selected="false" tabindex="-1" data-panel="p2">2 · API call</button>
+    <button class="tab" role="tab" id="tab-p3" aria-controls="p3" aria-selected="false" tabindex="-1" data-panel="p3">3 · Token lifecycle</button>
+    <button class="tab" role="tab" id="tab-p4" aria-controls="p4" aria-selected="false" tabindex="-1" data-panel="p4">4 · Authentication journeys</button>
+</div>
+
+<div class="legend">
+    <span><i class="dot" style="background:var(--green)"></i> Session kept</span>
+    <span><i class="dot" style="background:var(--purple)"></i> Refresh attempt</span>
+    <span><i class="dot" style="background:var(--red)"></i> Back to sign-in</span>
+</div>
+
+<div class="layout">
+<div>
+
+<!-- ============ VIEW 1 ============ -->
+<section class="panel" id="p1" role="tabpanel" aria-labelledby="tab-p1" tabindex="0">
+    <h2>What happens when a page is opened or reloaded?</h2>
+    <p class="sub" style="margin-bottom:20px">Every navigation goes through <code class="k">routeAuthGuard</code>, wired to the router at startup. The questions are asked in this order, and the first "yes" decides.</p>
+
+    <div class="flow spine">
+        <div class="node start" tabindex="0" data-snip="main.ts:65">
+            <div class="label">Navigation to a route</div>
+            <div class="desc">A reload, a link click, or a typed URL <a class="ref" data-file="budget.client/src/main.ts" data-line="65">main.ts:65</a></div>
+        </div>
+        <div class="connector"></div>
+
+        <div class="node decision" tabindex="0" data-snip="router.ts:76">
+            <div class="label">Auth route <i>and</i> token already in memory?</div>
+            <div class="desc">Avoids showing the sign-in screen to someone already signed in <a class="ref" data-file="budget.client/src/router.ts" data-line="76">router.ts:76</a></div>
+        </div>
+        <div class="branch green">
+            <span class="yes-tag">YES</span>
+            <span class="outcome green"><i class="dot"></i> Redirect to home</span>
+        </div>
+        <div class="connector no"></div>
+
+        <div class="node decision" tabindex="0" data-snip="router.ts:81">
+            <div class="label">Public route?</div>
+            <div class="desc"><code class="k">meta.public</code> — sign-in, register, reset, confirm <a class="ref" data-file="budget.client/src/router.ts" data-line="81">router.ts:81</a></div>
+        </div>
+        <div class="branch green">
+            <span class="yes-tag">YES</span>
+            <span class="outcome green"><i class="dot"></i> Allowed through</span>
+        </div>
+        <div class="connector no"></div>
+
+        <div class="node decision" tabindex="0" data-snip="router.ts:86">
+            <div class="label">Access token present in memory?</div>
+            <div class="desc">True while navigating internally — <b>always false after a reload</b> <a class="ref" data-file="budget.client/src/router.ts" data-line="86">router.ts:86</a></div>
+        </div>
+        <div class="branch green">
+            <span class="yes-tag">YES</span>
+            <span class="outcome green"><i class="dot"></i> Allowed through</span>
+        </div>
+        <div class="connector no"></div>
+
+        <div class="node decision" tabindex="0" data-snip="router.ts:91">
+            <div class="label"><i class="pill" title="Refresh attempt"></i>Does the silent refresh succeed?</div>
+            <div class="desc">Calls <code class="k">POST /api/auth/refresh</code> with the cookie alone <a class="ref" data-file="budget.client/src/router.ts" data-line="91">router.ts:91</a></div>
+        </div>
+        <div class="branch green">
+            <span class="yes-tag">YES</span>
+            <span class="outcome green"><i class="dot"></i> Allowed through — fresh token pair</span>
+        </div>
+        <div class="branch red">
+            <span class="yes-tag">NO</span>
+            <span class="outcome red" data-snip="router.ts:97"><i class="dot"></i> Redirect to /login</span>
+        </div>
+    </div>
+
+    <div class="note">
+        The intended destination is preserved in <code class="k">query.redirect</code> on the way out, so the user can be sent back where they were heading once signed in again.
+    </div>
+</section>
+
+<!-- ============ VIEW 2 ============ -->
+<section class="panel" id="p2" role="tabpanel" aria-labelledby="tab-p2" tabindex="0" hidden>
+    <h2>What happens during an API call?</h2>
+    <p class="sub" style="margin-bottom:20px">Everything goes through <code class="k">apiCall</code>. Since the access token only lives 15 minutes, a <code class="k">401</code> mid-session is expected and is recovered from without the user noticing.</p>
+
+    <div class="flow spine">
+        <div class="node start" tabindex="0" data-snip="ApiCall.ts:41">
+            <div class="label">Outgoing request</div>
+            <div class="desc">Token injected as a header, cookie attached by <code class="k">credentials: 'include'</code> <a class="ref" data-file="budget.client/src/utils/ApiCall.ts" data-line="41">ApiCall.ts:41</a></div>
+        </div>
+        <div class="connector"></div>
+
+        <div class="node decision" tabindex="0" data-snip="ApiCall.ts:60">
+            <div class="label">Response is <code class="k">401</code> <i>and</i> a retry is allowed?</div>
+            <div class="desc">The <code class="k">canRetryOnUnauthorized</code> flag is what prevents an infinite loop <a class="ref" data-file="budget.client/src/utils/ApiCall.ts" data-line="60">ApiCall.ts:60</a></div>
+        </div>
+        <div class="branch green">
+            <span class="yes-tag">NO</span>
+            <span class="outcome green"><i class="dot"></i> Response returned as-is</span>
+        </div>
+        <div class="connector yes"></div>
+
+        <div class="node decision" tabindex="0" data-snip="ApiAuth.ts:23">
+            <div class="label"><i class="pill" title="Refresh attempt"></i>Does the refresh succeed?</div>
+            <div class="desc">A single in-flight request shared by all concurrent callers <a class="ref" data-file="budget.client/src/utils/ApiAuth.ts" data-line="23">ApiAuth.ts:23</a></div>
+        </div>
+        <div class="branch green">
+            <span class="yes-tag">YES</span>
+            <span class="outcome green" data-snip="ApiCall.ts:65"><i class="dot"></i> Call replayed with the new token</span>
+        </div>
+        <div class="branch red">
+            <span class="yes-tag">NO</span>
+            <span class="outcome red" data-snip="ApiCall.ts:69"><i class="dot"></i> Session expired → /login</span>
+        </div>
+
+        <div class="warn">
+            <b>The shared promise only covers one JS context.</b> Two tabs each hold their own <code class="k">_refreshPromise</code> but share the same cookie. If they refresh at the same time, the second one presents an already-rotated token — the scenario detailed in the next tab.
+        </div>
+    </div>
+
+    <div class="note">
+        The replayed call carries <code class="k">canRetryOnUnauthorized: false</code>. A second <code class="k">401</code> is therefore handed back to the caller instead of triggering another refresh — that is what guarantees no loop.
+    </div>
+</section>
+
+<!-- ============ VIEW 3 ============ -->
+<section class="panel" id="p3" role="tabpanel" aria-labelledby="tab-p3" tabindex="0" hidden>
+    <h2>Rotation, theft, and the race between tabs</h2>
+    <p class="sub" style="margin-bottom:20px">Every refresh <b>consumes</b> the token and issues a new one. A token presented twice is therefore suspicious — unless it is plain concurrency, which is what the grace period is for.</p>
+
+    <h3>Server-side decision</h3>
+    <div class="flow spine" style="margin-bottom:30px">
+        <div class="node start" tabindex="0" data-snip="AuthService.cs:96">
+            <div class="label"><code class="k">POST /api/auth/refresh</code></div>
+            <div class="desc">The cookie is hashed, then looked up in the database <a class="ref" data-file="Budget.Server/Core/Auth/AuthService.cs" data-line="96">AuthService.cs:96</a></div>
+        </div>
+        <div class="connector"></div>
+
+        <div class="node decision" tabindex="0" data-snip="AuthService.cs:108">
+            <div class="label">Token not found?</div>
+            <div class="desc">No cookie sent, or the row was already purged <a class="ref" data-file="Budget.Server/Core/Auth/AuthService.cs" data-line="108">AuthService.cs:108</a></div>
+        </div>
+        <div class="branch red">
+            <span class="yes-tag">YES</span>
+            <span class="outcome red"><i class="dot"></i> 401 — signed out</span>
+        </div>
+        <div class="connector no"></div>
+
+        <div class="node decision" tabindex="0" data-snip="AuthService.cs:113">
+            <div class="label">Token already revoked?</div>
+            <div class="desc">Either legitimate concurrency, or a stolen copy <a class="ref" data-file="Budget.Server/Core/Auth/AuthService.cs" data-line="113">AuthService.cs:113</a></div>
+        </div>
+        <div class="branch violet">
+            <span class="yes-tag">YES</span>
+            <span class="outcome violet" data-snip="UserRefreshTokenExtension.cs:5"><i class="dot"></i> Revoked less than 15s ago? → tolerated, new tokens</span>
+        </div>
+        <div class="branch red">
+            <span class="yes-tag">YES</span>
+            <span class="outcome red" data-snip="AuthService.cs:123"><i class="dot"></i> Beyond that → <b>every</b> token of the user is revoked</span>
+        </div>
+        <div class="connector no"></div>
+
+        <div class="node decision" tabindex="0" data-snip="AuthService.cs:127">
+            <div class="label">Token expired?</div>
+            <div class="desc">Past the 7-day lifetime <a class="ref" data-file="Budget.Server/Core/Auth/AuthService.cs" data-line="127">AuthService.cs:127</a></div>
+        </div>
+        <div class="branch red">
+            <span class="yes-tag">YES</span>
+            <span class="outcome red"><i class="dot"></i> 401 — signed out</span>
+        </div>
+        <div class="branch green">
+            <span class="yes-tag">NO</span>
+            <span class="outcome green" data-snip="AuthService.cs:132"><i class="dot"></i> Rotation: the old one is revoked, a fresh pair is issued</span>
+        </div>
+    </div>
+
+    <h3>The race between two tabs</h3>
+    <div class="seq" style="margin-bottom:14px">
+        <div class="seq-head"></div>
+        <div class="seq-head">Tab A</div>
+        <div class="seq-head">Tab B</div>
+        <div class="seq-head">Server</div>
+
+        <div class="seq-t">t0</div>
+        <div class="seq-cell"><div class="t">Reload</div><div class="d">Sends token <b>X</b></div></div>
+        <div class="seq-cell"><div class="t">Reload</div><div class="d">Sends <b>X</b> too</div></div>
+        <div class="seq-cell"><div class="d">Two requests, same cookie</div></div>
+
+        <div class="seq-t">t1</div>
+        <div class="seq-cell warn-c"><div class="t">Presents X</div><div class="d">First to reach the server</div></div>
+        <div class="seq-cell empty"></div>
+        <div class="seq-cell warn-c" data-snip="AuthService.cs:132"><div class="t">X revoked → Y issued</div><div class="d"><code class="k">RevokedAt</code> stamped</div></div>
+
+        <div class="seq-t">t2</div>
+        <div class="seq-cell ok"><div class="t">✓ Receives Y</div><div class="d">Session kept</div></div>
+        <div class="seq-cell empty"></div>
+        <div class="seq-cell empty"></div>
+
+        <div class="seq-t">t3</div>
+        <div class="seq-cell empty"></div>
+        <div class="seq-cell warn-c"><div class="t">Presents X (revoked)</div><div class="d">Its request was already in flight</div></div>
+        <div class="seq-cell warn-c" data-snip="UserRefreshTokenExtension.cs:5"><div class="t">Within 15s? → Z issued</div><div class="d">Grace period</div></div>
+
+        <div class="seq-t">t4</div>
+        <div class="seq-cell empty"></div>
+        <div class="seq-cell ok"><div class="t">✓ Receives Z</div><div class="d">Tolerated — clean chain</div></div>
+        <div class="seq-cell empty"></div>
+    </div>
+
+    <div class="warn">
+        <b>Without the grace period</b>, t3 is read as a stolen token being replayed: every token of the user is revoked and they are signed out of <i>all</i> their devices — for the sole crime of having two tabs open.
+    </div>
+
+    <div class="note">
+        Accepted trade-off: for a few seconds after a rotation, reuse detection is deliberately relaxed so that legitimate concurrency isn't punished. The window is kept as short as possible, and a stolen cookie compromises the account through the normal path anyway.
+    </div>
+</section>
+
+<!-- ============ VIEW 4 ============ -->
+<section class="panel" id="p4" role="tabpanel" aria-labelledby="tab-p4" tabindex="0" hidden>
+    <h2>Authentication journeys</h2>
+    <p class="sub" style="margin-bottom:20px">The four paths through which a session can be born or reborn. All of them converge on <code class="k">IssueTokensAsync</code>, the only place that ever issues a token pair.</p>
+
+    <div class="journeys">
+        <div class="journey">
+            <h4>Registration</h4>
+            <div class="goal">Create an account — without opening a session</div>
+            <ol class="steps">
+                <li data-snip="AuthService.cs:46">User created<div class="d">Password rules enforced by Identity</div></li>
+                <li data-snip="AuthService.cs:210">Confirmation email sent<div class="d">Link valid 24h, built from <code class="k">AppUrl</code></div></li>
+                <li>No token issued<div class="d">Signing in stays impossible until the email is confirmed</div></li>
+            </ol>
+        </div>
+
+        <div class="journey">
+            <h4>Email confirmation</h4>
+            <div class="goal">Activate the account from the emailed link</div>
+            <ol class="steps">
+                <li>Link opened<div class="d">Public route <code class="k">/confirm-email</code> — email and token in the query</div></li>
+                <li data-snip="AuthService.cs:219">Token validated<div class="d">Identity token with its own lifetime</div></li>
+                <li>Redirect to sign-in<div class="d">Still no session open at this point</div></li>
+            </ol>
+        </div>
+
+        <div class="journey">
+            <h4>Sign-in</h4>
+            <div class="goal">The only path that opens a session</div>
+            <ol class="steps">
+                <li data-snip="AuthService.cs:77">Password checked<div class="d">Locked out for 1h after 3 failures</div></li>
+                <li data-snip="AuthService.cs:84">Confirmed email checked<div class="d">Silent refusal otherwise</div></li>
+                <li data-snip="AuthService.cs:233">Token pair issued<div class="d">JWT in the response, refresh token in the cookie</div></li>
+                <li data-snip="useAuthStore.ts:25">JWT decoded client-side<div class="d">The displayed profile comes from the claims, not an extra call</div></li>
+            </ol>
+        </div>
+
+        <div class="journey">
+            <h4>Forgotten password</h4>
+            <div class="goal">Regain control of the account</div>
+            <ol class="steps">
+                <li>Reset requested<div class="d">Same response whether the account exists or not</div></li>
+                <li data-snip="AuthService.cs:186">Link sent<div class="d">Valid 1h</div></li>
+                <li data-snip="AuthService.cs:182">Password reset<div class="d"><b>Every</b> existing session is revoked</div></li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="note">
+        An unconfirmed email and a missing account both return <code class="k">null</code>, so the client sees the same error. This is deliberate: telling them apart would let anyone enumerate existing accounts. Same reasoning behind the silent forgotten-password send.
+    </div>
+</section>
+
+</div>
+
+<!-- ============ INSPECTOR ============ -->
+<aside class="inspector">
+    <h3>Source</h3>
+    <div class="inspector-box">
+        <div class="inspector-head">
+            <span id="insp-file">—</span>
+            <a id="insp-link" href="#" hidden>Open in VS Code ↗</a>
+        </div>
+        <pre id="insp-code"><span class="hint">Hover a node in the diagram to show the matching code.</span></pre>
+    </div>
+</aside>
+
+</div>
+
+</div>
+
+<script>
+// Repository root, derived from this page's location (<repo>/docs/auth-flow.html).
+// No absolute path is stored here: the page works for any clone, on any machine,
+// with no configuration.
+const REPO = (() => {
+    // Drop the last two segments: the file and its folder.
+    let p = decodeURIComponent(location.pathname).replace(/\/[^/]+\/[^/]+$/, '');
+    // Windows: /c:/path -> c:/path
+    if (/^\/[a-zA-Z]:/.test(p)) p = p.slice(1);
+    // Over http(s) the disk path is unknown, so editor links are disabled.
+    return location.protocol === 'file:' && /^([a-zA-Z]:|\/)/.test(p) ? p : null;
+})();
+
+const SNIPPETS = {
+    'main.ts:65': { file: 'budget.client/src/main.ts', line: 65, code:
+`const router = createRouter({
+    history: createWebHistory(),
+    routes: routerConfig
+});
+router.beforeEach(routeAuthGuard);` },
+
+    'router.ts:76': { file: 'budget.client/src/router.ts', line: 76, code:
+`// If route is an auth route and user is already logged in
+if (isRouteAuth && authStore.accessToken) {
+    return { path: routes.home };
+}` },
+
+    'router.ts:81': { file: 'budget.client/src/router.ts', line: 81, code:
+`// If route is public -> allow through
+if (isPublic) {
+    return true;
+}` },
+
+    'router.ts:86': { file: 'budget.client/src/router.ts', line: 86, code:
+`// If token is already stored -> allow through
+if (authStore.accessToken) {
+    return true;
+}`},
+
+    'router.ts:91': { file: 'budget.client/src/router.ts', line: 91, code:
+`// If silent refresh from HttpOnly cookie succeeds
+const refreshed = await authStore.refresh();
+if (refreshed) {
+    return true;
+}` },
+
+    'router.ts:97': { file: 'budget.client/src/router.ts', line: 97, code:
+`// No valid session -> redirect to login,
+// preserve intended destination
+return { path: routes.auth.login,
+         query: { redirect: route.fullPath }};` },
+
+    'ApiCall.ts:41': { file: 'budget.client/src/utils/ApiCall.ts', line: 41, code:
+`const accessToken = getAccessToken();
+
+const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Authorization': accessToken
+        ? \`Bearer \${accessToken}\` : ''
+};` },
+
+    'ApiCall.ts:60': { file: 'budget.client/src/utils/ApiCall.ts', line: 60, code:
+`// If unauthorized, refresh the access token
+// and retry the API call
+if (response.status === HTTP_UNAUTHORIZED
+    && canRetryOnUnauthorized) {
+    const isRefreshed = await refreshAccessToken();` },
+
+    'ApiCall.ts:65': { file: 'budget.client/src/utils/ApiCall.ts', line: 65, code:
+`// Retry the API call with the new access token
+return apiCall(urlPath, options,
+               { canRetryOnUnauthorized: false });` },
+
+    'ApiCall.ts:69': { file: 'budget.client/src/utils/ApiCall.ts', line: 69, code:
+`// If the access token cannot be refreshed,
+// need to login again
+await handleSessionExpired();
+return { isSuccess: false, timestamp: Date.now(),
+         error: { type: 'unknown', status: 401 }};` },
+
+    'ApiAuth.ts:23': { file: 'budget.client/src/utils/ApiAuth.ts', line: 23, code:
+`// Concurrent api calls must share a single refresh,
+// or every call but the first would find their
+// refresh token already revoked.
+if (!_refreshPromise) {
+    _refreshPromise = _authStore.refresh().finally(() => {
+        _refreshPromise = null;
+    });
+}
+return _refreshPromise;` },
+
+    'useAuthStore.ts:22': { file: 'budget.client/src/stores/useAuthStore.ts', line: 22, code:
+`const accessToken = ref<string | null>(null);
+const user = ref<IUser | null>(null);` },
+
+    'useAuthStore.ts:25': { file: 'budget.client/src/stores/useAuthStore.ts', line: 25, code:
+`const save = (response: IAccessTokenResponse): void => {
+    accessToken.value = response.token;
+
+    const payload = jwtDecode<JwtPayload>(response.token);
+
+    user.value = {
+        id: payload.sub,
+        email: payload.email,
+        ...
+    };
+};` },
+
+    'AuthService.cs:96': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 96, code:
+`var refreshTokenValue = GetRefreshTokenCookie(httpContext);
+
+if (!string.IsNullOrEmpty(refreshTokenValue))
+{
+    var refreshTokenHash = HashRefreshToken(refreshTokenValue);
+
+    refreshToken = await _context.UserRefreshTokens
+        .Include(r => r.User)
+        .Where(r => r.TokenHash == refreshTokenHash)
+        .FirstOrDefaultAsync();
+}` },
+
+    'AuthService.cs:108': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 108, code:
+`if (refreshToken == null || refreshToken.User == null)
+{
+    return null;
+}` },
+
+    'AuthService.cs:113': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 113, code:
+`if (refreshToken.IsRevoked)
+{
+    // Concurrent refreshes can present the same token
+    // (ex: multiple tabs reloading at the same time).
+    if (refreshToken.IsWithinReuseGracePeriod(
+            _authConfiguration.RefreshToken.ReuseGraceInSeconds))
+    {
+        return await IssueTokensAsync(httpContext, refreshToken.User);
+    }
+
+    await RevokeAllRefreshTokensAsync(refreshToken.UserId);
+    return null;
+}` },
+
+    'AuthService.cs:123': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 123, code:
+`// Token was already revoked, meaning this is most
+// likely a stolen copy, so we revoke all active
+// tokens for this user to prevent further misuse.
+await RevokeAllRefreshTokensAsync(refreshToken.UserId);
+return null;` },
+
+    'AuthService.cs:127': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 127, code:
+`if (refreshToken.ExpiresAt < DateTimeOffset.UtcNow)
+{
+    return null;
+}` },
+
+    'AuthService.cs:132': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 132, code:
+`await RevokeRefreshTokenAsync(httpContext, refreshToken);
+
+return await IssueTokensAsync(httpContext, refreshToken.User);` },
+
+    'UserRefreshTokenExtension.cs:5': { file: 'Budget.Server/Data/Users/UserRefreshTokenExtension.cs', line: 5, code:
+`public static bool IsWithinReuseGracePeriod(
+    this UserRefreshToken refreshToken, int reuseGraceInSeconds)
+{
+    if (!refreshToken.IsRevoked) return false;
+    if (refreshToken.RevokedAt == null) return false;
+    if (refreshToken.ExpiresAt < DateTimeOffset.UtcNow) return false;
+
+    var graceEndsAt = refreshToken.RevokedAt.Value
+        .AddSeconds(reuseGraceInSeconds);
+
+    return graceEndsAt >= DateTimeOffset.UtcNow;
+}` },
+
+    'AuthService.cs:46': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 46, code:
+`var result = await _userManager.CreateAsync(user, request.Password);
+if (!result.Succeeded)
+{
+    return false;
+}
+
+await SendEmailEmailConfirmationAsync(user);` },
+
+    'AuthService.cs:77': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 77, code:
+`// Respects lockout (3 failed attempts -> 1-hour
+// lockout, configured in IdentityOptions)
+var result = await _signInManager.CheckPasswordSignInAsync(
+    user, request.Password, lockoutOnFailure: true);` },
+
+    'AuthService.cs:84': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 84, code:
+`if (!user.EmailConfirmed)
+{
+    return null;
+}
+
+return await IssueTokensAsync(httpContext, user);` },
+
+    'AuthService.cs:182': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 182, code:
+`await RevokeAllRefreshTokensAsync(user.Id);
+return true;` },
+
+    'AuthService.cs:186': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 186, code:
+`var token = await _userManager
+    .GeneratePasswordResetTokenAsync(user);
+var resetUrl = $"{_appConfiguration.Url}/reset-password" +
+    $"?email={...}&token={...}";` },
+
+    'AuthService.cs:210': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 210, code:
+`var token = await _userManager
+    .GenerateEmailConfirmationTokenAsync(user);
+var confirmUrl = $"{_appConfiguration.Url}/confirm-email" +
+    $"?email={...}&token={...}";` },
+
+    'AuthService.cs:219': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 219, code:
+`var result = await _userManager.ConfirmEmailAsync(
+    user, request.Token);
+return result.Succeeded;` },
+
+    'AuthService.cs:233': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 233, code:
+`private async Task<AccessTokenResponse> IssueTokensAsync(
+    HttpContext httpContext, ApplicationUser user)
+{
+    await IssueRefreshTokenAsync(httpContext, user);
+    var accessToken = IssueAccessToken(user);
+    ...
+}` },
+
+    'AuthService.cs:381': { file: 'Budget.Server/Core/Auth/AuthService.cs', line: 381, code:
+`httpContext.Response.Cookies.Append(
+    _authConfiguration.RefreshToken.CookieKey, value,
+    new CookieOptions
+    {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.Strict,
+        Path = RefreshTokenCookiePath,
+        Expires = expiresAt,
+    });` }
+};
+
+const vscodeUrl = (file, line) => REPO ? `vscode://file/${REPO}/${file}:${line}:1` : null;
+
+const UNAVAILABLE = 'Open this file directly from disk to enable the editor links.';
+
+// file:line badges
+document.querySelectorAll('.ref[data-file]').forEach(a => {
+    const url = vscodeUrl(a.dataset.file, a.dataset.line);
+    const ref = `${a.dataset.file}:${a.dataset.line}`;
+    if (url) {
+        a.href = url;
+        a.title = ref;
+    } else {
+        a.removeAttribute('href');
+        a.title = `${ref}\n${UNAVAILABLE}`;
+    }
+});
+
+// Inspector
+const inspFile = document.getElementById('insp-file');
+const inspCode = document.getElementById('insp-code');
+const inspLink = document.getElementById('insp-link');
+
+const showSnippet = key => {
+    const s = SNIPPETS[key];
+    if (!s) return;
+    inspFile.textContent = `${s.file.split('/').pop()}:${s.line}`;
+    inspFile.title = s.file;
+    inspCode.textContent = s.code;
+    const url = vscodeUrl(s.file, s.line);
+    if (url) {
+        inspLink.href = url;
+    }
+    inspLink.hidden = !url;
+};
+
+document.querySelectorAll('[data-snip]').forEach(el => {
+    if (!el.hasAttribute('tabindex')) el.tabIndex = 0;
+    const show = () => showSnippet(el.dataset.snip);
+    el.addEventListener('mouseenter', show);
+    el.addEventListener('focus', show);
+    el.addEventListener('click', e => {
+        if (e.target.closest('.ref')) return;
+        const s = SNIPPETS[el.dataset.snip];
+        const url = s && vscodeUrl(s.file, s.line);
+        if (url) window.location.href = url;
+    });
+});
+
+// Tabs
+const tabs = [...document.querySelectorAll('.tab')];
+const selectTab = tab => {
+    tabs.forEach(t => {
+        const on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.dataset.panel).hidden = !on;
+    });
+};
+tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => selectTab(tab));
+    tab.addEventListener('keydown', e => {
+        const dir = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!dir) return;
+        e.preventDefault();
+        const next = tabs[(i + dir + tabs.length) % tabs.length];
+        selectTab(next);
+        next.focus();
+    });
+});
+</script>
+</body>
+</html>
