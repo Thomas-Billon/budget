@@ -11,6 +11,7 @@ interface ITransactionDetailsResponse {
     date: string;
     paymentMethod: PaymentMethod;
     comment: string;
+    accountId: number;
 
     categories: ITransactionDetailsCategoryItemResponse[];
 }

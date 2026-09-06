@@ -1,3 +1,6 @@
+import AccountCreateView from '@/features/accounts/views/CreateView.vue';
+import AccountListView from '@/features/accounts/views/ListView.vue';
+import AccountUpdateView from '@/features/accounts/views/UpdateView.vue';
 import BalanceReportView from '@/features/balances/views/ReportView.vue';
 import CategoryCreateView from '@/features/categories/views/CreateView.vue';
 import CategoryListView from '@/features/categories/views/ListView.vue';
@@ -44,6 +47,11 @@ const routes = {
         list: '/category/list',
         create: '/category/create',
         update: (id?: number) => `/category/update${getIdParam(id)}`
+    },
+    account: {
+        list: '/account/list',
+        create: '/account/create',
+        update: (id?: number) => `/account/update${getIdParam(id)}`
     }
 };
 
@@ -62,6 +70,9 @@ const routerConfig = [
     { path: routes.category.list, component: CategoryListView, meta: { back: routes.home, title: 'Categories', subtitle: 'Organize your transactions into meaningful groups.' }},
     { path: routes.category.create, component: CategoryCreateView, meta: { back: routes.category.list }},
     { path: `${routes.category.update()}/:id`, component: CategoryUpdateView, meta: { back: routes.category.list }},
+    { path: routes.account.list, component: AccountListView, meta: { back: routes.home, title: 'Accounts', subtitle: 'Manage the accounts your transactions belong to.' }},
+    { path: routes.account.create, component: AccountCreateView, meta: { back: routes.account.list }},
+    { path: `${routes.account.update()}/:id`, component: AccountUpdateView, meta: { back: routes.account.list }},
     { path: '/:pathMatch(.*)*', redirect: routes.home }
 ];
 

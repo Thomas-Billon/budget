@@ -54,6 +54,7 @@ namespace Budget.Server.Core.Transactions
                 Date = request.Date,
                 PaymentMethod = request.PaymentMethod,
                 Comment = request.Comment,
+                AccountId = request.AccountId,
                 UserId = userId,
             };
 
@@ -80,6 +81,7 @@ namespace Budget.Server.Core.Transactions
             entity.Date = request.Date;
             entity.PaymentMethod = request.PaymentMethod;
             entity.Comment = request.Comment;
+            entity.AccountId = request.AccountId;
 
             // Categories
             await AddCategoriesToTransaction(entity, request.CategoryIds);
@@ -103,6 +105,7 @@ namespace Budget.Server.Core.Transactions
             if (request.Date?.IsSet == true) entity.Date = request.Date.Value;
             if (request.PaymentMethod?.IsSet == true) entity.PaymentMethod = request.PaymentMethod.Value;
             if (request.Comment?.IsSet == true) entity.Comment = request.Comment.Value ?? string.Empty;
+            if (request.AccountId?.IsSet == true) entity.AccountId = request.AccountId.Value;
 
             // Categories
             if (request.CategoryIds?.IsSet == true)

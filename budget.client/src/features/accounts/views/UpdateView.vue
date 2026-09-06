@@ -3,9 +3,9 @@
     import { ref, watch } from 'vue';
     import { useRouter } from 'vue-router';
     import { routes } from '@/router.ts';
-    import { type ITransactionDetailsResponse } from '@/features/transactions/models/ITransactionDetailsResponse';
-    import { type ITransactionRequest, getDefaultTransactionRequest } from '@/features/transactions/models/ITransactionRequest';
-    import TransactionForm from '@/features/transactions/components/TransactionForm.vue';
+    import { type IAccountDetailsResponse } from '@/features/accounts/models/IAccountDetailsResponse';
+    import { type IAccountRequest, getDefaultAccountRequest } from '@/features/accounts/models/IAccountRequest';
+    import AccountForm from '@/features/accounts/components/AccountForm.vue';
     import useGetEntity from '@/composables/useGetEntity';
     import useUpdateEntity from '@/composables/useUpdateEntity';
     import useDeleteEntity from '@/composables/useDeleteEntity';
@@ -15,7 +15,7 @@
     const router = useRouter();
 
     const isLoading = ref<boolean>(true);
-    const transaction = ref(getDefaultTransactionRequest());
+    const account = ref(getDefaultAccountRequest());
 
     useMountedOrRouteParamUpdate((params) => {
         const id = getIdFromRoute(params?.id);
@@ -30,32 +30,27 @@
     };
 
     const onFullUpdateSuccess = () => {
-        router.push({ path: routes.transaction.history });
+        router.push({ path: routes.account.list });
     };
 
     const onDeleteSuccess = () => {
-        router.push({ path: routes.transaction.history });
+        router.push({ path: routes.account.list });
     };
 
-    const endpoint = 'transaction';
+    const endpoint = 'account';
 
-    const { entity, getEntity } = useGetEntity<ITransactionDetailsResponse>({ endpoint, onGetError });
-    const { fullUpdateEntity, fullUpdateResult, partialUpdateEntity, partialUpdateResult } = useUpdateEntity<ITransactionRequest>({ endpoint, onFullUpdateSuccess });
+    const { entity, getEntity } = useGetEntity<IAccountDetailsResponse>({ endpoint, onGetError });
+    const { fullUpdateEntity, fullUpdateResult, partialUpdateEntity, partialUpdateResult } = useUpdateEntity<IAccountRequest>({ endpoint, onFullUpdateSuccess });
     const { deleteEntity, deleteResult } = useDeleteEntity({ endpoint, onDeleteSuccess });
 
     // Convert entity from db to request object
     watch(entity, (result) => {
         if (result) {
-            transaction.value = {
+            account.value = {
                 id: result.id,
-                type: result.type,
-                amount: result.amount,
-                reason: result.reason,
-                date: result.date,
-                paymentMethod: result.paymentMethod,
-                comment: result.comment,
-                accountId: result.accountId,
-                categoryIds: result.categories.map(c => c.id)
+                name: result.name,
+                bank: result.bank,
+                currency: result.currency
             };
             isLoading.value = false;
         }
@@ -64,8 +59,8 @@
 </script>
 
 <template>
-    <TransactionForm
-        v-model="transaction"
+    <AccountForm
+        v-model="account"
         :is-new="false"
         :is-loading="isLoading"
         :is-auto-save="false"

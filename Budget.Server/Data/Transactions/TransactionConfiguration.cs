@@ -18,7 +18,7 @@ namespace Budget.Server.Data.Transactions
                         .HasOne(tc => tc.Category)
                         .WithMany()
                         .HasForeignKey(tc => tc.CategoryId)
-                        .OnDelete(DeleteBehavior.ClientNoAction), // INFO: Prevents double cascade cycle from deleting User
+                        .OnDelete(DeleteBehavior.ClientNoAction), // INFO: Prevents double cascade cycle when deleting User
                     left => left
                         .HasOne(tc => tc.Transaction)
                         .WithMany()
@@ -30,9 +30,9 @@ namespace Budget.Server.Data.Transactions
                     });
 
             entity
-                .HasOne(c => c.User)
+                .HasOne(t => t.User)
                 .WithMany()
-                .HasForeignKey(c => c.UserId)
+                .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

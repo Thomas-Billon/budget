@@ -5,6 +5,7 @@
     import { onMounted, ref, watch } from 'vue';
     import { TransactionType } from '@/enums/TransactionType.ts';
     import { PaymentMethod } from '@/enums/PaymentMethod.ts';
+    import { getEnumValues } from '@/utils/Enum';
     import ButtonSwitch from '@/components/button-switch/ButtonSwitch.vue';
     import CategoryPicker from '@/features/categories/components/CategoryPicker.vue';
     import { formatAmount, parseAmount } from '@/features/transactions/TransactionService.ts';
@@ -12,6 +13,7 @@
     import { type IButtonSwitchOption } from '@/components/button-switch/ButtonSwitch';
     import { apiCall } from '@/utils/ApiCall';
     import { type ICategoryOptionsItemResponse, type ICategoryOptionsResponse } from '@/features/categories/models/ICategoryOptionsResponse';
+    import { type IAccountOptionsItemResponse, type IAccountOptionsResponse } from '@/features/accounts/models/IAccountOptionsResponse';
     import FormBase from '@/components/form-base/FormBase.vue';
     import { type FormProps, type FormEmits } from '@/components/form-base/FormBase';
     import WidgetCard from '@/components/widget-card/WidgetCard.vue';
@@ -30,6 +32,9 @@
     const amountDisplayValue = ref<string>('');
 
     const categoryOptions = ref<ICategoryOptionsItemResponse[]>([]);
+    const accountOptions = ref<IAccountOptionsItemResponse[]>([]);
+
+    const paymentMethodOptions = getEnumValues(PaymentMethod, false);
 
     // Recurring toggle — UI only, not part of ITransactionRequest, not sent to the API yet.
     const isRecurring = ref<boolean>(false);
@@ -40,6 +45,7 @@
     onMounted(() => {
         updateAmountDisplayValue();
         getCategoryOptions();
+        getAccountOptions();
     });
 
     // #endregion Init
@@ -57,6 +63,20 @@
     };
 
     // #endregion Category options
+
+    // #region Account options
+
+    const getAccountOptions = (): void => {
+        apiCall<undefined, IAccountOptionsResponse>('account/options', { method: 'GET' })
+            .then(response => {
+                if (response.isSuccess) {
+                    accountOptions.value = response.data.items;
+                }
+                // TODO: Handle error in else case
+            });
+    };
+
+    // #endregion Account options
 
     // #region Amount
 
@@ -101,7 +121,8 @@
         return model.value.type !== TransactionType.None
             && model.value.amount > 0
             && model.value.reason.trim().length > 0
-            && model.value.date.trim().length > 0;
+            && model.value.date.trim().length > 0
+            && model.value.accountId > 0;
     };
 
     // #endregion Form validation
@@ -169,12 +190,17 @@
                                     <label class="form-label" for="payment-method">Payment Method</label>
                                     <select id="payment-method" v-model="model.paymentMethod" name="PaymentMethod" class="form-select" @change="onChange('paymentMethod', model.paymentMethod);">
                                         <option :value="PaymentMethod.None" disabled selected>Select Payment Method</option>
-                                        <option :value="PaymentMethod.Cash">{{ PaymentMethod[PaymentMethod.Cash] }}</option>
-                                        <option :value="PaymentMethod.CreditCard">{{ PaymentMethod[PaymentMethod.CreditCard] }}</option>
-                                        <option :value="PaymentMethod.DebitCard">{{ PaymentMethod[PaymentMethod.DebitCard] }}</option>
-                                        <option :value="PaymentMethod.BankTransfer">{{ PaymentMethod[PaymentMethod.BankTransfer] }}</option>
-                                        <option :value="PaymentMethod.Cryptocurrency">{{ PaymentMethod[PaymentMethod.Cryptocurrency] }}</option>
-                                        <option :value="PaymentMethod.Other">{{ PaymentMethod[PaymentMethod.Other] }}</option>
+                                        <option v-for="paymentMethod in paymentMethodOptions" :key="paymentMethod" :value="paymentMethod">{{ PaymentMethod[paymentMethod] }}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="form-label" for="account">Account</label>
+                                    <select id="account" v-model="model.accountId" name="AccountId" class="form-select" @change="onChange('accountId', model.accountId);">
+                                        <option :value="0" disabled selected>Select Account</option>
+                                        <option v-for="account in accountOptions" :key="account.id" :value="account.id">{{ account.name }}</option>
                                     </select>
                                 </div>
                             </div>

@@ -23,6 +23,8 @@ namespace Budget.Server.Api.Transactions.Models.Requests
         [Required(AllowEmptyStrings = true)]
         public string Comment { get; init; } = string.Empty;
 
+        [Required]
+        public int AccountId { get; init; }
 
         public List<int> CategoryIds { get; init; } = [];
     }

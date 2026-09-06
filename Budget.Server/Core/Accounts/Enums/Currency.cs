@@ -1,7 +1,8 @@
-﻿namespace Budget.Server.Core.Transactions.Enums
+﻿namespace Budget.Server.Core.Accounts.Enums
 {
     public enum Currency
     {
+        None = 0,   // ISO 4217 currency codes
         AED = 784,  // United Arab Emirates dirham
         AFN = 971,  // Afghan afghani
         ALL = 008,  // Albanian lek

@@ -16,6 +16,7 @@
     const navItems = [
         { target: routes.home, label: 'Home', icon: 'house' },
         { target: routes.balance.report, label: 'Balance', icon: 'landmark' },
+        { target: routes.account.list, label: 'Accounts', icon: 'vault' },
         { target: routes.transaction.history, label: 'Transactions', icon: 'receipt' },
         { target: routes.category.list, label: 'Categories', icon: 'tags' }
     ];

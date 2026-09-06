@@ -81,6 +81,7 @@ namespace Budget.Server.Api.Transactions
                 Date = transaction.Base.Date,
                 PaymentMethod = transaction.Base.PaymentMethod,
                 Comment = transaction.Base.Comment,
+                AccountId = transaction.Base.AccountId,
                 Categories = transaction.Categories
                     .Select(x => new TransactionDetailsCategoryItemResponse
                     {

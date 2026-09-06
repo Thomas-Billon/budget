@@ -1,3 +1,4 @@
+using Budget.Server.Data.Accounts;
 using Budget.Server.Data.Categories;
 using Budget.Server.Data.Transactions;
 using Budget.Server.Data.Users;
@@ -12,6 +13,7 @@ namespace Budget.Server.Data
         {
         }
 
+        public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<TransactionCategory> TransactionsCategories { get; set; }
@@ -21,6 +23,7 @@ namespace Budget.Server.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            AccountConfiguration.OnModelCreating(modelBuilder);
             CategoryConfiguration.OnModelCreating(modelBuilder);
             TransactionConfiguration.OnModelCreating(modelBuilder);
             UserRefreshTokenConfiguration.OnModelCreating(modelBuilder);
